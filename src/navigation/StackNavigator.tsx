@@ -1,16 +1,9 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import { RootStackParamList } from "types";
 // Importación de pantallas
 import Login from "@/screens/auth/Login";
 import Home from "@/screens/home/Home";
-/**
- * Definición de los tipos para los parámetros de navegación
- * Esto ayuda a TypeScript a entender qué parámetros espera cada pantalla
- */
-export type RootStackParamList = {
-  Login: undefined;
-  Home: undefined;
-};
 /**
  * Creamos el Stack Navigator con tipado
  */
