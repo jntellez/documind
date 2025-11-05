@@ -3,29 +3,33 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '@/../types';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useColorScheme } from 'nativewind';
+import Card from '@/components/Card';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
 
 type HomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Home'>;
 interface HomeScreenProps extends HomeScreenNavigationProp { }
 
 export default function Home({ navigation }: HomeScreenProps) {
+  const { colorScheme, setColorScheme } = useColorScheme();
+
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4">
       <ScrollView className="flex-1">
-
-        <View className="flex-row items-center bg-white rounded-xl shadow-md p-2 mt-4 mx-4">
-          <TextInput
-            placeholder="Enter a url"
-            className="flex-1 text-base p-2"
-          />
-          <TouchableOpacity className="flex justify-center items-center bg-gray-200 rounded-full w-10 h-10 p-2 ml-2">
-            <FontAwesome6 name="add" size={20} color="black" />
-          </TouchableOpacity>
+        <View className="flex-1">
+          <Input />
+          <Button variant="icon-only" icon={<FontAwesome6 name="add" size={18} color="#666" />} className="w-10 h-10 absolute right-2 top-2 items-center justify-center" />
         </View>
-        <View className="flex-1 items-center justify-center bg-white rounded-xl shadow-md p-8 m-4 mt-6 min-h-[250px]">
+
+        <Card className="mt-6 items-center justify-center py-10">
           <Ionicons name="tablet-portrait" size={64} color="#a5a7ad" />
-          <Text className="text-gray-500 text-lg mt-4">Recent documents is empty</Text>
-        </View>
-
+          <Text className="text-zinc-900 dark:text-zinc-100 text-lg">Recent documents is empty</Text>
+          <Button
+            title="Toggle Theme"
+            onPress={() => setColorScheme(colorScheme === 'dark' ? 'light' : 'dark')}
+          />
+        </Card>
       </ScrollView>
     </View>
   );
