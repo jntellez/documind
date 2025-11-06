@@ -18,8 +18,8 @@ export default function Home({ navigation }: HomeScreenProps) {
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4">
       <ScrollView className="flex-1">
         <View className="flex-1">
-          <Input />
-          <Button variant="icon-only" icon={<FontAwesome6 name="add" size={18} color="#666" />} className="w-10 h-10 absolute right-2 top-2 items-center justify-center" />
+          <Input type="url" placeholder="Enter a url" className="p-5" />
+          <Button variant="icon-only" icon={<FontAwesome6 name="add" size={18} color="#666" />} className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center" />
         </View>
 
         <Card className="mt-6 items-center justify-center py-10">
