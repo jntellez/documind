@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, TouchableOpacity } from 'react-native';
+import { useColorScheme } from 'nativewind';
 
 import Home from '@/screens/home/Home';
 import Documents from "@/screens/documents/Documents"
@@ -11,22 +12,26 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function TabNavigator() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true,
         headerStyle: {
-          backgroundColor: '#FFFFFF',
-          shadowOpacity: 0.1,
+          backgroundColor: isDark ? '#18181b' : '#f4f4f5',
         },
+        headerShadowVisible: false,
+        headerTitleAlign: "left",
         headerTitleStyle: {
           fontSize: 24,
           fontWeight: 'bold',
           color: '#287df4',
         },
         headerRight: () => (
-          <TouchableOpacity className="flex items-center justify-center p-1 rounded-full bg-gray-200 w-10 h-10 mr-6">
-            <Text>J</Text>
+          <TouchableOpacity className="flex items-center justify-center p-1 rounded-full bg-gray-200 dark:bg-gray-700 w-10 h-10 mr-6">
+            <Text className="text-black dark:text-white">J</Text>
           </TouchableOpacity>
         ),
         tabBarIcon: ({ focused, color, size }) => {
@@ -39,9 +44,7 @@ export default function TabNavigator() {
         tabBarActiveTintColor: '#007AFF',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: 'white',
-          borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          backgroundColor: isDark ? '#18181b' : 'white'
         },
         tabBarLabelStyle: {
           fontSize: 12,
