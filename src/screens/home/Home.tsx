@@ -1,12 +1,12 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '@/../types';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useColorScheme } from 'nativewind';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 
 type HomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Home'>;
 interface HomeScreenProps extends HomeScreenNavigationProp { }
@@ -15,7 +15,7 @@ export default function Home({ navigation }: HomeScreenProps) {
   const { colorScheme, setColorScheme } = useColorScheme();
 
   return (
-    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4">
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4 pt-6">
       <ScrollView className="flex-1">
         <View className="flex-1">
           <Input type="url" placeholder="Enter a url" className="p-5" />
