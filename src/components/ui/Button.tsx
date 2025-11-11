@@ -1,7 +1,6 @@
 import { TouchableOpacity, Text, View } from 'react-native';
 import { styled, useColorScheme } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
-import React from 'react';
 
 const StyledBlurView = styled(ExpoBlurView);
 
@@ -11,6 +10,7 @@ type ButtonProps = {
   variant?: 'default' | 'icon' | 'icon-only';
   onPress?: () => void;
   className?: string;
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -19,6 +19,7 @@ export default function Button({
   variant = 'default',
   onPress,
   className,
+  disabled = false,
 }: ButtonProps) {
   const { colorScheme } = useColorScheme();
 
@@ -29,8 +30,10 @@ export default function Button({
   return (
     <TouchableOpacity
       onPress={onPress}
+      disabled={disabled}
       className={`
         rounded-full border border-white dark:border-white/20 shadow-md overflow-hidden
+        ${disabled ? 'opacity-50' : 'opacity-100'}
         ${className}
       `}
     >
