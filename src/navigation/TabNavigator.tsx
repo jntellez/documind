@@ -1,8 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native';
 import { useColorScheme } from 'nativewind';
-import { LinearGradient } from 'expo-linear-gradient';
-import MaskedView from '@react-native-masked-view/masked-view';
 
 import Home from '@/screens/home/Home';
 import Documents from "@/screens/documents/Documents"
@@ -11,28 +9,9 @@ import { RootTabParamList } from '@/../types';
 import Octicons from '@expo/vector-icons/Octicons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Avatar from '@/components/ui/Avatar';
+import { GradientTitle } from '@/components/ui/Typography';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
-
-const GradientTitle = ({ title }: { title: string }) => (
-  <MaskedView
-    maskElement={
-      <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-        {title}
-      </Text>
-    }
-  >
-    <LinearGradient
-      colors={['#0273a4', '#30b0ff']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-    >
-      <Text style={{ fontSize: 20, fontWeight: 'bold', opacity: 0 }}>
-        {title}
-      </Text>
-    </LinearGradient>
-  </MaskedView>
-);
 
 export default function TabNavigator() {
   const { colorScheme } = useColorScheme();
