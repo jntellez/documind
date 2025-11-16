@@ -1,14 +1,19 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
-import TabNavigator from '@/navigation/TabNavigator';
+import StackNavigator from '@/navigation/StackNavigator';
 import "./global.css";
+import Toast from 'react-native-toast-message';
+import toastConfig from '@/components/ui/Toast';
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <TabNavigator />
-    </NavigationContainer>
+    <>
+      <NavigationContainer>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <StackNavigator />
+      </NavigationContainer>
+      <Toast config={toastConfig} />
+    </>
   );
 }
 

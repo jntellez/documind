@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
+  Document: { url: string; data?: any };
 };
 
 export type RootTabParamList = {
