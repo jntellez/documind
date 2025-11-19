@@ -38,7 +38,7 @@ export default function Button({
       `}
     >
       <StyledBlurView
-        intensity={100}
+        intensity={20}
         tint={colorScheme === 'dark' ? 'dark' : 'light'}
         className="absolute inset-0"
       />
