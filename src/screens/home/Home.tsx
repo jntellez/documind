@@ -10,6 +10,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { useState } from 'react';
 import Toast from 'react-native-toast-message';
+import { processUrl } from '@/services/documentService';
 
 const documentData = {
   "title": "Gramática básica: Los artículos",
@@ -22,35 +23,47 @@ interface HomeScreenProps extends HomeScreenNavigationProp { }
 
 export default function Home({ navigation }: HomeScreenProps) {
   const { colorScheme, setColorScheme } = useColorScheme();
-  const [inputValue, setInputValue] = useState<string>("https://vercel.com");
+  const [inputValue, setInputValue] = useState<string>("");
   const [isValidated, setIsValidated] = useState<boolean>(false);
-  function handleSubmit() {
-    if (isValidated) {
-      try {
-        // llamada a la API para procesar la URL
-        const { status, data } = { status: 200, data: documentData };
-        if (status === 200) {
-          Toast.show({
-            type: 'success',
-            text1: 'Success',
-            text2: "Url submitted successfully",
-            position: 'bottom',
-            visibilityTime: 3000,
-            bottomOffset: 40
-          });
-          navigation.navigate("Document", { data });
-        }
-      } catch (error) {
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: 'Failed to submit URL',
-          position: 'bottom',
-          visibilityTime: 3000,
-          bottomOffset: 40
-        });
-        console.error("Error submitting URL:", error);
-      }
+
+  // 2. Nuevo estado para cargar
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  async function handleSubmit() {
+    if (!isValidated) return;
+
+    // 3. Iniciamos carga
+    setIsLoading(true);
+
+    try {
+      // 4. Llamamos al servicio real (sin lógica sucia aquí)
+      const data = await processUrl(inputValue);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: "Document processed successfully",
+        position: 'bottom',
+        visibilityTime: 2000,
+        bottomOffset: 40
+      });
+
+      // 5. Navegamos con los datos reales
+      navigation.navigate("Document", { data });
+
+    } catch (error: any) {
+      // Manejo de errores real
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to process URL',
+        position: 'bottom',
+        visibilityTime: 4000,
+        bottomOffset: 40
+      });
+    } finally {
+      // 6. Terminamos carga (pase lo que pase)
+      setIsLoading(false);
     }
   }
 
