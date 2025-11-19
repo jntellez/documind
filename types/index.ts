@@ -1,11 +1,19 @@
 export type RootStackParamList = {
   Login: undefined;
-  Home: undefined;
-  Document: { url: string; data?: any };
+  Main: undefined;
+  Document: DocumentParamList;
 };
 
 export type RootTabParamList = {
   Home: undefined;
   Documents: undefined;
   Settings: undefined;
+};
+
+export type DocumentParamList = {
+  data?: {
+    title: string;
+    content: string;
+    originalUrl: string;
+  };
 };
