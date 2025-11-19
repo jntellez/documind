@@ -10,6 +10,7 @@ interface InputProps extends TextInputProps {
   type?: 'text' | 'url' | 'email';
   onValidationChange?: (isValid: boolean) => void;
   showError?: boolean;
+  defaultValue?: string;
 }
 
 export default function Input({
@@ -20,11 +21,12 @@ export default function Input({
   showError = true,
   onChangeText,
   onBlur,
+  defaultValue,
   ...props
 }: InputProps) {
   const { colorScheme } = useColorScheme();
   const [error, setError] = useState<string>('');
-  const [value, setValue] = useState<string>('');
+  const [value, setValue] = useState<string>(defaultValue || "");
   const [touched, setTouched] = useState<boolean>(false);
 
   function validateUrl(url: string): boolean {
@@ -83,6 +85,7 @@ export default function Input({
           className={`w-full p-4 text-black dark:text-white bg-transparent ${className}`}
           placeholder={placeholder}
           placeholderTextColor="#888888"
+          value={value}
           cursorColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
           keyboardType={type === 'url' ? 'url' : 'default'}
           autoCapitalize={type === 'url' ? 'none' : 'sentences'}
