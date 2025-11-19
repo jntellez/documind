@@ -28,7 +28,7 @@ export default function TabNavigator() {
         headerTitleAlign: "left",
         headerRight: () => <Avatar
           fallback="J"
-          src="https://avatars.githubusercontents.com/u/101893361?v=4"
+          src="https://avatars.githubusercontent.com/u/101893361?v=4"
           alt="jntellez"
           classname="mr-4"
         />,
