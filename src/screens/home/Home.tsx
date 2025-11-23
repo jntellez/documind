@@ -55,7 +55,10 @@ export default function Home({ navigation }: HomeScreenProps) {
 
   return (
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4 pt-6">
-      <ScrollView className="flex-1">
+      <ScrollView
+        className="flex-1"
+        keyboardShouldPersistTaps="handled"
+      >
         <View className="flex-1">
           <Input
             type="url"
