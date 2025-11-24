@@ -11,6 +11,7 @@ import Input from '@/components/ui/Input';
 import { useState } from 'react';
 import Toast from 'react-native-toast-message';
 import { processUrl } from '@/services/documentService';
+import { pickDocument } from '@/services/documentService';
 
 type HomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Main'>;
 interface HomeScreenProps extends HomeScreenNavigationProp { }
@@ -20,6 +21,7 @@ export default function Home({ navigation }: HomeScreenProps) {
   const [inputValue, setInputValue] = useState<string>("");
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<string>("");
 
   async function handleSubmit() {
     if (!isValidated) return;
@@ -28,15 +30,6 @@ export default function Home({ navigation }: HomeScreenProps) {
 
     try {
       const data = await processUrl(inputValue);
-
-      Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: "Document processed successfully",
-        position: 'bottom',
-        visibilityTime: 2000,
-        bottomOffset: 40
-      });
 
       navigation.navigate("Document", { data });
     } catch (error: any) {
@@ -53,6 +46,23 @@ export default function Home({ navigation }: HomeScreenProps) {
     }
   }
 
+  async function handleFilePicker() {
+    setIsLoading(true);
+
+    const file = await pickDocument();
+
+    if (file) {
+      setSelectedFile(file.name);
+      setInputValue("");
+
+      // Procesar el archivo local
+      // const data = await processLocalFile(file);
+      // navigation.navigate("Document", { data });
+    }
+
+    setIsLoading(false);
+  }
+
   return (
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4 pt-6">
       <ScrollView
@@ -62,10 +72,15 @@ export default function Home({ navigation }: HomeScreenProps) {
         <View className="flex-1">
           <Input
             type="url"
-            placeholder="Enter a url"
+            placeholder={selectedFile || "Enter a url"}
             className="p-5"
             defaultValue={inputValue}
-            onChangeText={(text) => setInputValue(text)}
+            onChangeText={(text) => {
+              setInputValue(text);
+              if (text.length > 0) {
+                setSelectedFile("");
+              }
+            }}
             onValidationChange={(isValidated) => setIsValidated(isValidated)}
           />
           {
@@ -78,7 +93,13 @@ export default function Home({ navigation }: HomeScreenProps) {
                 icon={<Feather name="search" size={18} color="#666" />}
                 className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center"
               />
-              : <Button variant="icon-only" icon={<FontAwesome6 name="add" size={18} color="#666" />} className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center" />
+              : <Button
+                variant="icon-only"
+                loading={isLoading}
+                onPress={handleFilePicker}
+                icon={<FontAwesome6 name="add" size={18} color="#666" />}
+                className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center"
+              />
           }
         </View>
 
