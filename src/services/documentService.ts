@@ -2,7 +2,7 @@ import { FilePickerResult, ProcessedDocument } from "types/api";
 import * as DocumentPicker from "expo-document-picker";
 import Toast from "react-native-toast-message";
 
-const API_BASE_URL = "http://192.168.1.12:3000";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export async function processUrl(url: string): Promise<ProcessedDocument> {
   try {
