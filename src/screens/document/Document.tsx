@@ -113,10 +113,14 @@ export default function Document({ route }: DocumentScreenProps) {
   };
 
   return (
-    <ScrollView contentContainerStyle={{
-      paddingTop: headerHeight
-    }}
+    <ScrollView
+      contentContainerStyle={{
+        paddingTop: headerHeight
+      }}
       className="flex-1 bg-zinc-100 dark:bg-zinc-900"
+      minimumZoomScale={1}
+      maximumZoomScale={2}
+      bouncesZoom={true}
     >
       <View className="p-4">
 
@@ -140,15 +144,11 @@ export default function Document({ route }: DocumentScreenProps) {
             renderersProps={{
               table: {
                 animationType: 'none',
-                // 2. INYECTAMOS EL CSS
                 cssRules: tableCss,
-
-                // 3. CONFIGURAMOS EL WEBVIEW PARA NO TENER SCROLL
                 webViewProps: {
-                  scrollEnabled: false, // Desactiva el scroll del dedo
+                  scrollEnabled: false,
                   showsHorizontalScrollIndicator: false,
                   showsVerticalScrollIndicator: false,
-                  // Hacemos el fondo transparente para que coincida con el tema
                   style: { backgroundColor: 'transparent' }
                 }
               }
