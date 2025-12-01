@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Keyboard } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from 'types';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
@@ -10,8 +10,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { useState } from 'react';
 import Toast from 'react-native-toast-message';
-import { processUrl } from '@/services/documentService';
-import { pickDocument } from '@/services/documentService';
+import { processUrl, pickDocument } from '@/services/documentService';
 
 type HomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Main'>;
 interface HomeScreenProps extends HomeScreenNavigationProp { }
@@ -26,6 +25,7 @@ export default function Home({ navigation }: HomeScreenProps) {
   async function handleSubmit() {
     if (!isValidated) return;
 
+    Keyboard.dismiss();
     setIsLoading(true);
 
     try {
