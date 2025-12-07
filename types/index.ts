@@ -1,3 +1,5 @@
+import { Document, ProcessedDocument } from "./api";
+
 export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
@@ -11,9 +13,5 @@ export type RootTabParamList = {
 };
 
 export type DocumentParamList = {
-  data?: {
-    title: string;
-    content: string;
-    originalUrl: string;
-  };
+  data?: ProcessedDocument | Document;
 };
