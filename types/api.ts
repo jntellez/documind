@@ -1,7 +1,17 @@
 export interface ProcessedDocument {
   title: string;
   content: string;
-  originalUrl: string;
+  original_url: string;
+}
+
+export interface Document {
+  id: number;
+  title: string;
+  content: string;
+  original_url: string;
+  word_count: number;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface ApiError {
