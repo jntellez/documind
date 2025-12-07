@@ -107,3 +107,21 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
     return null;
   }
 }
+
+export async function saveDocument(document: ProcessedDocument): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/save-document`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(document),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Error saving document");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
