@@ -27,7 +27,7 @@ export default function StackNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName="Main"
+      initialRouteName="Login"
       screenOptions={{
         headerTransparent: true,
         headerBackground: () => (

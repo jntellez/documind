@@ -55,21 +55,21 @@ export default function TabNavigator() {
         name="Home"
         component={Home}
         options={{
-          headerTitle: () => <GradientTitle title="Documind" />
+          headerTitle: () => <GradientTitle>Documind</GradientTitle>
         }}
       />
       <Tab.Screen
         name="Documents"
         component={Documents}
         options={{
-          headerTitle: () => <GradientTitle title="Documents" />
+          headerTitle: () => <GradientTitle>Documents</GradientTitle>
         }}
       />
       <Tab.Screen
         name="Settings"
         component={Settings}
         options={{
-          headerTitle: () => <GradientTitle title="Settings" />
+          headerTitle: () => <GradientTitle>Settings</GradientTitle>
         }}
       />
     </Tab.Navigator >
