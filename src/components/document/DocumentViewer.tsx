@@ -9,7 +9,13 @@ interface DocumentViewerProps {
   contentWidth: number;
   textColor: string;
   borderColor: string;
-  readTime?: string;
+  wordCount?: number;
+}
+
+function calculateReadTime(wordCount: number): string {
+  const wordsPerMinute = 200;
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
+  return `${minutes} min read`;
 }
 
 export default function DocumentViewer({
@@ -18,7 +24,7 @@ export default function DocumentViewer({
   contentWidth,
   textColor,
   borderColor,
-  readTime = '4-5 minutes'
+  wordCount
 }: DocumentViewerProps) {
   const baseStyle = { color: textColor };
   const tagsStyles = getTagsStyles(textColor, borderColor);
@@ -32,7 +38,7 @@ export default function DocumentViewer({
           {title}
         </Text>
         <Text className="text-zinc-500 dark:text-zinc-400">
-          {readTime}
+          {wordCount ? `${wordCount.toLocaleString()} words • ${calculateReadTime(wordCount)}` : "Quick read"}
         </Text>
       </View>
 
