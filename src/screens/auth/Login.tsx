@@ -1,68 +1,60 @@
-import { View, Text, StatusBar, TouchableOpacity } from 'react-native';
+import { View } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '@/../types';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import { GradientTitle, Paragraph } from '@/components/ui/Typography';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useColorScheme } from 'nativewind';
+import * as WebBrowser from 'expo-web-browser';
+import { useAuthProviders } from '@/hooks/useAuthProviders';
 
-type LoginScreenNavigationProp = StackScreenProps<RootStackParamList, 'Login'>;
-interface LoginScreenProps extends LoginScreenNavigationProp { }
+WebBrowser.maybeCompleteAuthSession();
 
-export default function Login({ navigation }: LoginScreenProps) {
-  const handleLogin = (provider: 'google' | 'github') => {
-    navigation.replace('Home');
-  };
+type Props = StackScreenProps<RootStackParamList, 'Login'>;
+
+export default function Login({ navigation }: Props) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  const auth = useAuthProviders(() => {
+    navigation.replace('Main');
+  });
 
   return (
-    <View className="flex-1 items-center justify-center bg-gray-100">
-      <StatusBar barStyle="dark-content" />
-      <View
-        className={`
-          w-11/12 max-w-sm p-8
-          bg-white/30 
-          border border-white/40
-          rounded-3xl shadow-2xl
-          backdrop-blur-xl 
-        `}
-      >
-        <View className="items-center mb-8">
-          <View className="p-4 bg-white rounded-full shadow-lg">
-            <Text className="text-4xl text-gray-800">📄</Text>
-          </View>
+    <View className="flex-1 justify-center bg-zinc-100 dark:bg-zinc-900 p-4">
+      <Card className="items-center">
+        <View className="w-32 h-32 items-center justify-center rounded-full mb-8 bg-zinc-200 dark:bg-zinc-800">
+          <Ionicons name="tablet-portrait" size={54} color={isDark ? '#ddd' : '#666'} />
         </View>
-        <Text className="text-2xl font-bold text-center text-gray-900 mb-2">
-          Log in to Documind
-        </Text>
-        <Text className="text-base text-gray-700 text-center mb-6">
-          Log in with your preferred provider:
-        </Text>
-        <TouchableOpacity
-          onPress={() => handleLogin('google')}
-          className={`
-            flex-row items-center justify-center 
-            w-full p-3 my-2 space-x-3
-            bg-white border border-gray-300 rounded-lg
-            shadow-sm
-          `}
-        >
-          <Text className="text-xl">G</Text>
-          <Text className="font-semibold text-base text-gray-700">
-            Continue with Google
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleLogin('github')}
-          className={`
-            flex-row items-center justify-center 
-            w-full p-3 my-2 space-x-3
-            bg-gray-800 border border-gray-700 rounded-lg
-            shadow-sm
-          `}
-        >
-          <Text className="text-xl">🐈</Text>
-          <Text className="font-semibold text-base text-white">
-            Continue with GitHub
-          </Text>
-        </TouchableOpacity>
 
-      </View>
+        <GradientTitle className="text-4xl font-medium text-center">
+          Log in to Documind
+        </GradientTitle>
+
+        <Paragraph className="mb-6 text-center">
+          Log in with your preferred provider:
+        </Paragraph>
+
+        <Button
+          variant="icon"
+          icon={<AntDesign name="google" size={20} color={isDark ? '#fff' : '#333'} />}
+          disabled={!auth.google.request || auth.isAnyLoading}
+          loading={auth.google.isLoading}
+          onPress={auth.google.prompt}
+          title="Continue with Google"
+        />
+        <Button
+          variant="icon"
+          icon={<FontAwesome name="github" size={20} color={isDark ? '#fff' : '#333'} />}
+          disabled={!auth.github.request || auth.isAnyLoading}
+          loading={auth.github.isLoading}
+          onPress={auth.github.prompt}
+          title="Continue with GitHub"
+        />
+      </Card>
     </View>
   );
 }
