@@ -54,7 +54,7 @@ export default function Button({
         `}
       >
         {showIcon && (
-          <View className={isIconOnly ? "" : "mr-2"}>
+          <View className={isIconOnly ? "" : "mr-4"}>
             {loading ? (
               <ActivityIndicator size={18} color={iconColor} />
             ) : (

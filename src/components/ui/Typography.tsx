@@ -1,12 +1,15 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { Text } from 'react-native';
+import { styled } from 'nativewind';
 
-export function GradientTitle({ title }: { title: string }) {
+const StyledText = styled(Text);
+
+export function GradientTitle({ children, className }: { children: React.ReactNode, className?: string }) {
   return <MaskedView
     maskElement={
-      <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-        {title}
+      <Text className={`text-2xl font-bold ${className}`}>
+        {children}
       </Text>
     }
   >
@@ -15,9 +18,21 @@ export function GradientTitle({ title }: { title: string }) {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
     >
-      <Text style={{ fontSize: 20, fontWeight: 'bold', opacity: 0 }}>
-        {title}
-      </Text>
+      <StyledText className={`text-2xl font-bold opacity-0 ${className}`}>
+        {children}
+      </StyledText>
     </LinearGradient>
   </MaskedView>
+}
+
+export function Title({ children, className }: { children: React.ReactNode, className?: string }) {
+  return <StyledText className={`text-2xl font-bold text-zinc-900 dark:text-zinc-100 ${className}`}>
+    {children}
+  </StyledText>
+}
+
+export function Paragraph({ children, className }: { children: React.ReactNode, className?: string }) {
+  return <StyledText className={`text-zinc-700 dark:text-zinc-300 ${className}`}>
+    {children}
+  </StyledText>
 }
