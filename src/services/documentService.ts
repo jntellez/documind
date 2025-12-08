@@ -1,6 +1,7 @@
 import { FilePickerResult, ProcessedDocument } from "types/api";
 import * as DocumentPicker from "expo-document-picker";
 import Toast from "react-native-toast-message";
+import { tokenStorage } from "@/lib/storage";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -110,14 +111,23 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
 
 export async function saveDocument(document: ProcessedDocument): Promise<void> {
   try {
+    const token = await tokenStorage.get();
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/save-document`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(document),
     });
+
     const data = await response.json();
+
     if (!response.ok) {
       throw new Error(data.error || "Error saving document");
     }
