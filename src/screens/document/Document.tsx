@@ -7,6 +7,11 @@ import DocumentViewer from '@/components/document/DocumentViewer';
 import Button from "@/components/ui/Button";
 import { saveDocument } from "@/services/documentService";
 import { Document as DocumentType } from 'types/api';
+import { useAuth } from '@/context/AuthContext';
+import Toast from 'react-native-toast-message';
+import { useState } from 'react';
+import type { NavigationProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 type DocumentScreenProps = StackScreenProps<RootStackParamList, 'Document'>;
 
@@ -16,6 +21,9 @@ export default function Document({ route }: DocumentScreenProps) {
   const headerHeight = useHeaderHeight();
   const contentWidth = width - 32;
   const { colorScheme } = useColorScheme();
+  const { user } = useAuth();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [isSaving, setIsSaving] = useState(false);
 
   const textColor = colorScheme === 'dark' ? 'white' : 'black';
   const borderColor = colorScheme === 'dark' ? '#52525b' : '#ddd';
@@ -25,9 +33,30 @@ export default function Document({ route }: DocumentScreenProps) {
     return 'created_at' in data;
   };
 
-  function handleSave() {
-    if (data) {
-      saveDocument(data);
+  async function handleSave() {
+    if (!user) {
+      navigation.navigate('Login');
+      return;
+    }
+
+    if (!data) return;
+
+    setIsSaving(true);
+
+    try {
+      await saveDocument(data);
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to save document',
+        position: 'bottom',
+        visibilityTime: 4000,
+        bottomOffset: 40
+      });
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -66,8 +95,13 @@ export default function Document({ route }: DocumentScreenProps) {
       </ScrollView>
 
       {!isSavedDocument(data) && (
-        <View className="absolute bottom-0 left-0 right-0 px-4 pb-8 transparent">
-          <Button onPress={handleSave} title="Save Document" />
+        <View className="absolute bottom-0 left-0 right-0 px-4 pb-8">
+          <Button
+            onPress={handleSave}
+            title="Save Document"
+            loading={isSaving}
+            disabled={isSaving}
+          />
         </View>
       )}
     </View>
