@@ -12,6 +12,7 @@ export interface Document {
   word_count: number;
   created_at: Date;
   updated_at: Date;
+  user_id: number;
 }
 
 export interface ApiError {
