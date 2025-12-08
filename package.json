@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@native-html/table-plugin": "^5.3.1",
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.7.2",
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/stack": "^7.4.8",
