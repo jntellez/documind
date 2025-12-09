@@ -9,7 +9,7 @@ export default function EmptyState() {
   const isDark = colorScheme === 'dark';
 
   return (
-    <View className="flex-1 items-center justify-center px-6">
+    <View className="flex-1 items-center justify-center px-6 mb-18">
       <Card className="w-24 h-24 items-center justify-center rounded-full mb-6">
         <Ionicons
           name="document-text-outline"
