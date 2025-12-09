@@ -11,6 +11,7 @@
   "dependencies": {
     "@native-html/table-plugin": "^5.3.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/bottom-tabs": "^7.7.2",
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/stack": "^7.4.8",
@@ -22,6 +23,7 @@
     "expo-document-picker": "^14.0.8",
     "expo-linear-gradient": "^15.0.7",
     "expo-secure-store": "^15.0.8",
+    "expo-sqlite": "^16.0.10",
     "expo-status-bar": "~3.0.8",
     "expo-web-browser": "^15.0.10",
     "nativewind": "5.0.0-preview.2",
@@ -34,7 +36,8 @@
     "react-native-screens": "~4.16.0",
     "react-native-toast-message": "^2.3.3",
     "react-native-vector-icons": "^10.3.0",
-    "react-native-web": "^0.21.2"
+    "react-native-web": "^0.21.2",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.16",

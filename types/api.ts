@@ -2,6 +2,7 @@ export interface ProcessedDocument {
   title: string;
   content: string;
   original_url: string;
+  word_count?: number;
 }
 
 export interface Document {
@@ -10,9 +11,9 @@ export interface Document {
   content: string;
   original_url: string;
   word_count: number;
-  created_at: Date;
-  updated_at: Date;
-  user_id: number;
+  created_at: string;
+  updated_at: string;
+  user_id?: number;
 }
 
 export interface ApiError {

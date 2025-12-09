@@ -1,56 +1,64 @@
 import { View, FlatList, RefreshControl, Alert, Share, ActivityIndicator } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { DocumentsScreenProps } from 'types';
-import { Document } from 'types/api';
-import { getDocuments, deleteDocument } from '@/services/documentService';
+import type { DocumentsScreenProps } from 'types';
+import { useColorScheme } from 'nativewind';
 import DocumentItem from '@/components/documents/DocumentItem';
 import EmptyState from '@/components/documents/EmptyState';
 import Toast from 'react-native-toast-message';
-import { useColorScheme } from 'nativewind';
+import { Document } from 'types/api';
+import {
+  getDocumentsOffline,
+  deleteDocumentOffline,
+  syncWithServer
+} from '@/services/offlineDocumentService';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { Text } from 'react-native';
 
 export default function Documents() {
-  const navigation = useNavigation<DocumentsScreenProps['navigation']>();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const navigation = useNavigation<DocumentsScreenProps['navigation']>();
+  const { isOnline } = useNetworkStatus();
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [hasInitialSync, setHasInitialSync] = useState(false);
 
-  const fetchDocuments = async (showLoading = true, force = false) => {
-    // Si ya cargó una vez y no es forzado, no hacer nada
-    if (hasLoadedOnce && !force) return;
-
+  const fetchDocuments = async (showLoading = true, forceSync = false) => {
     if (showLoading) setIsLoading(true);
 
     try {
-      const response = await getDocuments();
+      // Si hay conexión y es la primera vez O es un force sync, sincronizar primero
+      if (isOnline && (!hasInitialSync || forceSync)) {
+        console.log('🔄 Syncing with server...');
+        await syncWithServer();
+        setHasInitialSync(true);
+      }
+
+      const response = await getDocumentsOffline();
+      console.log('📄 Documents loaded:', response.documents.length);
       setDocuments(response.documents);
-      setHasLoadedOnce(true);
     } catch (error: any) {
+      console.error('❌ Error fetching documents:', error);
       Toast.show({
         type: 'error',
         text1: 'Error',
         text2: error.message || 'Failed to fetch documents',
         position: 'bottom',
-        visibilityTime: 2000,
+        visibilityTime: 3000,
         bottomOffset: 40,
       });
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await fetchDocuments(false, true); // Force reload
+    await fetchDocuments(false, true);
     setIsRefreshing(false);
-  };
-
-  const handleDocumentPress = (document: Document) => {
-    navigation.navigate('Document', { documentId: document.id });
   };
 
   const handleDelete = (id: number) => {
@@ -67,13 +75,16 @@ export default function Documents() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteDocument(id);
+              await deleteDocumentOffline(id);
+
               setDocuments((prev) => prev.filter((doc) => doc.id !== id));
 
               Toast.show({
                 type: 'success',
-                text1: 'Success',
-                text2: 'Document deleted successfully',
+                text1: 'Deleted',
+                text2: isOnline
+                  ? 'Document deleted successfully'
+                  : 'Document will be deleted when online',
                 position: 'bottom',
                 visibilityTime: 2000,
                 bottomOffset: 40,
@@ -84,7 +95,7 @@ export default function Documents() {
                 text1: 'Error',
                 text2: error.message || 'Failed to delete document',
                 position: 'bottom',
-                visibilityTime: 4000,
+                visibilityTime: 3000,
                 bottomOffset: 40,
               });
             }
@@ -97,7 +108,7 @@ export default function Documents() {
   const handleShare = async (document: Document) => {
     try {
       await Share.share({
-        message: `Check out this document: ${document.title}\n${document.original_url || ''}`,
+        message: `${document.title}\n\n${document.content}`,
         title: document.title,
       });
     } catch (error: any) {
@@ -112,47 +123,62 @@ export default function Documents() {
     }
   };
 
-  const handleAddTag = (document: Document) => {
-    // TODO: Implementar funcionalidad de tag
+  const handlePress = (document: Document) => {
+    // Pasar el documento completo en lugar de solo el ID
+    navigation.navigate('Document', { data: document });
   };
 
-  // Solo cargar al montar el componente por primera vez
   useEffect(() => {
-    fetchDocuments();
+    fetchDocuments(true, false);
   }, []);
 
-  // Recargar cuando vuelve el foco solo si se guardó un nuevo documento
   useFocusEffect(
     useCallback(() => {
-      // Solo recargar si ya había cargado antes (significa que volvió de otra pantalla)
-      if (hasLoadedOnce) {
-        fetchDocuments(false, true);
+      if (!isLoading && hasInitialSync) {
+        fetchDocuments(false, false);
       }
-    }, [hasLoadedOnce])
+    }, [hasInitialSync, isLoading])
   );
 
   if (isLoading) {
     return (
       <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 items-center justify-center">
         <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
+        <Text className="text-zinc-600 dark:text-zinc-400 mt-4">
+          {isOnline ? 'Syncing documents...' : 'Loading documents...'}
+        </Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4 pt-6">
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
+      {/* Indicador de estado offline */}
+      {!isOnline && (
+        <View className="bg-yellow-500/20 px-4 py-2 border-b border-yellow-500/30">
+          <Text className="text-yellow-800 dark:text-yellow-200 text-center text-sm font-medium">
+            📡 Offline Mode - Changes will sync when online
+          </Text>
+        </View>
+      )}
+
       <FlatList
         data={documents}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <DocumentItem
             document={item}
-            onPress={handleDocumentPress}
-            onDelete={handleDelete}
-            onShare={handleShare}
-            onAddTag={handleAddTag}
+            onPress={() => handlePress(item)}
+            onDelete={() => handleDelete(item.id)}
+            onShare={() => handleShare(item)}
           />
         )}
+        contentContainerStyle={{
+          flexGrow: 1,
+          gap: 16,
+          padding: 16,
+          paddingTop: isOnline ? 16 : 0,
+        }}
         ListEmptyComponent={<EmptyState />}
         refreshControl={
           <RefreshControl
@@ -161,8 +187,6 @@ export default function Documents() {
             tintColor={isDark ? '#fff' : '#000'}
           />
         }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, gap: 16 }}
       />
     </View>
   );
