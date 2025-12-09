@@ -23,7 +23,6 @@ export async function processUrl(url: string): Promise<ProcessedDocument> {
 
     return data as ProcessedDocument;
   } catch (error) {
-    console.error("API Error:", error);
     throw error;
   }
 }
@@ -171,7 +170,6 @@ export async function getDocuments(): Promise<GetDocumentsResponse> {
 
     return data as GetDocumentsResponse;
   } catch (error) {
-    console.error("Get Documents Error:", error);
     throw error;
   }
 }
@@ -200,7 +198,6 @@ export async function getDocumentById(id: number): Promise<Document> {
 
     return data.document as Document;
   } catch (error) {
-    console.error("Get Document Error:", error);
     throw error;
   }
 }
@@ -227,7 +224,6 @@ export async function deleteDocument(id: number): Promise<void> {
       throw new Error(data.error || "Error deleting document");
     }
   } catch (error) {
-    console.error("Delete Document Error:", error);
     throw error;
   }
 }
