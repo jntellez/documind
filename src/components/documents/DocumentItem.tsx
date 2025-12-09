@@ -62,7 +62,7 @@ export default function DocumentItem({
       <Pressable onPress={() => onPress(document)} className="active:opacity-70">
         <View className="flex-row items-start justify-between">
           <View className="flex-1">
-            <Title className="text-lg mb-1 pr-4" numberOfLines={1}>
+            <Title className="text-base font-semibold pr-4" numberOfLines={1}>
               {document.title}
             </Title>
             <Paragraph className="text-sm">
