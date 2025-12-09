@@ -1,4 +1,4 @@
-import { FilePickerResult, ProcessedDocument } from "types/api";
+import { FilePickerResult, ProcessedDocument, Document } from "types/api";
 import * as DocumentPicker from "expo-document-picker";
 import Toast from "react-native-toast-message";
 import { tokenStorage } from "@/lib/storage";
@@ -18,14 +18,13 @@ export async function processUrl(url: string): Promise<ProcessedDocument> {
     const data = await response.json();
 
     if (!response.ok) {
-      // Si la API devuelve un error (400, 500), lo lanzamos
       throw new Error(data.error || "Error al procesar el documento");
     }
 
     return data as ProcessedDocument;
   } catch (error) {
     console.error("API Error:", error);
-    throw error; // Re-lanzamos el error para que la UI lo maneje
+    throw error;
   }
 }
 
@@ -34,22 +33,20 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
     const result = await DocumentPicker.getDocumentAsync({
       type: [
         "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
       ],
       copyToCacheDirectory: true,
       multiple: false,
     });
 
-    // Usuario canceló la selección
     if (result.canceled) {
       return null;
     }
 
     const file = result.assets[0];
 
-    // Validar tamaño del archivo (máximo 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+    const maxSize = 10 * 1024 * 1024;
     if (file.size && file.size > maxSize) {
       Toast.show({
         type: "error",
@@ -62,7 +59,6 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
       return null;
     }
 
-    // Validar tipo MIME adicional por seguridad
     const validMimeTypes = [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -109,7 +105,14 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
   }
 }
 
-export async function saveDocument(document: ProcessedDocument): Promise<void> {
+export interface SaveDocumentResponse {
+  success: boolean;
+  document: Document;
+}
+
+export async function saveDocument(
+  document: ProcessedDocument
+): Promise<SaveDocumentResponse> {
   try {
     const token = await tokenStorage.get();
 
@@ -131,7 +134,100 @@ export async function saveDocument(document: ProcessedDocument): Promise<void> {
     if (!response.ok) {
       throw new Error(data.error || "Error saving document");
     }
+
+    return data as SaveDocumentResponse;
   } catch (error) {
+    throw error;
+  }
+}
+
+export interface GetDocumentsResponse {
+  success: boolean;
+  documents: Document[];
+  count: number;
+}
+
+export async function getDocuments(): Promise<GetDocumentsResponse> {
+  try {
+    const token = await tokenStorage.get();
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/documents`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error fetching documents");
+    }
+
+    return data as GetDocumentsResponse;
+  } catch (error) {
+    console.error("Get Documents Error:", error);
+    throw error;
+  }
+}
+
+export async function getDocumentById(id: number): Promise<Document> {
+  try {
+    const token = await tokenStorage.get();
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/documents/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error fetching document");
+    }
+
+    return data.document as Document;
+  } catch (error) {
+    console.error("Get Document Error:", error);
+    throw error;
+  }
+}
+
+export async function deleteDocument(id: number): Promise<void> {
+  try {
+    const token = await tokenStorage.get();
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/documents/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error deleting document");
+    }
+  } catch (error) {
+    console.error("Delete Document Error:", error);
     throw error;
   }
 }
