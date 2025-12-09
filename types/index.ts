@@ -3,7 +3,10 @@ import { Document, ProcessedDocument } from "./api";
 export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
-  Document: DocumentParamList;
+  Document: {
+    data?: ProcessedDocument | Document;
+    documentId?: number;
+  };
 };
 
 export type RootTabParamList = {
