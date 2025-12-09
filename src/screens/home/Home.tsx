@@ -1,6 +1,5 @@
 import { View, Text, ScrollView, Keyboard } from 'react-native';
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from 'types';
+import { HomeScreenProps } from 'types';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,11 +10,10 @@ import Input from '@/components/ui/Input';
 import { useState } from 'react';
 import Toast from 'react-native-toast-message';
 import { processUrl, pickDocument } from '@/services/documentService';
+import { useNavigation } from '@react-navigation/native';
 
-type HomeScreenNavigationProp = StackScreenProps<RootStackParamList, 'Main'>;
-interface HomeScreenProps extends HomeScreenNavigationProp { }
-
-export default function Home({ navigation }: HomeScreenProps) {
+export default function Home() {
+  const navigation = useNavigation<HomeScreenProps['navigation']>();
   const { colorScheme, setColorScheme } = useColorScheme();
   const [inputValue, setInputValue] = useState<string>("");
   const [isValidated, setIsValidated] = useState<boolean>(false);

@@ -1,8 +1,7 @@
 import { View, FlatList, RefreshControl, Alert, Share, ActivityIndicator } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import type { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from 'types';
+import { DocumentsScreenProps } from 'types';
 import { Document } from 'types/api';
 import { getDocuments, deleteDocument } from '@/services/documentService';
 import DocumentItem from '@/components/documents/DocumentItem';
@@ -11,9 +10,9 @@ import Toast from 'react-native-toast-message';
 import { useColorScheme } from 'nativewind';
 
 export default function Documents() {
+  const navigation = useNavigation<DocumentsScreenProps['navigation']>();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,6 +30,14 @@ export default function Documents() {
       setDocuments(response.documents);
       setHasLoadedOnce(true);
     } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to fetch documents',
+        position: 'bottom',
+        visibilityTime: 2000,
+        bottomOffset: 40,
+      });
     } finally {
       setIsLoading(false);
     }

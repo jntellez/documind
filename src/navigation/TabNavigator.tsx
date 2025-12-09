@@ -10,10 +10,12 @@ import Octicons from '@expo/vector-icons/Octicons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Avatar from '@/components/ui/Avatar';
 import { GradientTitle } from '@/components/ui/Typography';
+import { useAuth } from '@/context/AuthContext';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function TabNavigator() {
+  const { user } = useAuth();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -27,9 +29,9 @@ export default function TabNavigator() {
         headerShadowVisible: false,
         headerTitleAlign: "left",
         headerRight: () => <Avatar
-          fallback="J"
-          src="https://avatars.githubusercontent.com/u/101893361?v=4"
-          alt="jntellez"
+          fallback={user?.name?.charAt(0).toUpperCase() || 'U'}
+          src={user?.avatar_url}
+          alt={user?.name || 'User'}
           classname="mr-4"
         />,
         tabBarIcon: ({ focused, color, size }) => {

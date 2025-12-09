@@ -12,6 +12,7 @@ import TabNavigator from "./TabNavigator";
 import Document from "@/screens/document/Document";
 import Button from "@/components/ui/Button";
 import { LinearGradient } from "expo-linear-gradient";
+import { useAuth } from "@/context/AuthContext";
 /**
  * Creamos el Stack Navigator con tipado
  */
@@ -21,6 +22,7 @@ const Stack = createStackNavigator<RootStackParamList>();
  * Gestiona todas las rutas de la aplicación
  */
 export default function StackNavigator() {
+  const { user } = useAuth();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
   const rgb = isDark ? '24, 24, 27' : '244, 244, 245'; // Zinc-900 o Zinc-100
@@ -46,13 +48,12 @@ export default function StackNavigator() {
         ),
         headerShadowVisible: false,
         headerTitleAlign: "left",
-        headerRight: () =>
-          <Avatar
-            fallback="J"
-            src="https://avatars.githubusercontent.com/u/101893361?v=4"
-            alt="jntellez"
-            classname="mr-4"
-          />
+        headerRight: () => <Avatar
+          fallback={user?.name.charAt(0).toUpperCase() || 'U'}
+          src={user?.avatar_url}
+          alt={user?.name || 'User'}
+          classname="mr-4"
+        />,
       }}
     >
       {/* Login Screen */}
