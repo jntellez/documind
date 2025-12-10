@@ -90,7 +90,7 @@ export default function Document({ route }: DocumentScreenProps) {
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
       {/* Banner offline */}
       {!isOnline && (
-        <Button title="Offline Mode" className="absolute right-4 bottom-4 z-50" />
+        <Button title="Offline Mode" className="absolute right-4 bottom-22 z-50" />
       )}
 
       <ScrollView
@@ -116,7 +116,7 @@ export default function Document({ route }: DocumentScreenProps) {
       </ScrollView>
 
       {!isSavedDocument(data) && (
-        <View className="absolute bottom-0 left-0 right-0 px-4 pb-8 bg-zinc-100 dark:bg-zinc-900">
+        <View className="absolute bottom-0 left-0 right-0 px-4 pb-8 transparent">
           <Button
             onPress={handleSave}
             title="Save Document"
