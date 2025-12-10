@@ -101,13 +101,9 @@ export default function Home() {
           }
         </View>
 
-        <Card className="mt-6 items-center justify-center py-10">
+        <Card className="mt-6 items-center justify-center py-14">
           <Ionicons name="tablet-portrait" size={64} color="#a5a7ad" />
           <Text className="text-zinc-900 dark:text-zinc-100 text-lg">Recent documents is empty</Text>
-          <Button
-            title="Toggle Theme"
-            onPress={() => setColorScheme(colorScheme === 'dark' ? 'light' : 'dark')}
-          />
         </Card>
       </ScrollView>
     </View>

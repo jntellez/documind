@@ -2,6 +2,7 @@ import { View, ScrollView, useWindowDimensions, Text } from "react-native";
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from 'types';
 import { useColorScheme } from 'nativewind';
+import { useHeaderHeight } from '@react-navigation/elements';
 import DocumentViewer from '@/components/document/DocumentViewer';
 import Button from "@/components/ui/Button";
 import { saveDocumentOffline } from "@/services/offlineDocumentService";
@@ -16,8 +17,9 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 type DocumentScreenProps = StackScreenProps<RootStackParamList, 'Document'>;
 
 export default function Document({ route }: DocumentScreenProps) {
-  const { data } = route.params; // Eliminar documentId, solo usar data
+  const { data } = route.params;
   const { width } = useWindowDimensions();
+  const headerHeight = useHeaderHeight();
   const contentWidth = width - 32;
   const { colorScheme } = useColorScheme();
   const { user } = useAuth();
@@ -36,19 +38,7 @@ export default function Document({ route }: DocumentScreenProps) {
 
   async function handleSave() {
     if (!user) {
-      Toast.show({
-        type: 'error',
-        text1: 'Authentication Required',
-        text2: 'Please login to save documents',
-        position: 'bottom',
-        visibilityTime: 3000,
-        bottomOffset: 40,
-      });
-
-      setTimeout(() => {
-        navigation.navigate('Login');
-      }, 1000);
-
+      navigation.navigate('Login');
       return;
     }
 
@@ -70,7 +60,6 @@ export default function Document({ route }: DocumentScreenProps) {
         bottomOffset: 40
       });
 
-      // Navegar de regreso a Documents
       navigation.navigate('Main');
 
     } catch (error: any) {
@@ -87,7 +76,6 @@ export default function Document({ route }: DocumentScreenProps) {
     }
   }
 
-  // Verificar data inmediatamente (sin estado)
   if (!data) {
     return (
       <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 items-center justify-center">
@@ -102,31 +90,29 @@ export default function Document({ route }: DocumentScreenProps) {
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
       {/* Banner offline */}
       {!isOnline && (
-        <View className="bg-yellow-500/20 px-4 py-2 border-b border-yellow-500/30">
-          <Text className="text-yellow-800 dark:text-yellow-200 text-center text-sm font-medium">
-            📡 Offline Mode
-          </Text>
-        </View>
+        <Button title="Offline Mode" className="absolute right-4 bottom-4 z-50" />
       )}
 
       <ScrollView
         contentContainerStyle={{
-          padding: 16,
-          paddingBottom: isSavedDocument(data) ? 16 : 100
+          paddingTop: headerHeight,
+          paddingBottom: isSavedDocument(data) ? 0 : 80
         }}
         className="flex-1"
         minimumZoomScale={1}
         maximumZoomScale={2}
         bouncesZoom={true}
       >
-        <DocumentViewer
-          title={data.title}
-          content={data.content}
-          contentWidth={contentWidth}
-          textColor={textColor}
-          borderColor={borderColor}
-          wordCount={isSavedDocument(data) ? data.word_count : undefined}
-        />
+        <View className="p-4">
+          <DocumentViewer
+            title={data.title}
+            content={data.content}
+            contentWidth={contentWidth}
+            textColor={textColor}
+            borderColor={borderColor}
+            wordCount={isSavedDocument(data) ? data.word_count : undefined}
+          />
+        </View>
       </ScrollView>
 
       {!isSavedDocument(data) && (

@@ -14,6 +14,7 @@ import {
 } from '@/services/offlineDocumentService';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { Text } from 'react-native';
+import Button from '@/components/ui/Button';
 
 export default function Documents() {
   const { colorScheme } = useColorScheme();
@@ -152,14 +153,10 @@ export default function Documents() {
   }
 
   return (
-    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4 pt-6">
       {/* Indicador de estado offline */}
       {!isOnline && (
-        <View className="bg-yellow-500/20 px-4 py-2 border-b border-yellow-500/30">
-          <Text className="text-yellow-800 dark:text-yellow-200 text-center text-sm font-medium">
-            📡 Offline Mode - Changes will sync when online
-          </Text>
-        </View>
+        <Button title="Offline Mode" className="absolute right-4 bottom-4 z-50" />
       )}
 
       <FlatList
@@ -176,8 +173,6 @@ export default function Documents() {
         contentContainerStyle={{
           flexGrow: 1,
           gap: 16,
-          padding: 16,
-          paddingTop: isOnline ? 16 : 0,
         }}
         ListEmptyComponent={<EmptyState />}
         refreshControl={
