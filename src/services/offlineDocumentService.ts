@@ -1,5 +1,6 @@
 import NetInfo from "@react-native-community/netinfo";
 import { documentQueries, syncQueueQueries } from "@/storage/database";
+import * as SQLite from "expo-sqlite";
 import {
   getDocuments as apiGetDocuments,
   getDocumentById as apiGetDocumentById,
@@ -8,6 +9,8 @@ import {
 } from "./documentService";
 import { Document, ProcessedDocument } from "types/api";
 import { toDocument, fromDocument } from "types/storage";
+
+const db = SQLite.openDatabaseSync("documind.db");
 
 let isOnline = true;
 
@@ -35,24 +38,37 @@ export const getDocumentsOffline = async () => {
       response.documents.forEach((doc) => {
         const existing = localDocs.find((d) => d.server_id === doc.id);
         if (existing) {
-          documentQueries.update(existing.id, {
-            ...doc,
-            server_id: doc.id,
-          });
+          // Solo actualizar si no está marcado como eliminado
+          if (!existing.deleted) {
+            documentQueries.update(existing.id, {
+              ...doc,
+              server_id: doc.id,
+            });
+          }
         } else {
-          documentQueries.insert({
-            ...fromDocument(doc),
-            synced: 1,
-            deleted: 0,
-          });
+          // Verificar que no exista un registro eliminado con este server_id
+          const deleted = db.getFirstSync(
+            "SELECT * FROM documents WHERE server_id = ? AND deleted = 1",
+            [doc.id]
+          );
+
+          if (!deleted) {
+            documentQueries.insert({
+              ...fromDocument(doc),
+              synced: 1,
+              deleted: 0,
+            });
+          }
         }
       });
 
-      // Retornar documentos convertidos a formato API
+      // Retornar documentos convertidos a formato API (excluyendo eliminados)
       return {
         documents: documentQueries.getAll().map(toDocument),
       };
-    } catch (error) {}
+    } catch (error) {
+      console.log("❌ API error, using cache:", error);
+    }
   }
 
   // Retornar documentos locales convertidos a formato API
@@ -129,25 +145,53 @@ export const saveDocumentOffline = async (document: ProcessedDocument) => {
 };
 
 export const deleteDocumentOffline = async (id: number) => {
-  documentQueries.softDelete(id);
+  // Buscar por ID local primero
+  let doc = documentQueries.getById(id);
+
+  // Si no se encuentra, buscar por server_id
+  if (!doc) {
+    const allDocs = documentQueries.getAll();
+    doc = allDocs.find((d) => d.server_id === id) || null;
+  }
+
+  if (!doc) {
+    throw new Error("Document not found");
+  }
+
+  // Marcar como eliminado localmente
+  documentQueries.softDelete(doc.id);
 
   if (await checkConnectivity()) {
     try {
-      const doc = documentQueries.getById(id);
-      if (doc?.server_id) {
+      // Si tiene server_id, eliminar en el servidor
+      if (doc.server_id) {
         await apiDeleteDocument(doc.server_id);
+        // Si se eliminó exitosamente del servidor, eliminar completamente de la BD local
+        db.runSync("DELETE FROM documents WHERE id = ?", [doc.id]);
+      } else {
+        // Si no tiene server_id, solo eliminar localmente
+        db.runSync("DELETE FROM documents WHERE id = ?", [doc.id]);
       }
     } catch (error) {
-      syncQueueQueries.enqueue(id, "DELETE", { id });
+      // Si falla, agregar a la cola de sincronización
+      syncQueueQueries.enqueue(doc.id, "DELETE", {
+        id: doc.id,
+        server_id: doc.server_id,
+      });
     }
   } else {
-    syncQueueQueries.enqueue(id, "DELETE", { id });
+    // Sin conexión, agregar a la cola de sincronización
+    syncQueueQueries.enqueue(doc.id, "DELETE", {
+      id: doc.id,
+      server_id: doc.server_id,
+    });
   }
 };
 
 export const syncWithServer = async () => {
   if (!(await checkConnectivity())) return;
 
+  console.log("🔄 Syncing...");
   const queue = syncQueueQueries.getPending();
 
   for (const item of queue) {
@@ -166,18 +210,24 @@ export const syncWithServer = async () => {
           break;
 
         case "DELETE":
+          if (data.server_id) {
+            await apiDeleteDocument(data.server_id);
+          }
+          // Eliminar completamente de la BD local después de sincronizar
           if (item.document_id) {
-            const doc = documentQueries.getById(item.document_id);
-            if (doc?.server_id) {
-              await apiDeleteDocument(doc.server_id);
-            }
+            db.runSync("DELETE FROM documents WHERE id = ?", [
+              item.document_id,
+            ]);
           }
           break;
       }
 
       syncQueueQueries.dequeue(item.id);
+      console.log(`✅ Synced: ${item.action}`);
     } catch (error) {
       console.error("Sync failed:", error);
     }
   }
+
+  console.log("✅ Sync complete");
 };
