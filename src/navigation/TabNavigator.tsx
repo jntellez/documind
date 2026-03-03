@@ -11,6 +11,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Avatar from '@/components/ui/Avatar';
 import { GradientTitle } from '@/components/ui/Typography';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/../types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -18,6 +21,7 @@ export default function TabNavigator() {
   const { user } = useAuth();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const stackNavigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <Tab.Navigator
@@ -33,6 +37,7 @@ export default function TabNavigator() {
           src={user?.avatar_url}
           alt={user?.name || 'User'}
           classname="mr-4"
+          onPress={() => stackNavigation.navigate('Profile')}
         />,
         tabBarIcon: ({ focused, color, size }) => {
           let iconEmoji;

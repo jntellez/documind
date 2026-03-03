@@ -6,13 +6,18 @@ type AvatarProps = {
   alt?: string;
   fallback: string;
   classname?: string;
+  onPress?: () => void;
 }
 
-export default function Avatar({ src, alt, fallback, classname }: AvatarProps) {
+export default function Avatar({ src, alt, fallback, classname, onPress }: AvatarProps) {
   const [imageError, setImageError] = useState(false);
 
   return (
-    <TouchableOpacity className={`flex items-center justify-center overflow-hidden p-1 rounded-full bg-zinc-300 dark:bg-zinc-600 w-10 h-10 ${classname}`}>
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={!onPress}
+      className={`flex items-center justify-center overflow-hidden p-1 rounded-full bg-zinc-300 dark:bg-zinc-600 w-10 h-10 ${classname}`}
+    >
       {src && !imageError ? (
         <Image
           source={{ uri: src }}

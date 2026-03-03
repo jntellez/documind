@@ -6,6 +6,7 @@ import type { StackScreenProps } from "@react-navigation/stack";
 export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
+  Profile: undefined;
   Document: {
     data?: ProcessedDocument | Document;
     documentId?: number;

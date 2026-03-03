@@ -10,6 +10,7 @@ import Feather from '@expo/vector-icons/Feather';
 import Login from "@/screens/auth/Login";
 import TabNavigator from "./TabNavigator";
 import Document from "@/screens/document/Document";
+import Profile from "@/screens/profile/Profile";
 import Button from "@/components/ui/Button";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/context/AuthContext";
@@ -72,6 +73,23 @@ export default function StackNavigator() {
         options={{
           headerShown: false,
         }}
+      />
+
+      {/* Profile Screen */}
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={({ navigation }) => ({
+          headerTitle: () => null,
+          headerShown: true,
+          headerLeft: () => <Button
+            className="ml-4"
+            variant="icon-only"
+            icon={<Octicons name="chevron-left" size={19} color={isDark ? '#fff' : '#000'} />}
+            onPress={() => navigation.goBack()}
+          />,
+          headerRight: () => null,
+        })}
       />
 
       {/* Document Detail Screen */}
