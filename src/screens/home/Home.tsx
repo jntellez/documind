@@ -8,7 +8,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { useState } from 'react';
-import Toast from 'react-native-toast-message';
+import { showToast } from '@/components/ui/Toast';
 import { processUrl, pickDocument } from '@/services/documentService';
 import { useNavigation } from '@react-navigation/native';
 
@@ -31,13 +31,10 @@ export default function Home() {
 
       navigation.navigate("Document", { data });
     } catch (error: any) {
-      Toast.show({
+      showToast({
         type: 'error',
         text1: 'Error',
         text2: error.message || 'Failed to process URL',
-        position: 'bottom',
-        visibilityTime: 4000,
-        bottomOffset: 40
       });
     } finally {
       setIsLoading(false);

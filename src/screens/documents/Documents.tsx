@@ -4,11 +4,11 @@ import type { DocumentsScreenProps } from 'types';
 import { useColorScheme } from 'nativewind';
 import DocumentItem from '@/components/documents/DocumentItem';
 import EmptyState from '@/components/documents/EmptyState';
-import Toast from 'react-native-toast-message';
 import { Document } from 'types/api';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Text } from 'react-native';
 import Button from '@/components/ui/Button';
+import { showToast } from '@/components/ui/Toast';
 
 export default function Documents() {
   const { colorScheme } = useColorScheme();
@@ -46,13 +46,10 @@ export default function Documents() {
         title: document.title,
       });
     } catch (error: any) {
-      Toast.show({
+      showToast({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to share document',
-        position: 'bottom',
-        visibilityTime: 3000,
-        bottomOffset: 40,
+        text2: 'Failed to share document'
       });
     }
   };

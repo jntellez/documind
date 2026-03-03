@@ -6,8 +6,8 @@ import {
 } from "@/services/offlineDocumentService";
 import { useNetworkStatus } from "./useNetworkStatus";
 import { useFocusEffect } from "@react-navigation/native";
-import Toast from "react-native-toast-message";
 import type { Document } from "../../types/api";
+import { showToast } from "@/components/ui/Toast";
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -32,13 +32,10 @@ export function useDocuments() {
         setDocuments(response.documents);
       } catch (error: any) {
         console.error("❌ Error fetching documents:", error);
-        Toast.show({
+        showToast({
           type: "error",
           text1: "Error",
           text2: error.message || "Failed to fetch documents",
-          position: "bottom",
-          visibilityTime: 3000,
-          bottomOffset: 40,
         });
       } finally {
         if (showLoading) setIsLoading(false);
@@ -59,24 +56,18 @@ export function useDocuments() {
         await deleteDocumentOffline(id);
         setDocuments((prev) => prev.filter((doc) => doc.id !== id));
 
-        Toast.show({
+        showToast({
           type: "success",
           text1: "Deleted",
           text2: isOnline
             ? "Document deleted successfully"
             : "Document will be deleted when online",
-          position: "bottom",
-          visibilityTime: 2000,
-          bottomOffset: 40,
         });
       } catch (error: any) {
-        Toast.show({
+        showToast({
           type: "error",
           text1: "Error",
           text2: error.message || "Failed to delete document",
-          position: "bottom",
-          visibilityTime: 3000,
-          bottomOffset: 40,
         });
       }
     },

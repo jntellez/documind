@@ -11,6 +11,7 @@ import Button from '@/components/ui/Button';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 import { CommonActions } from '@react-navigation/native';
+import { showToast } from "@/components/ui/Toast";
 
 export default function Settings() {
   const navigation = useNavigation<SettingsScreenProps['navigation']>();
@@ -36,13 +37,10 @@ export default function Settings() {
               await signOut();
               clearCache();
 
-              Toast.show({
+              showToast({
                 type: 'success',
                 text1: 'Logged out',
-                text2: 'You have been successfully logged out',
-                position: 'bottom',
-                visibilityTime: 2000,
-                bottomOffset: 40,
+                text2: 'You have been successfully logged out'
               });
 
               // Redirigir a Login y resetear el stack
@@ -53,13 +51,10 @@ export default function Settings() {
                 })
               );
             } catch (error) {
-              Toast.show({
+              showToast({
                 type: 'error',
                 text1: 'Error',
-                text2: 'Failed to logout',
-                position: 'bottom',
-                visibilityTime: 3000,
-                bottomOffset: 40,
+                text2: 'Failed to logout'
               });
             }
           },
@@ -82,13 +77,10 @@ export default function Settings() {
           style: 'destructive',
           onPress: () => {
             clearCache();
-            Toast.show({
+            showToast({
               type: 'success',
               text1: 'Cache cleared',
-              text2: 'All cached documents have been removed',
-              position: 'bottom',
-              visibilityTime: 2000,
-              bottomOffset: 40,
+              text2: 'All cached documents have been removed'
             });
           },
         },

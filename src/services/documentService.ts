@@ -2,6 +2,7 @@ import { FilePickerResult, ProcessedDocument, Document } from "types/api";
 import * as DocumentPicker from "expo-document-picker";
 import Toast from "react-native-toast-message";
 import { tokenStorage } from "@/lib/storage";
+import { showToast } from "@/components/ui/Toast";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -47,13 +48,10 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
 
     const maxSize = 10 * 1024 * 1024;
     if (file.size && file.size > maxSize) {
-      Toast.show({
+      showToast({
         type: "error",
         text1: "File too large",
         text2: "Maximum file size is 10MB",
-        position: "bottom",
-        visibilityTime: 4000,
-        bottomOffset: 40,
       });
       return null;
     }
@@ -65,24 +63,18 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
     ];
 
     if (!validMimeTypes.includes(file.mimeType || "")) {
-      Toast.show({
+      showToast({
         type: "error",
         text1: "Invalid file type",
         text2: "Only PDF, DOCX, and PPTX files are supported",
-        position: "bottom",
-        visibilityTime: 4000,
-        bottomOffset: 40,
       });
       return null;
     }
 
-    Toast.show({
+    showToast({
       type: "success",
       text1: "File selected",
       text2: file.name,
-      position: "bottom",
-      visibilityTime: 2000,
-      bottomOffset: 40,
     });
 
     return {
@@ -92,13 +84,10 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
       mimeType: file.mimeType || "",
     };
   } catch (error: any) {
-    Toast.show({
+    showToast({
       type: "error",
       text1: "Error",
       text2: error.message || "Failed to select file",
-      position: "bottom",
-      visibilityTime: 4000,
-      bottomOffset: 40,
     });
     return null;
   }
@@ -110,7 +99,7 @@ export interface SaveDocumentResponse {
 }
 
 export async function saveDocument(
-  document: ProcessedDocument
+  document: ProcessedDocument,
 ): Promise<SaveDocumentResponse> {
   try {
     const token = await tokenStorage.get();
