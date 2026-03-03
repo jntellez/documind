@@ -36,7 +36,7 @@ export default function TabNavigator() {
           fallback={user?.name?.charAt(0).toUpperCase() || 'U'}
           src={user?.avatar_url}
           alt={user?.name || 'User'}
-          classname="mr-4"
+          className="mr-4"
           onPress={() => stackNavigation.navigate('Profile')}
         />,
         tabBarIcon: ({ focused, color, size }) => {

@@ -26,8 +26,10 @@ export default function Profile() {
         {/* Avatar y datos principales */}
         <View className="items-center mb-8 mt-6">
           <Avatar
-            fallback="U"
-            className="w-24 h-24"
+            fallback={initials}
+            src={user?.avatar_url}
+            alt={name}
+            size="xl"
           />
           <Title className="text-2xl mt-4 mb-1">{name}</Title>
           <Paragraph className="text-sm">{email}</Paragraph>
