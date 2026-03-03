@@ -1,62 +1,84 @@
 import { View, Text } from 'react-native';
-import { BaseToast, ErrorToast, InfoToast } from 'react-native-toast-message';
 import { Ionicons } from '@expo/vector-icons';
-
-type ToastType = 'success' | 'error' | 'info' | 'warning';
+import Card from './Card';
+import Toast from 'react-native-toast-message';
 
 interface ToastConfig {
   text1?: string;
   text2?: string;
 }
 
-const toastConfig = {
-  success: (props: ToastConfig) => (
-    <View className="bg-green-500 dark:bg-green-600 mx-4 p-4 rounded-2xl border border-green-400 dark:border-green-500 shadow-lg flex-row items-center">
-      <Ionicons name="checkmark-circle" size={24} color="white" />
-      <View className="ml-3 flex-1">
-        <Text className="text-white font-bold text-base">{props.text1}</Text>
+function GlassToast({
+  props,
+  iconName,
+  iconColor,
+}: {
+  props: ToastConfig;
+  iconName: keyof typeof Ionicons.glyphMap;
+  iconColor: string;
+}) {
+  return (
+    <Card className={"flex-row items-center p-4 pl-6 mx-4"}>
+      <View className="w-12 h-12 rounded-full shadow-md border border-white dark:border-white/20 items-center justify-center">
+        <Ionicons name={iconName} size={24} color={iconColor} />
+      </View>
+      <View className="ml-2 flex-1">
+        <Text className="text-zinc-800 dark:text-zinc-100 font-bold text-base">
+          {props.text1}
+        </Text>
         {props.text2 && (
-          <Text className="text-white/90 text-sm mt-1">{props.text2}</Text>
+          <Text className="text-zinc-600 dark:text-zinc-300 text-sm">
+            {props.text2}
+          </Text>
         )}
       </View>
-    </View>
+    </Card>
+  );
+}
+
+const toastConfig = {
+  success: (props: ToastConfig) => (
+    <GlassToast
+      props={props}
+      iconName="checkmark-circle"
+      iconColor="#22c55e"
+    />
   ),
 
   error: (props: ToastConfig) => (
-    <View className="bg-red-500 dark:bg-red-600 mx-4 p-4 rounded-2xl border border-red-400 dark:border-red-500 shadow-lg flex-row items-center">
-      <Ionicons name="close-circle" size={24} color="white" />
-      <View className="ml-3 flex-1">
-        <Text className="text-white font-bold text-base">{props.text1}</Text>
-        {props.text2 && (
-          <Text className="text-white/90 text-sm mt-1">{props.text2}</Text>
-        )}
-      </View>
-    </View>
+    <GlassToast
+      props={props}
+      iconName="close-circle"
+      iconColor="#ef4444"
+    />
   ),
 
   info: (props: ToastConfig) => (
-    <View className="bg-blue-500 dark:bg-blue-600 mx-4 p-4 rounded-2xl border border-blue-400 dark:border-blue-500 shadow-lg flex-row items-center">
-      <Ionicons name="information-circle" size={24} color="white" />
-      <View className="ml-3 flex-1">
-        <Text className="text-white font-bold text-base">{props.text1}</Text>
-        {props.text2 && (
-          <Text className="text-white/90 text-sm mt-1">{props.text2}</Text>
-        )}
-      </View>
-    </View>
+    <GlassToast
+      props={props}
+      iconName="information-circle"
+      iconColor="#3b82f6"
+    />
   ),
 
   warning: (props: ToastConfig) => (
-    <View className="bg-yellow-500 dark:bg-yellow-600 mx-4 p-4 rounded-2xl border border-yellow-400 dark:border-yellow-500 shadow-lg flex-row items-center">
-      <Ionicons name="warning" size={24} color="white" />
-      <View className="ml-3 flex-1">
-        <Text className="text-white font-bold text-base">{props.text1}</Text>
-        {props.text2 && (
-          <Text className="text-white/90 text-sm mt-1">{props.text2}</Text>
-        )}
-      </View>
-    </View>
+    <GlassToast
+      props={props}
+      iconName="warning"
+      iconColor="#eab308"
+    />
   ),
 };
+
+export function showToast({ type, text1, text2 }: { type: 'success' | 'error' | 'info' | 'warning'; text1: string; text2?: string }) {
+  Toast.show({
+    type,
+    text1,
+    text2,
+    position: 'bottom',
+    visibilityTime: 4000,
+    bottomOffset: 98,
+  });
+}
 
 export default toastConfig;
