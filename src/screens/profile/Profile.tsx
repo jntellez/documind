@@ -4,10 +4,18 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '@/components/ui/Card';
 import Avatar from '@/components/ui/Avatar';
 import { Title, Paragraph } from '@/components/ui/Typography';
+import { useAuth } from '@/context/AuthContext';
+import { useDocuments } from '@/hooks/useDocuments';
 
 export default function Profile() {
   const { colorScheme } = useColorScheme();
+  const { user } = useAuth();
+  const { documents } = useDocuments();
   const isDark = colorScheme === 'dark';
+
+  const name = user?.name || 'Unknown User';
+  const email = user?.email || 'no-email@example.com';
+  const initials = name.charAt(0).toUpperCase();
 
   return (
     <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
@@ -19,10 +27,10 @@ export default function Profile() {
         <View className="items-center mb-8 mt-6">
           <Avatar
             fallback="U"
-            classname="w-24 h-24"
+            className="w-24 h-24"
           />
-          <Title className="text-2xl mt-4 mb-1">User Name</Title>
-          <Paragraph className="text-sm">user@example.com</Paragraph>
+          <Title className="text-2xl mt-4 mb-1">{name}</Title>
+          <Paragraph className="text-sm">{email}</Paragraph>
         </View>
 
         {/* Info personal */}
@@ -39,7 +47,7 @@ export default function Profile() {
               <View className="flex-1">
                 <Paragraph className="text-xs opacity-60">Name</Paragraph>
                 <Paragraph className="font-semibold text-zinc-900 dark:text-white">
-                  User Name
+                  {name}
                 </Paragraph>
               </View>
             </View>
@@ -52,7 +60,7 @@ export default function Profile() {
               <View className="flex-1">
                 <Paragraph className="text-xs opacity-60">Email</Paragraph>
                 <Paragraph className="font-semibold text-zinc-900 dark:text-white">
-                  user@example.com
+                  {email}
                 </Paragraph>
               </View>
             </View>
@@ -66,7 +74,7 @@ export default function Profile() {
           </Paragraph>
           <View className="flex-row gap-4">
             <Card className="flex-1 items-center py-6">
-              <Title className="text-2xl mt-2">0</Title>
+              <Title className="text-2xl mt-2">{documents.length}</Title>
               <Paragraph className="text-xs">Documents</Paragraph>
             </Card>
           </View>
