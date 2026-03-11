@@ -37,7 +37,7 @@ export default function TabNavigator() {
           src={user?.avatar_url}
           alt={user?.name || 'User'}
           className="mr-4"
-          onPress={() => stackNavigation.navigate('Profile')}
+          onPress={() => stackNavigation.navigate(user ? 'Profile' : 'Login')}
         />,
         tabBarIcon: ({ focused, color, size }) => {
           let iconEmoji;
