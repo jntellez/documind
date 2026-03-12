@@ -4,6 +4,9 @@ import { useDocuments } from "@/hooks/useDocuments";
 import { tokenStorage } from "@/lib/storage";
 import { showToast } from "@/components/ui/Toast";
 import { useDocumentCache } from "@/context/DocumentCacheContext";
+import { clearAllLocalData } from "@/storage/database";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "types";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -14,6 +17,7 @@ export function useProfile() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const name = user?.name || "Unknown User";
   const email = user?.email || "no-email@example.com";
@@ -42,8 +46,10 @@ export function useProfile() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error deleting account");
+      clearAllLocalData();
       clearCache();
       await signOut();
+      navigation.navigate("Main");
       showToast({
         type: "success",
         text1: "Account deleted",

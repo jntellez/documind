@@ -1,3 +1,7 @@
+export const clearAllLocalData = () => {
+  db.runSync("DELETE FROM documents");
+  db.runSync("DELETE FROM sync_queue");
+};
 import * as SQLite from "expo-sqlite";
 import { LocalDocument, SyncQueueItem } from "types/storage";
 
@@ -35,14 +39,14 @@ export const initDatabase = () => {
 export const documentQueries = {
   getAll: (): LocalDocument[] => {
     return db.getAllSync(
-      "SELECT * FROM documents WHERE deleted = 0 ORDER BY created_at DESC"
+      "SELECT * FROM documents WHERE deleted = 0 ORDER BY created_at DESC",
     ) as LocalDocument[];
   },
 
   getById: (id: number): LocalDocument | null => {
     return db.getFirstSync(
       "SELECT * FROM documents WHERE id = ? AND deleted = 0",
-      [id]
+      [id],
     ) as LocalDocument | null;
   },
 
@@ -66,7 +70,7 @@ export const documentQueries = {
         doc.updated_at,
         doc.synced,
         doc.deleted,
-      ]
+      ],
     );
     return result.lastInsertRowId;
   },
@@ -104,7 +108,7 @@ export const documentQueries = {
 
     db.runSync(
       `UPDATE documents SET ${fields.join(", ")} WHERE id = ?`,
-      values
+      values,
     );
   },
 
@@ -112,13 +116,13 @@ export const documentQueries = {
     const now = new Date().toISOString();
     db.runSync(
       "UPDATE documents SET deleted = 1, synced = 0, updated_at = ? WHERE id = ?",
-      [now, id]
+      [now, id],
     );
   },
 
   getUnsyncedDocuments: (): LocalDocument[] => {
     return db.getAllSync(
-      "SELECT * FROM documents WHERE synced = 0 AND deleted = 0"
+      "SELECT * FROM documents WHERE synced = 0 AND deleted = 0",
     ) as LocalDocument[];
   },
 };
@@ -128,13 +132,13 @@ export const syncQueueQueries = {
     const now = new Date().toISOString();
     db.runSync(
       "INSERT INTO sync_queue (document_id, action, data, created_at) VALUES (?, ?, ?, ?)",
-      [documentId, action, JSON.stringify(data), now]
+      [documentId, action, JSON.stringify(data), now],
     );
   },
 
   getPending: (): SyncQueueItem[] => {
     return db.getAllSync(
-      "SELECT * FROM sync_queue ORDER BY created_at ASC"
+      "SELECT * FROM sync_queue ORDER BY created_at ASC",
     ) as SyncQueueItem[];
   },
 
