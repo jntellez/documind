@@ -1,66 +1,28 @@
 import React from 'react';
-import { View, FlatList, RefreshControl, Alert, Share, ActivityIndicator, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { DocumentsScreenProps } from 'types';
+import { View, FlatList, RefreshControl, ActivityIndicator, Text } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import DocumentItem from '@/components/documents/DocumentItem';
 import EmptyState from '@/components/documents/EmptyState';
-import { Document } from 'types/api';
 import { useDocuments } from '@/hooks/useDocuments';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { showToast } from '@/components/ui/Toast';
 import { Feather } from '@expo/vector-icons';
 
 export default function Documents() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const navigation = useNavigation<DocumentsScreenProps['navigation']>();
 
   const {
-    documents,
     isLoading,
     isRefreshing,
     isOnline,
     filteredDocuments,
     handleRefresh,
-    removeDocument,
+    handleDelete,
+    handleShare,
+    handlePressDocument,
     setSearchQuery
   } = useDocuments();
-
-  const handleDelete = (id: number) => {
-    Alert.alert(
-      'Delete Document',
-      'Are you sure you want to delete this document?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => removeDocument(id),
-        },
-      ]
-    );
-  };
-
-  const handleShare = async (document: Document) => {
-    try {
-      await Share.share({
-        message: `${document.title}\n\n${document.content}`,
-        title: document.title,
-      });
-    } catch (error: any) {
-      showToast({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to share document'
-      });
-    }
-  };
-
-  const handlePress = (document: Document) => {
-    navigation.navigate('Document', { data: document });
-  };
 
   if (isLoading) {
     return (
@@ -100,7 +62,7 @@ export default function Documents() {
         renderItem={({ item }) => (
           <DocumentItem
             document={item}
-            onPress={() => handlePress(item)}
+            onPress={() => handlePressDocument(item)}
             onDelete={() => handleDelete(item.id)}
             onShare={() => handleShare(item)}
           />

@@ -5,10 +5,12 @@ import {
   syncWithServer,
 } from "@/services/offlineDocumentService";
 import { useNetworkStatus } from "./useNetworkStatus";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { Document } from "../../types/api";
 import { showToast } from "@/components/ui/Toast";
 import { normalizeText } from "@/utils/text";
+import { Alert, Share } from "react-native";
+import { DocumentsScreenProps } from "types";
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -17,6 +19,7 @@ export function useDocuments() {
   const [hasInitialSync, setHasInitialSync] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { isOnline } = useNetworkStatus();
+  const navigation = useNavigation<DocumentsScreenProps["navigation"]>();
 
   const fetchDocuments = useCallback(
     async (showLoading = true, forceSync = false) => {
@@ -76,6 +79,40 @@ export function useDocuments() {
     [isOnline],
   );
 
+  const handleDelete = (id: number) => {
+    Alert.alert(
+      "Delete Document",
+      "Are you sure you want to delete this document?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => removeDocument(id),
+        },
+      ],
+    );
+  };
+
+  const handleShare = async (document: Document) => {
+    try {
+      await Share.share({
+        message: `${document.title}\n\n${document.content}`,
+        title: document.title,
+      });
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to share document",
+      });
+    }
+  };
+
+  const handlePressDocument = (document: Document) => {
+    navigation.navigate("Document", { data: document });
+  };
+
   const filteredDocuments = useMemo(() => {
     if (!searchQuery.trim()) return documents;
 
@@ -111,6 +148,9 @@ export function useDocuments() {
     filteredDocuments,
     fetchDocuments,
     handleRefresh,
+    handleDelete,
+    handleShare,
+    handlePressDocument,
     removeDocument,
     setSearchQuery,
   };
