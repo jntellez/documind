@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   getDocumentsOffline,
   deleteDocumentOffline,
@@ -8,12 +8,14 @@ import { useNetworkStatus } from "./useNetworkStatus";
 import { useFocusEffect } from "@react-navigation/native";
 import type { Document } from "../../types/api";
 import { showToast } from "@/components/ui/Toast";
+import { normalizeText } from "@/utils/text";
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasInitialSync, setHasInitialSync] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { isOnline } = useNetworkStatus();
 
   const fetchDocuments = useCallback(
@@ -74,6 +76,22 @@ export function useDocuments() {
     [isOnline],
   );
 
+  const filteredDocuments = useMemo(() => {
+    if (!searchQuery.trim()) return documents;
+
+    const normalizedQuery = normalizeText(searchQuery);
+
+    return documents.filter((doc) => {
+      const normalizedTitle = normalizeText(doc.title);
+      const normalizedContent = doc.content ? normalizeText(doc.content) : "";
+
+      return (
+        normalizedTitle.includes(normalizedQuery) ||
+        normalizedContent.includes(normalizedQuery)
+      );
+    });
+  }, [documents, searchQuery]);
+
   // Carga inicial
   useFocusEffect(
     useCallback(() => {
@@ -90,8 +108,10 @@ export function useDocuments() {
     isLoading,
     isRefreshing,
     isOnline,
+    filteredDocuments,
     fetchDocuments,
     handleRefresh,
     removeDocument,
+    setSearchQuery,
   };
 }
