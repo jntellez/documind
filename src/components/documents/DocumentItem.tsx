@@ -1,4 +1,4 @@
-import { View, Pressable, Animated } from 'react-native';
+import { View, Pressable, Animated, Text } from 'react-native';
 import { Document } from 'types/api';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useColorScheme } from 'nativewind';
@@ -28,7 +28,7 @@ export default function DocumentItem({
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotation = useRef(new Animated.Value(0)).current;
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -65,15 +65,32 @@ export default function DocumentItem({
             <Title className="text-base font-semibold pr-4" numberOfLines={1}>
               {document.title}
             </Title>
+
             <Paragraph className="text-sm">
               {formatDate(document.created_at)}
             </Paragraph>
+
+            {/* Tags */}
+            {document.tags && document.tags.length > 0 && (
+              <View className="flex-row flex-wrap gap-1 mt-1 mb-1">
+                {document.tags.map((tag, index) => (
+                  <Card
+                    key={`${document.id}-tag-${index}`}
+                    className="px-2 py-1"
+                  >
+                    <Text className="text-xs text-zinc-700 dark:text-zinc-300">
+                      {tag}
+                    </Text>
+                  </Card>
+                ))}
+              </View>
+            )}
           </View>
 
           {/* Botón de expansión */}
           <Pressable
             onPress={() => setIsExpanded(!isExpanded)}
-            className="p-0.5 active:opacity-50"
+            className="p-0.5 active:opacity-50 mt-1"
             hitSlop={8}
           >
             <Animated.View style={{ transform: [{ rotate: rotation }] }}>
@@ -98,7 +115,7 @@ export default function DocumentItem({
           overflow: 'hidden'
         }}
       >
-        <View className="flex-row items-center justify-around">
+        <View className="flex-row items-center justify-around h-full">
           <Button
             variant="icon-only"
             icon={<Ionicons name="pricetag-outline" size={18} color={isDark ? "#a855f7" : "#9333ea"} />}
