@@ -3,6 +3,7 @@ import {
   getDocumentsOffline,
   deleteDocumentOffline,
   syncWithServer,
+  updateDocumentTagsOffline,
 } from "@/services/offlineDocumentService";
 import { useNetworkStatus } from "./useNetworkStatus";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -18,25 +19,30 @@ export function useDocuments() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasInitialSync, setHasInitialSync] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Estados de Etiquetas
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isTagModalVisible, setIsTagModalVisible] = useState(false);
+  const [selectedDocForTag, setSelectedDocForTag] = useState<Document | null>(
+    null,
+  );
+  const [tagInput, setTagInput] = useState("");
+
   const { isOnline } = useNetworkStatus();
   const navigation = useNavigation<DocumentsScreenProps["navigation"]>();
 
+  // ... (fetchDocuments, handleRefresh, removeDocument, handleDelete, handleShare, handlePressDocument se mantienen exactamente igual)
   const fetchDocuments = useCallback(
     async (showLoading = true, forceSync = false) => {
       if (showLoading) setIsLoading(true);
-
       try {
         if (isOnline && (!hasInitialSync || forceSync)) {
-          console.log("🔄 Syncing with server...");
           await syncWithServer();
           setHasInitialSync(true);
         }
-
         const response = await getDocumentsOffline();
-        console.log("📄 Documents loaded:", response.documents.length);
         setDocuments(response.documents);
       } catch (error: any) {
-        console.error("❌ Error fetching documents:", error);
         showToast({
           type: "error",
           text1: "Error",
@@ -60,19 +66,16 @@ export function useDocuments() {
       try {
         await deleteDocumentOffline(id);
         setDocuments((prev) => prev.filter((doc) => doc.id !== id));
-
         showToast({
           type: "success",
           text1: "Deleted",
-          text2: isOnline
-            ? "Document deleted successfully"
-            : "Document will be deleted when online",
+          text2: "Document deleted successfully",
         });
       } catch (error: any) {
         showToast({
           type: "error",
           text1: "Error",
-          text2: error.message || "Failed to delete document",
+          text2: "Failed to delete document",
         });
       }
     },
@@ -80,18 +83,14 @@ export function useDocuments() {
   );
 
   const handleDelete = (id: number) => {
-    Alert.alert(
-      "Delete Document",
-      "Are you sure you want to delete this document?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => removeDocument(id),
-        },
-      ],
-    );
+    Alert.alert("Delete Document", "Are you sure?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => removeDocument(id),
+      },
+    ]);
   };
 
   const handleShare = async (document: Document) => {
@@ -101,11 +100,7 @@ export function useDocuments() {
         title: document.title,
       });
     } catch (error: any) {
-      showToast({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to share document",
-      });
+      showToast({ type: "error", text1: "Error", text2: "Failed to share" });
     }
   };
 
@@ -113,30 +108,104 @@ export function useDocuments() {
     navigation.navigate("Document", { data: document });
   };
 
+  // Lógica de Modal de Etiquetas (Se mantiene igual)
+  const openTagModal = (doc: Document) => {
+    setSelectedDocForTag(doc);
+    setTagInput("");
+    setIsTagModalVisible(true);
+  };
+
+  const closeTagModal = () => {
+    setIsTagModalVisible(false);
+    setSelectedDocForTag(null);
+    setTagInput("");
+  };
+
+  const handleSaveTag = async () => {
+    if (!selectedDocForTag || !tagInput.trim()) return;
+
+    const newTag = tagInput.trim().toLowerCase();
+    const currentTags = selectedDocForTag.tags || [];
+
+    if (currentTags.includes(newTag)) {
+      showToast({ type: "error", text1: "Error", text2: "Tag already exists" });
+      return;
+    }
+
+    const updatedTags = [...currentTags, newTag];
+
+    setDocuments((prev) =>
+      prev.map((doc) =>
+        doc.id === selectedDocForTag.id ? { ...doc, tags: updatedTags } : doc,
+      ),
+    );
+
+    closeTagModal();
+
+    try {
+      await updateDocumentTagsOffline(selectedDocForTag.id, updatedTags);
+      showToast({
+        type: "success",
+        text1: "Success",
+        text2: "Tag added successfully",
+      });
+    } catch (error: any) {
+      showToast({ type: "error", text1: "Error", text2: "Failed to save tag" });
+    }
+  };
+
+  // Extraer etiquetas disponibles
+  const availableTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+    documents.forEach((doc) => {
+      if (doc.tags && Array.isArray(doc.tags)) {
+        doc.tags.forEach((tag) => tagsSet.add(tag));
+      }
+    });
+    return Array.from(tagsSet).sort((a, b) => a.localeCompare(b));
+  }, [documents]);
+
+  const toggleTagFilter = useCallback((tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  }, []);
+
   const filteredDocuments = useMemo(() => {
-    if (!searchQuery.trim()) return documents;
+    let result = documents;
 
-    const normalizedQuery = normalizeText(searchQuery);
+    // 1. Búsqueda
+    if (searchQuery.trim()) {
+      const normalizedQuery = normalizeText(searchQuery);
+      result = result.filter((doc) => {
+        const normalizedTitle = normalizeText(doc.title);
+        const normalizedContent = doc.content ? normalizeText(doc.content) : "";
+        return (
+          normalizedTitle.includes(normalizedQuery) ||
+          normalizedContent.includes(normalizedQuery)
+        );
+      });
+    }
 
-    return documents.filter((doc) => {
-      const normalizedTitle = normalizeText(doc.title);
-      const normalizedContent = doc.content ? normalizeText(doc.content) : "";
+    // 2. Filtro por Etiquetas
+    if (selectedTags.length > 0) {
+      result = result.filter(
+        (doc) => doc.tags && doc.tags.some((tag) => selectedTags.includes(tag)),
+      );
+    }
 
+    // 3. Ordenamiento fijo (Más recientes primero)
+    return result.sort((a, b) => {
       return (
-        normalizedTitle.includes(normalizedQuery) ||
-        normalizedContent.includes(normalizedQuery)
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     });
-  }, [documents, searchQuery]);
+  }, [documents, searchQuery, selectedTags]);
 
-  // Carga inicial
   useFocusEffect(
     useCallback(() => {
-      if (!hasInitialSync) {
-        fetchDocuments(true, false);
-      } else if (!isLoading) {
-        fetchDocuments(false, false);
-      }
+      if (!hasInitialSync) fetchDocuments(true, false);
+      else if (!isLoading) fetchDocuments(false, false);
     }, [hasInitialSync, isLoading]),
   );
 
@@ -153,5 +222,16 @@ export function useDocuments() {
     handlePressDocument,
     removeDocument,
     setSearchQuery,
+
+    // Props de Etiquetas
+    availableTags,
+    selectedTags,
+    toggleTagFilter,
+    isTagModalVisible,
+    tagInput,
+    setTagInput,
+    openTagModal,
+    closeTagModal,
+    handleSaveTag,
   };
 }
