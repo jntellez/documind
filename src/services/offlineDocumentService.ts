@@ -6,6 +6,7 @@ import {
   getDocumentById as apiGetDocumentById,
   saveDocument as apiSaveDocument,
   deleteDocument as apiDeleteDocument,
+  updateDocument as apiUpdateDocument, // <-- IMPORTANTE
 } from "./documentService";
 import { Document, ProcessedDocument } from "types/api";
 import { toDocument, fromDocument } from "types/storage";
@@ -38,18 +39,14 @@ export const getDocumentsOffline = async () => {
       response.documents.forEach((doc) => {
         const existing = localDocs.find((d) => d.server_id === doc.id);
         if (existing) {
-          // Solo actualizar si no está marcado como eliminado
           if (!existing.deleted) {
-            documentQueries.update(existing.id, {
-              ...doc,
-              server_id: doc.id,
-            });
+            // Usamos fromDocument para que tags se guarde correctamente en SQLite
+            documentQueries.update(existing.id, fromDocument(doc));
           }
         } else {
-          // Verificar que no exista un registro eliminado con este server_id
           const deleted = db.getFirstSync(
             "SELECT * FROM documents WHERE server_id = ? AND deleted = 1",
-            [doc.id]
+            [doc.id],
           );
 
           if (!deleted) {
@@ -62,7 +59,6 @@ export const getDocumentsOffline = async () => {
         }
       });
 
-      // Retornar documentos convertidos a formato API (excluyendo eliminados)
       return {
         documents: documentQueries.getAll().map(toDocument),
       };
@@ -71,7 +67,6 @@ export const getDocumentsOffline = async () => {
     }
   }
 
-  // Retornar documentos locales convertidos a formato API
   return {
     documents: localDocs.map(toDocument),
   };
@@ -104,6 +99,7 @@ export const getDocumentByIdOffline = async (id: number): Promise<Document> => {
 export const saveDocumentOffline = async (document: ProcessedDocument) => {
   const now = new Date().toISOString();
 
+  // Insertar localmente
   const localId = documentQueries.insert({
     server_id: null,
     title: document.title,
@@ -114,16 +110,14 @@ export const saveDocumentOffline = async (document: ProcessedDocument) => {
     updated_at: now,
     synced: 0,
     deleted: 0,
+    tags: document.tags ? JSON.stringify(document.tags) : "[]",
   });
 
   if (await checkConnectivity()) {
     try {
       const response = await apiSaveDocument(document);
 
-      documentQueries.update(localId, {
-        ...response.document,
-        server_id: response.document.id,
-      });
+      documentQueries.update(localId, fromDocument(response.document));
 
       const savedDoc = documentQueries.getById(localId)!;
       return {
@@ -144,11 +138,39 @@ export const saveDocumentOffline = async (document: ProcessedDocument) => {
   };
 };
 
-export const deleteDocumentOffline = async (id: number) => {
-  // Buscar por ID local primero
+// --- NUEVA FUNCIÓN PARA ACTUALIZAR ETIQUETAS ---
+export const updateDocumentTagsOffline = async (id: number, tags: string[]) => {
   let doc = documentQueries.getById(id);
 
-  // Si no se encuentra, buscar por server_id
+  if (!doc) {
+    const allDocs = documentQueries.getAll();
+    doc = allDocs.find((d) => d.server_id === id) || null;
+  }
+
+  if (!doc) throw new Error("Document not found");
+
+  // 1. SQLite SÍ necesita que sea un string JSON
+  documentQueries.update(doc.id, { tags: JSON.stringify(tags) } as any);
+
+  // 2. API necesita el ARRAY PURO (tags) para pasar la validación de Zod
+  if (await checkConnectivity()) {
+    try {
+      if (doc.server_id) {
+        await apiUpdateDocument(doc.server_id, { tags });
+      } else {
+        syncQueueQueries.enqueue(doc.id, "UPDATE", { id: doc.server_id, tags });
+      }
+    } catch (error) {
+      syncQueueQueries.enqueue(doc.id, "UPDATE", { id: doc.server_id, tags });
+    }
+  } else {
+    syncQueueQueries.enqueue(doc.id, "UPDATE", { id: doc.server_id, tags });
+  }
+};
+
+export const deleteDocumentOffline = async (id: number) => {
+  let doc = documentQueries.getById(id);
+
   if (!doc) {
     const allDocs = documentQueries.getAll();
     doc = allDocs.find((d) => d.server_id === id) || null;
@@ -158,29 +180,21 @@ export const deleteDocumentOffline = async (id: number) => {
     throw new Error("Document not found");
   }
 
-  // Marcar como eliminado localmente
   documentQueries.softDelete(doc.id);
 
   if (await checkConnectivity()) {
     try {
-      // Si tiene server_id, eliminar en el servidor
       if (doc.server_id) {
         await apiDeleteDocument(doc.server_id);
-        // Si se eliminó exitosamente del servidor, eliminar completamente de la BD local
-        db.runSync("DELETE FROM documents WHERE id = ?", [doc.id]);
-      } else {
-        // Si no tiene server_id, solo eliminar localmente
-        db.runSync("DELETE FROM documents WHERE id = ?", [doc.id]);
       }
+      db.runSync("DELETE FROM documents WHERE id = ?", [doc.id]);
     } catch (error) {
-      // Si falla, agregar a la cola de sincronización
       syncQueueQueries.enqueue(doc.id, "DELETE", {
         id: doc.id,
         server_id: doc.server_id,
       });
     }
   } else {
-    // Sin conexión, agregar a la cola de sincronización
     syncQueueQueries.enqueue(doc.id, "DELETE", {
       id: doc.id,
       server_id: doc.server_id,
@@ -202,18 +216,35 @@ export const syncWithServer = async () => {
         case "CREATE":
           const response = await apiSaveDocument(data);
           if (item.document_id) {
-            documentQueries.update(item.document_id, {
-              ...response.document,
-              server_id: response.document.id,
-            });
+            documentQueries.update(
+              item.document_id,
+              fromDocument(response.document),
+            );
+          }
+          break;
+
+        // --- CASO UPDATE AÑADIDO PARA LA COLA ---
+        case "UPDATE":
+          const localDoc = item.document_id
+            ? documentQueries.getById(item.document_id)
+            : null;
+
+          if (localDoc && localDoc.server_id) {
+            await apiUpdateDocument(localDoc.server_id, data);
+          } else if (data.id) {
+            await apiUpdateDocument(data.id, data);
           }
           break;
 
         case "DELETE":
           if (data.server_id) {
-            await apiDeleteDocument(data.server_id);
+            try {
+              await apiDeleteDocument(data.server_id);
+            } catch (e: any) {
+              const msg = e.message?.toLowerCase() || "";
+              if (!msg.includes("not found")) throw e;
+            }
           }
-          // Eliminar completamente de la BD local después de sincronizar
           if (item.document_id) {
             db.runSync("DELETE FROM documents WHERE id = ?", [
               item.document_id,
@@ -224,8 +255,23 @@ export const syncWithServer = async () => {
 
       syncQueueQueries.dequeue(item.id);
       console.log(`✅ Synced: ${item.action}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sync failed:", error);
+
+      // Limpiar tareas fallidas permanentemente (400, 404, validaciones)
+      const msg = error.message?.toLowerCase() || "";
+      if (
+        msg.includes("not found") ||
+        msg.includes("unauthorized") ||
+        msg.includes("failed to update") ||
+        msg.includes("invalid") ||
+        msg.includes("required")
+      ) {
+        syncQueueQueries.dequeue(item.id);
+        console.log(
+          `🗑️ Descartando tarea de sync irrecuperable: ${item.action}`,
+        );
+      }
     }
   }
 

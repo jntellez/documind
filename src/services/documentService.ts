@@ -216,3 +216,35 @@ export async function deleteDocument(id: number): Promise<void> {
     throw error;
   }
 }
+
+export async function updateDocument(
+  id: number,
+  data: Partial<Document>,
+): Promise<Document> {
+  try {
+    const token = await tokenStorage.get();
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/documents/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseData.error || "Failed to update document");
+    }
+
+    return responseData.document || responseData;
+  } catch (error) {
+    throw error;
+  }
+}
