@@ -11,6 +11,7 @@ export interface LocalDocument {
   updated_at: string;
   synced: number; // 0 o 1 (boolean en SQLite)
   deleted: number; // 0 o 1 (boolean en SQLite)
+  tags: string;
 }
 
 export interface SyncQueueItem {
@@ -31,12 +32,13 @@ export function toDocument(local: LocalDocument): Document {
     word_count: local.word_count,
     created_at: local.created_at,
     updated_at: local.updated_at,
+    tags: local.tags ? JSON.parse(local.tags) : [],
   };
 }
 
 // Utilidad para preparar Document para insert local
 export function fromDocument(
-  doc: Document
+  doc: Document,
 ): Omit<LocalDocument, "id" | "synced" | "deleted"> {
   return {
     server_id: doc.id,
@@ -46,5 +48,6 @@ export function fromDocument(
     word_count: doc.word_count,
     created_at: doc.created_at,
     updated_at: doc.updated_at,
+    tags: doc.tags ? JSON.stringify(doc.tags) : "[]",
   };
 }

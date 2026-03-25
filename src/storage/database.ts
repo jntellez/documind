@@ -1,11 +1,12 @@
-export const clearAllLocalData = () => {
-  db.runSync("DELETE FROM documents");
-  db.runSync("DELETE FROM sync_queue");
-};
 import * as SQLite from "expo-sqlite";
 import { LocalDocument, SyncQueueItem } from "types/storage";
 
 const db = SQLite.openDatabaseSync("documind.db");
+
+export const clearAllLocalData = () => {
+  db.runSync("DELETE FROM documents");
+  db.runSync("DELETE FROM sync_queue");
+};
 
 export const initDatabase = () => {
   db.execSync(`
@@ -19,7 +20,8 @@ export const initDatabase = () => {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       synced INTEGER DEFAULT 0,
-      deleted INTEGER DEFAULT 0
+      deleted INTEGER DEFAULT 0,
+      tags TEXT DEFAULT '[]'
     );
 
     CREATE TABLE IF NOT EXISTS sync_queue (
@@ -51,25 +53,25 @@ export const documentQueries = {
   },
 
   insert: (doc: Omit<LocalDocument, "id">): number => {
-    if (!doc.title || !doc.content) {
-      throw new Error("Title and content are required");
-    }
+    const safeTitle = doc.title ?? "";
+    const safeContent = doc.content ?? "";
 
     const result = db.runSync(
       `INSERT INTO documents (
         server_id, title, content, word_count, 
-        original_url, created_at, updated_at, synced, deleted
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        original_url, created_at, updated_at, synced, deleted, tags
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         doc.server_id,
-        doc.title,
-        doc.content,
-        doc.word_count,
-        doc.original_url,
+        safeTitle,
+        safeContent,
+        doc.word_count || 0,
+        doc.original_url || "",
         doc.created_at,
         doc.updated_at,
         doc.synced,
         doc.deleted,
+        doc.tags || "[]",
       ],
     );
     return result.lastInsertRowId;
@@ -98,6 +100,10 @@ export const documentQueries = {
     if (doc.original_url !== undefined) {
       fields.push("original_url = ?");
       values.push(doc.original_url);
+    }
+    if (doc.tags !== undefined) {
+      fields.push("tags = ?");
+      values.push(doc.tags);
     }
 
     // Siempre actualizar updated_at y synced
