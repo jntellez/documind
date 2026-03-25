@@ -2,10 +2,9 @@ import * as SQLite from "expo-sqlite";
 
 const db = SQLite.openDatabaseSync("documind.db");
 
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export const runMigrations = () => {
-  // Obtener versión actual
   let currentVersion = 0;
   try {
     const result = db.getFirstSync("PRAGMA user_version") as {
@@ -14,12 +13,15 @@ export const runMigrations = () => {
     currentVersion = result.user_version;
   } catch (error) {}
 
-  // Ejecutar migraciones necesarias
   if (currentVersion < 1) {
     migration_v1();
   }
 
-  // Actualizar versión
+  // <-- Ejecutar nueva migración si la versión es menor a 2
+  if (currentVersion < 2) {
+    migration_v2();
+  }
+
   db.execSync(`PRAGMA user_version = ${DB_VERSION}`);
 };
 
@@ -27,9 +29,9 @@ const migration_v1 = () => {
   // Ya se ejecuta en initDatabase
 };
 
-// Ejemplo de migración futura:
-// const migration_v2 = () => {
-//   db.execSync(`
-//     ALTER TABLE documents ADD COLUMN tags TEXT;
-//   `);
-// };
+// <-- Añadir la migración que altera la tabla existente
+const migration_v2 = () => {
+  db.execSync(`
+    ALTER TABLE documents ADD COLUMN tags TEXT DEFAULT '[]';
+  `);
+};
