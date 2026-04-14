@@ -2,7 +2,7 @@
 
 Backend service for the Documind monorepo, running on **Bun** while the monorepo remains managed by **pnpm** workspaces.
 
-## Run
+## Install and run
 
 From the repo root:
 
@@ -17,7 +17,24 @@ Or directly for this workspace:
 pnpm --filter @documind/api dev
 ```
 
+Without hot reload:
+
+```bash
+pnpm api:start
+```
+
+Typecheck:
+
+```bash
+pnpm api:typecheck
+```
+
 ## Environment
+
+Environment files live in this workspace:
+
+- template: `apps/api/.env.example`
+- local file: `apps/api/.env`
 
 This app expects the same runtime variables used by the original standalone API, including:
 
@@ -29,5 +46,7 @@ This app expects the same runtime variables used by the original standalone API,
 - `GITHUB_CLIENT_SECRET`
 - `HOST` (optional, default `0.0.0.0`)
 - `PORT` (optional, default `3000`)
+
+Create the local file from the example and fill it with local values only.
 
 Do not commit `.env` files or secrets into the monorepo.

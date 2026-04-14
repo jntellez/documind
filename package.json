@@ -2,17 +2,21 @@
   "name": "documind",
   "version": "1.0.0",
   "scripts": {
-    "start": "pnpm --filter @documind/mobile start",
-    "android": "pnpm --filter @documind/mobile android",
-    "ios": "pnpm --filter @documind/mobile ios",
-    "web": "pnpm --filter @documind/mobile web",
+    "start": "pnpm run mobile:start",
+    "android": "pnpm run mobile:android",
+    "ios": "pnpm run mobile:ios",
+    "web": "pnpm run mobile:web",
     "api:dev": "pnpm --filter @documind/api dev",
     "api:start": "pnpm --filter @documind/api start",
     "api:typecheck": "pnpm --filter @documind/api typecheck",
+    "mobile:config": "pnpm --filter @documind/mobile config:check",
     "mobile:start": "pnpm --filter @documind/mobile start",
     "mobile:android": "pnpm --filter @documind/mobile android",
     "mobile:ios": "pnpm --filter @documind/mobile ios",
-    "mobile:web": "pnpm --filter @documind/mobile web"
+    "mobile:typecheck": "pnpm --filter @documind/mobile typecheck",
+    "mobile:web": "pnpm --filter @documind/mobile web",
+    "typecheck": "pnpm run mobile:typecheck && pnpm run api:typecheck",
+    "validate": "pnpm run typecheck && pnpm run mobile:config"
   },
   "pnpm": {
     "overrides": {

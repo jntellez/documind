@@ -1,96 +1,168 @@
 # Documind
 
-Cross-platform mobile application designed to improve productivity and digital information comprehension by transforming web content and documents into a clean, minimalist, distraction-free format.
+Documind is a pnpm monorepo with two active apps:
 
-> ⚠️ **Repository transition in progress**: this repo is now the **root of a pnpm monorepo**. The current Expo/React Native mobile app lives in `apps/mobile`.
+- `apps/mobile`: Expo / React Native / TypeScript client
+- `apps/api`: Bun / Hono / TypeScript API
 
-## 🚀 Project Status
+## Monorepo structure
 
-**Version:** Initialization (v0.1.0)  
-**Status:** Active development - Base structure implemented
+```text
+.
+├── apps/
+│   ├── api/      # Bun + Hono backend
+│   └── mobile/   # Expo / React Native app
+├── packages/     # shared packages (reserved)
+├── package.json  # root scripts for the monorepo
+└── pnpm-workspace.yaml
+```
 
-This project is in its early stages. Currently implements basic navigation infrastructure and authentication structure.
+## Tooling model: pnpm + Bun
 
-## 📱 Tech Stack
+- **pnpm** manages the monorepo, installs dependencies, and runs workspace scripts.
+- **Bun** is the runtime used by `apps/api`.
+- In practice: you install everything from the repo root with `pnpm install`, and pnpm delegates API scripts to Bun where needed.
 
-- **React Native** 0.81.4
-- **Expo SDK** ~54.0.10
-- **TypeScript** ~5.9.2
-
-## 🎯 Project Vision
-
-### Planned Modules
-
-1. **Content Processing**: Text and image extraction and cleaning from URLs and files
-2. **Library and Organization**: Storage, classification, and search of processed documents
-3. **Document**: Visualization, editing, and document interactions
-4. **AI Interaction**: Conversational assistant for summaries and analysis
-5. **Security and Account Management**: Authentication and cloud synchronization
-6. **Settings and Preferences**: Interface and application customization
-
-> ⚠️ **Note**: These modules are in planning phase and not implemented in current code.
-
-## 🚀 Getting Started
-
-### Prerequisites
+## Prerequisites
 
 - Node.js 18+
 - pnpm 10+
-- Expo CLI (optional if you use `pnpm start`)
-- iOS Simulator (Mac) or Android Studio (for emulators)
+- Bun 1.x
+- iOS Simulator / Android Studio if you want native Expo targets
 
-### Steps
+## Install dependencies
 
-```bash
-# Clone repository
-git clone https://github.com/jntellez/documind.git
-cd documind
-
-# Install dependencies
-pnpm install
-
-# Start development server
-pnpm start
-# or run the mobile workspace directly
-pnpm --filter @documind/mobile start
-```
-
-## 🏗️ Monorepo Transition
-
-This repository is the workspace root for the mobile app and the Bun API.
-
-Planned layout:
-
-```text
-apps/
-  mobile/   # Expo / React Native app
-  api/      # future Bun runtime API
-packages/   # shared packages
-```
-
-Current status:
-
-- `pnpm-workspace.yaml` already defines `apps/*` and `packages/*`
-- the mobile app now runs from `apps/mobile`
-- the API now lives in `apps/api` and keeps **Bun** as its runtime
-- dependencies are installed from the monorepo root with **pnpm**
-- `packages/` is still placeholder-only for now
-
-Useful workspace commands:
+From the repository root:
 
 ```bash
 pnpm install
+```
+
+To verify the workspace layout detected by pnpm:
+
+```bash
+pnpm --recursive list --depth -1
+```
+
+## Root scripts
+
+### Mobile
+
+```bash
 pnpm mobile:start
+pnpm mobile:android
+pnpm mobile:ios
+pnpm mobile:web
+pnpm mobile:typecheck
+pnpm mobile:config
+```
+
+Convenience aliases kept at root:
+
+```bash
+pnpm start
+pnpm android
+pnpm ios
+pnpm web
+```
+
+These aliases map to the mobile app.
+
+### API
+
+```bash
 pnpm api:dev
+pnpm api:start
 pnpm api:typecheck
 ```
 
-## 🎨 Supported Platforms
+### Cross-workspace validation
 
-- ✅ iOS (native)
-- ✅ Android (native)
-- ✅ Web (browser)
+```bash
+pnpm typecheck
+pnpm validate
+```
 
-## 📄 License
+- `pnpm typecheck` runs the mobile and API typechecks.
+- `pnpm validate` runs both typechecks plus a lightweight Expo config validation.
+
+## Running the mobile app
+
+From the repo root:
+
+```bash
+pnpm mobile:start
+```
+
+Or use a platform-specific target:
+
+```bash
+pnpm mobile:android
+pnpm mobile:ios
+pnpm mobile:web
+```
+
+You can also run the workspace directly:
+
+```bash
+pnpm --filter @documind/mobile start
+```
+
+## Running the API
+
+From the repo root:
+
+```bash
+pnpm api:dev
+```
+
+Or run the Bun entrypoint without hot reload:
+
+```bash
+pnpm api:start
+```
+
+Direct workspace form:
+
+```bash
+pnpm --filter @documind/api dev
+```
+
+## API environment configuration
+
+The API environment files live under `apps/api/`.
+
+- Example template: `apps/api/.env.example`
+- Local real env file: `apps/api/.env` (local only, not committed)
+
+Typical setup:
+
+```bash
+cp apps/api/.env.example apps/api/.env
+```
+
+Then fill in the required values locally. Do not commit secrets.
+
+## Quick validation flow
+
+From the repo root:
+
+```bash
+pnpm typecheck
+pnpm mobile:config
+```
+
+For the API, a lightweight runtime validation can be done by starting it briefly with Bun from `apps/api` using the local `.env`.
+
+## Tech stack
+
+- Expo SDK 54
+- React Native 0.81
+- TypeScript 5.9
+- Hono
+- Bun
+- pnpm workspaces
+
+## License
 
 This project is open source and available under the [MIT License](LICENSE).

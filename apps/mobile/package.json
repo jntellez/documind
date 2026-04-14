@@ -6,7 +6,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "config:check": "expo config --type public"
   },
   "dependencies": {
     "@native-html/table-plugin": "^5.3.1",
