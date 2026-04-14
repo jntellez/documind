@@ -5,7 +5,7 @@ import { useColorScheme } from 'nativewind';
 import Home from '@/screens/home/Home';
 import Documents from "@/screens/documents/Documents"
 import Settings from "@/screens/settings/Settings"
-import { RootTabParamList } from '@/../types';
+import { RootTabParamList } from 'types';
 import Octicons from '@expo/vector-icons/Octicons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Avatar from '@/components/ui/Avatar';
@@ -13,7 +13,7 @@ import { GradientTitle } from '@/components/ui/Typography';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '@/../types';
+import { RootStackParamList } from 'types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -82,4 +82,3 @@ export default function TabNavigator() {
     </Tab.Navigator >
   );
 }
-

@@ -9,7 +9,9 @@ overrides:
 
 importers:
 
-  .:
+  .: {}
+
+  apps/mobile:
     dependencies:
       '@native-html/table-plugin':
         specifier: ^5.3.1

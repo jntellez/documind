@@ -2,6 +2,8 @@
 
 Cross-platform mobile application designed to improve productivity and digital information comprehension by transforming web content and documents into a clean, minimalist, distraction-free format.
 
+> ⚠️ **Repository transition in progress**: this repo is now the **root of a pnpm monorepo**. The current Expo/React Native mobile app lives in `apps/mobile`.
+
 ## 🚀 Project Status
 
 **Version:** Initialization (v0.1.0)  
@@ -33,8 +35,8 @@ This project is in its early stages. Currently implements basic navigation infra
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
-- Expo CLI
+- pnpm 10+
+- Expo CLI (optional if you use `pnpm start`)
 - iOS Simulator (Mac) or Android Studio (for emulators)
 
 ### Steps
@@ -45,11 +47,33 @@ git clone https://github.com/jntellez/documind.git
 cd documind
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server
-npm start
+pnpm start
+# or run the mobile workspace directly
+pnpm --filter @documind/mobile start
 ```
+
+## 🏗️ Monorepo Transition
+
+This repository is being prepared as the future workspace root.
+
+Planned layout:
+
+```text
+apps/
+  mobile/   # Expo / React Native app
+  api/      # future Bun runtime API
+packages/   # shared packages
+```
+
+Current status:
+
+- `pnpm-workspace.yaml` already defines `apps/*` and `packages/*`
+- the mobile app now runs from `apps/mobile`
+- `packages/` is still placeholder-only for now
+- no API has been added yet
 
 ## 🎨 Supported Platforms
 

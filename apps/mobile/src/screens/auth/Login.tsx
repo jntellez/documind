@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '@/../types';
+import { RootStackParamList } from 'types';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { GradientTitle, Paragraph } from '@/components/ui/Typography';
