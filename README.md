@@ -57,7 +57,7 @@ pnpm --filter @documind/mobile start
 
 ## 🏗️ Monorepo Transition
 
-This repository is being prepared as the future workspace root.
+This repository is the workspace root for the mobile app and the Bun API.
 
 Planned layout:
 
@@ -72,8 +72,18 @@ Current status:
 
 - `pnpm-workspace.yaml` already defines `apps/*` and `packages/*`
 - the mobile app now runs from `apps/mobile`
+- the API now lives in `apps/api` and keeps **Bun** as its runtime
+- dependencies are installed from the monorepo root with **pnpm**
 - `packages/` is still placeholder-only for now
-- no API has been added yet
+
+Useful workspace commands:
+
+```bash
+pnpm install
+pnpm mobile:start
+pnpm api:dev
+pnpm api:typecheck
+```
 
 ## 🎨 Supported Platforms
 

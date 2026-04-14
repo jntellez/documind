@@ -5,4 +5,4 @@ Workspace directory reserved for application packages.
 Current packages:
 
 - `apps/mobile`: current Expo / React Native app
-- `apps/api`: future backend service
+- `apps/api`: Bun + Hono backend service managed through the pnpm workspace
