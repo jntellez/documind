@@ -108,6 +108,28 @@ You can also run the workspace directly:
 pnpm --filter @documind/mobile start
 ```
 
+## Mobile environment configuration
+
+The mobile app environment files live under `apps/mobile/`.
+
+- Example template: `apps/mobile/.env.example`
+- Local real env file: `apps/mobile/.env` (local only, not committed)
+
+Typical setup:
+
+```bash
+cp apps/mobile/.env.example apps/mobile/.env
+```
+
+Then fill in the Expo public variables locally:
+
+- `EXPO_PUBLIC_API_URL`
+- `EXPO_PUBLIC_GOOGLE_ANDROID_ID`
+- `EXPO_PUBLIC_GOOGLE_IOS_ID`
+- `EXPO_PUBLIC_GOOGLE_WEB_ID`
+- `EXPO_PUBLIC_GITHUB_CLIENT_ID`
+- `EXPO_PUBLIC_GOOGLE_REDIRECT_URI`
+
 ## Running the API
 
 From the repo root:
