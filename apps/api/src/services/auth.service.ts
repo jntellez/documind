@@ -1,18 +1,17 @@
+import type { AuthProvider, LoginResponse } from "@documind/types";
 import { sign } from "hono/jwt";
 import { config } from "../config";
 import sql from "../db";
 import { verifyGithubCode } from "../lib/github";
 import { verifyGoogleCode } from "../lib/google";
 
-type Provider = "google" | "github";
-
 export const AuthService = {
   async authenticate(
-    provider: Provider,
+    provider: AuthProvider,
     code: string,
     redirectUri?: string,
     codeVerifier?: string,
-  ) {
+  ): Promise<LoginResponse> {
     let userInfo;
 
     if (provider === "google") {

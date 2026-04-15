@@ -1,18 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { AuthUser } from '@documind/types';
 import { tokenStorage } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface User {
-  id: number;
-  email: string;
-  name: string;
-  avatar_url: string;
-}
-
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
-  signIn: (token: string, user: User) => Promise<void>;
+  signIn: (token: string, user: AuthUser) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -21,7 +15,7 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Al iniciar la app, verificamos si hay token guardado
@@ -45,7 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signIn = async (token: string, newUser: User) => {
+  const signIn = async (token: string, newUser: AuthUser) => {
     await tokenStorage.save(token);
     await AsyncStorage.setItem('user_data', JSON.stringify(newUser));
     setUser(newUser);

@@ -1,4 +1,11 @@
 export type {
+  AuthProvider,
+  AuthUser,
+  LoginRequest,
+  LoginResponse,
+} from "./auth";
+
+export type {
   ApiError,
   Document,
   GetDocumentResponse,

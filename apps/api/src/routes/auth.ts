@@ -1,5 +1,7 @@
+import type { LoginRequest } from "@documind/types";
 import { Hono } from "hono";
 import { jwt } from "hono/jwt";
+import { z } from "zod";
 import { config } from "../config";
 import { AuthService } from "../services/auth.service";
 
@@ -11,13 +13,18 @@ type JwtPayload = {
   id?: string | number;
 };
 
+const LoginRequestSchema = z.object({
+  code: z.string().min(1, "Code is required"),
+  provider: z.enum(["google", "github"]),
+  redirectUri: z.string().min(1).optional(),
+  codeVerifier: z.string().min(1).optional(),
+}) satisfies z.ZodType<LoginRequest>;
+
 auth.post("/login", async (c) => {
   try {
-    const { code, provider, redirectUri, codeVerifier } = await c.req.json();
-
-    if (!code || !provider) {
-      return c.json({ error: "Faltan parámetros (code, provider)" }, 400);
-    }
+    const body = await c.req.json();
+    const { code, provider, redirectUri, codeVerifier } =
+      LoginRequestSchema.parse(body);
 
     const result = await AuthService.authenticate(
       provider,
@@ -30,7 +37,13 @@ auth.post("/login", async (c) => {
   } catch (error) {
     console.error("Login Error:", error);
     return c.json(
-      { error: "Error durante la autenticación", details: String(error) },
+      {
+        error:
+          error instanceof z.ZodError
+            ? "Faltan parámetros (code, provider)"
+            : "Error durante la autenticación",
+        details: String(error),
+      },
       400,
     );
   }

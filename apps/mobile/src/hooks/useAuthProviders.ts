@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
+import type { AuthProvider, LoginRequest, LoginResponse } from "@documind/types";
 import * as Google from "expo-auth-session/providers/google";
 import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import { useAuth } from "@/context/AuthContext";
@@ -44,7 +45,7 @@ export function useAuthProviders(onSuccess: () => void) {
   // Función centralizada para autenticar con el backend
   const handleAuthWithBackend = async (
     code: string,
-    provider: "google" | "github",
+    provider: AuthProvider,
     redirectUri?: string,
     codeVerifier?: string
   ) => {
@@ -53,18 +54,20 @@ export function useAuthProviders(onSuccess: () => void) {
 
     setLoading(true);
     try {
+      const payload: LoginRequest = {
+        code,
+        provider,
+        redirectUri,
+        codeVerifier,
+      };
+
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          code,
-          provider,
-          redirectUri,
-          codeVerifier,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as LoginResponse & { error?: string };
 
       if (!response.ok) throw new Error(data.error || "Error en autenticación");
 
