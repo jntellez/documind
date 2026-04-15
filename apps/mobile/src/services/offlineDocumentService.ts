@@ -8,7 +8,7 @@ import {
   deleteDocument as apiDeleteDocument,
   updateDocument as apiUpdateDocument, // <-- IMPORTANTE
 } from "./documentService";
-import { Document, ProcessedDocument } from "types/api";
+import type { Document, ProcessedDocument } from "@documind/types";
 import { toDocument, fromDocument } from "types/storage";
 
 const db = SQLite.openDatabaseSync("documind.db");

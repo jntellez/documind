@@ -3,6 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@documind/types": ["../../packages/types/src/index.ts"],
+      "@documind/types/*": ["../../packages/types/src/*"],
       "@/*": ["src/*"],
       "types": ["types/index"],
       "types/*": ["types/*"]

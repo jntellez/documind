@@ -7,7 +7,7 @@ import {
 } from "@/services/offlineDocumentService";
 import { useNetworkStatus } from "./useNetworkStatus";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import type { Document } from "types/api";
+import type { Document } from "@documind/types";
 import { showToast } from "@/components/ui/Toast";
 import { normalizeText } from "@/utils/text";
 import { Alert, Share } from "react-native";

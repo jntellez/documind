@@ -1,27 +1,4 @@
-export interface ProcessedDocument {
-  title: string;
-  content: string;
-  original_url: string;
-  word_count?: number;
-  tags?: string[];
-}
-
-export interface Document {
-  id: number;
-  title: string;
-  content: string;
-  original_url: string;
-  word_count: number;
-  created_at: string;
-  updated_at: string;
-  user_id?: number;
-  tags?: string[];
-}
-
-export interface ApiError {
-  error: string;
-  details?: any;
-}
+export type { ApiError, Document, ProcessedDocument } from "@documind/types";
 
 export interface FilePickerResult {
   uri: string;

@@ -1,4 +1,13 @@
 import { Readability } from "@mozilla/readability";
+import type {
+  GetDocumentResponse,
+  GetDocumentsResponse,
+  ProcessUrlRequest,
+  ProcessedDocument,
+  SaveDocumentRequest,
+  SaveDocumentResponse,
+  UpdateDocumentRequest,
+} from "@documind/types";
 import { Hono } from "hono";
 import { jwt } from "hono/jwt";
 import { JSDOM } from "jsdom";
@@ -6,22 +15,22 @@ import { z } from "zod";
 import { config } from "../config";
 import pg from "../db";
 
-const ProcessUrlRequest = z.object({
+const ProcessUrlRequestSchema = z.object({
   url: z.string().url(),
-});
+}) satisfies z.ZodType<ProcessUrlRequest>;
 
-const SaveDocumentRequest = z.object({
+const SaveDocumentRequestSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   original_url: z.string().url(),
   tags: z.array(z.string()).optional().default([]),
-});
+}) satisfies z.ZodType<SaveDocumentRequest>;
 
-const UpdateDocumentRequest = z.object({
+const UpdateDocumentRequestSchema = z.object({
   title: z.string().min(1, "Title cannot be empty").optional(),
   content: z.string().min(1, "Content cannot be empty").optional(),
   tags: z.array(z.string()).optional(),
-});
+}) satisfies z.ZodType<UpdateDocumentRequest>;
 
 const documentRoutes = new Hono();
 const authJwt = jwt({ secret: config.jwtSecret, alg: "HS256" });
@@ -34,7 +43,7 @@ type JwtPayload = {
 documentRoutes.post("/process-url", async (c) => {
   try {
     const body = await c.req.json();
-    const validatedData = ProcessUrlRequest.parse(body);
+    const validatedData = ProcessUrlRequestSchema.parse(body);
     const pageUrl = validatedData.url;
 
     const response = await fetch(pageUrl, {
@@ -61,11 +70,13 @@ documentRoutes.post("/process-url", async (c) => {
       throw new Error("Failed to extract content (article.content was null)");
     }
 
-    return c.json({
+    const processedDocument: ProcessedDocument = {
       title: article.title || "Title not found",
       content: article.content.replace(/\n\s*/g, ""),
       original_url: pageUrl,
-    });
+    };
+
+    return c.json(processedDocument);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return c.json({ error: errorMessage, details: error }, 400);
@@ -86,7 +97,7 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
     }
 
     const body = await c.req.json();
-    const validatedData = SaveDocumentRequest.parse(body);
+    const validatedData = SaveDocumentRequestSchema.parse(body);
     const createdAt = new Date();
     const updatedAt = new Date();
     const wordCount = validatedData.content
@@ -120,7 +131,12 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
       RETURNING id, title, content, original_url, word_count, created_at, updated_at, tags
     `;
 
-    return c.json({ success: true, document: result[0] }, 201);
+    const saveResponse: SaveDocumentResponse = {
+      success: true,
+      document: result[0],
+    };
+
+    return c.json(saveResponse, 201);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error saving document:", error);
@@ -151,7 +167,13 @@ documentRoutes.get("/documents", authJwt, async (c) => {
       ORDER BY created_at DESC
     `;
 
-    return c.json({ success: true, documents, count: documents.length });
+    const response: GetDocumentsResponse = {
+      success: true,
+      documents,
+      count: documents.length,
+    };
+
+    return c.json(response);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error fetching documents:", error);
@@ -192,7 +214,12 @@ documentRoutes.get("/documents/:id", authJwt, async (c) => {
       return c.json({ error: "Document not found" }, 404);
     }
 
-    return c.json({ success: true, document: documents[0] });
+    const response: GetDocumentResponse = {
+      success: true,
+      document: documents[0],
+    };
+
+    return c.json(response);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error fetching document:", error);
@@ -216,7 +243,7 @@ documentRoutes.patch("/documents/:id", authJwt, async (c) => {
     }
 
     const body = await c.req.json();
-    const validatedData = UpdateDocumentRequest.parse(body);
+    const validatedData = UpdateDocumentRequestSchema.parse(body);
 
     if (Object.keys(validatedData).length === 0) {
       return c.json({ error: "No fields provided to update" }, 400);

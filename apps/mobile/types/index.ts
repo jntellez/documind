@@ -1,4 +1,4 @@
-import { Document, ProcessedDocument } from "./api";
+import type { Document, ProcessedDocument } from "@documind/types";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import type { CompositeScreenProps } from "@react-navigation/native";
 import type { StackScreenProps } from "@react-navigation/stack";

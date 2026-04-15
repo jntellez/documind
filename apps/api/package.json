@@ -9,6 +9,7 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@documind/types": "workspace:*",
     "@mozilla/readability": "^0.6.0",
     "figlet": "^1.9.4",
     "hono": "^4.10.6",

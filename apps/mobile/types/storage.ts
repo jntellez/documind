@@ -1,4 +1,4 @@
-import { Document } from "./api";
+import type { Document } from "@documind/types";
 
 export interface LocalDocument {
   id: number; // ID local (autoincrement)

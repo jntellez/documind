@@ -1,8 +1,21 @@
-import { FilePickerResult, ProcessedDocument, Document } from "types/api";
+import type {
+  Document,
+  GetDocumentsResponse,
+  ProcessedDocument,
+  SaveDocumentRequest,
+  SaveDocumentResponse,
+} from "@documind/types";
 import * as DocumentPicker from "expo-document-picker";
 import Toast from "react-native-toast-message";
 import { tokenStorage } from "@/lib/storage";
 import { showToast } from "@/components/ui/Toast";
+
+type FilePickerResult = {
+  uri: string;
+  name: string;
+  size: number;
+  mimeType: string;
+};
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -93,11 +106,6 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
   }
 }
 
-export interface SaveDocumentResponse {
-  success: boolean;
-  document: Document;
-}
-
 export async function saveDocument(
   document: ProcessedDocument,
 ): Promise<SaveDocumentResponse> {
@@ -114,7 +122,7 @@ export async function saveDocument(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(document),
+      body: JSON.stringify(document satisfies SaveDocumentRequest),
     });
 
     const data = await response.json();
@@ -127,12 +135,6 @@ export async function saveDocument(
   } catch (error) {
     throw error;
   }
-}
-
-export interface GetDocumentsResponse {
-  success: boolean;
-  documents: Document[];
-  count: number;
 }
 
 export async function getDocuments(): Promise<GetDocumentsResponse> {
