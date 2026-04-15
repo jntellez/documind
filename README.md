@@ -76,6 +76,29 @@ pnpm api:start
 pnpm api:typecheck
 ```
 
+### Docker local development
+
+The mobile app stays outside Docker. Docker support is only for the API and PostgreSQL.
+
+```bash
+cp apps/api/.env.example apps/api/.env
+pnpm docker:up
+```
+
+Helpful commands:
+
+```bash
+pnpm docker:logs
+pnpm docker:down
+```
+
+This starts:
+
+- `postgres` on `localhost:5432` with a persistent Docker volume
+- `api` on `localhost:3000`, connected to the `postgres` service by Compose hostname
+
+When running the API inside Docker, keep `DATABASE_URL` pointed at `postgres` in `apps/api/.env`. If you run the API directly on your host with `pnpm api:dev`, switch to the commented `localhost` example instead.
+
 ### Cross-workspace validation
 
 ```bash
