@@ -1,11 +1,17 @@
 FROM oven/bun:1-alpine
 
-WORKDIR /app
+WORKDIR /workspace
 
 COPY package.json ./
-RUN bun install
+COPY apps/api/package.json apps/api/package.json
+COPY packages/types/package.json packages/types/package.json
 
-COPY . .
+RUN bun install --filter @documind/api
+
+COPY apps/api apps/api
+COPY packages/types packages/types
+
+WORKDIR /workspace/apps/api
 
 EXPOSE 3000
 

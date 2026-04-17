@@ -22,6 +22,10 @@
     "typecheck": "pnpm run types:typecheck && pnpm run mobile:typecheck && pnpm run api:typecheck",
     "validate": "pnpm run typecheck && pnpm run mobile:config"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "pnpm": {
     "overrides": {
       "lightningcss": "1.30.1"

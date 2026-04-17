@@ -19,8 +19,8 @@ services:
 
   api:
     build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     depends_on:
       postgres:
@@ -33,8 +33,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./apps/api:/app
-      - /app/node_modules
+      - ./apps/api/src:/workspace/apps/api/src
+      - ./packages/types/src:/workspace/packages/types/src
     command: bun run --hot src/index.ts
 
 volumes:
