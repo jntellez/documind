@@ -15,6 +15,7 @@
     "types:typecheck": "pnpm --filter @documind/types typecheck",
     "mobile:config": "pnpm --filter @documind/mobile config:check",
     "mobile:start": "pnpm --filter @documind/mobile start",
+    "mobile:lan": "REACT_NATIVE_PACKAGER_HOSTNAME=${REACT_NATIVE_PACKAGER_HOSTNAME:-192.168.1.9} pnpm --filter @documind/mobile start --lan",
     "mobile:android": "pnpm --filter @documind/mobile android",
     "mobile:ios": "pnpm --filter @documind/mobile ios",
     "mobile:typecheck": "pnpm --filter @documind/mobile typecheck",

@@ -38,5 +38,16 @@ services:
       - ./packages/types/src:/workspace/packages/types/src
     command: bun run --hot src/index.ts
 
+  adminer:
+    image: adminer:4
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "8080:8080"
+
 volumes:
   postgres-data:
