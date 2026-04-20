@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { TextInput, TextInputProps, View, Text } from 'react-native';
-import { styled, useColorScheme } from 'nativewind';
+import { styled } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
+import { useUiTheme } from '@/theme/useUiTheme';
 
 const StyledBlurView = styled(ExpoBlurView);
 
@@ -24,10 +25,11 @@ export default function Input({
   defaultValue,
   ...props
 }: InputProps) {
-  const { colorScheme } = useColorScheme();
+  const theme = useUiTheme();
   const [error, setError] = useState<string>('');
   const [value, setValue] = useState<string>(defaultValue || "");
   const [touched, setTouched] = useState<boolean>(false);
+  const hasError = touched && Boolean(error);
 
   function validateUrl(url: string): boolean {
     const urlPattern = /^(https?:\/\/)?([\w\d-]+\.)+[\w\d]{2,}(\/.*)?$/i;
@@ -67,26 +69,30 @@ export default function Input({
   return (
     <View className="flex-1">
       <View
+        style={{
+          backgroundColor: theme.surface,
+          borderColor: hasError ? undefined : theme.inputBorder,
+        }}
         className={`
           flex-1
           rounded-full
           border 
-          ${touched && error ? 'border-red-500' : 'border-white dark:border-white/20'}
-          shadow-lg 
+          ${hasError ? 'border-destructive' : ''}
+          shadow-lg
           overflow-hidden
         `}
       >
         <StyledBlurView
           intensity={100}
-          tint={colorScheme === 'dark' ? 'dark' : 'light'}
+          tint={theme.blurTint}
           className="absolute inset-0"
         />
         <TextInput
-          className={`w-full p-4 text-black dark:text-white bg-transparent ${className}`}
+          className={`w-full p-4 text-foreground bg-transparent ${className}`}
           placeholder={placeholder}
           placeholderTextColor="#888888"
           value={value}
-          cursorColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
+          cursorColor={theme.cursor}
           keyboardType={type === 'url' ? 'url' : 'default'}
           autoCapitalize={type === 'url' ? 'none' : 'sentences'}
           autoCorrect={false}
@@ -95,10 +101,9 @@ export default function Input({
           {...props}
         />
       </View>
-      {showError && touched && error && (
-        <Text className="text-red-500 text-sm mt-2 ml-4">{error}</Text>
+      {showError && hasError && (
+        <Text className="text-destructive text-sm mt-2 ml-4">{error}</Text>
       )}
     </View>
   );
 }
-

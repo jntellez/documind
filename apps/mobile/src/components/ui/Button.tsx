@@ -1,6 +1,7 @@
 import { TouchableOpacity, Text, View, ActivityIndicator } from 'react-native';
-import { styled, useColorScheme } from 'nativewind';
+import { styled } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
+import { useUiTheme } from '@/theme/useUiTheme';
 
 const StyledBlurView = styled(ExpoBlurView);
 
@@ -23,28 +24,30 @@ export default function Button({
   disabled = false,
   loading = false,
 }: ButtonProps) {
-  const { colorScheme } = useColorScheme();
+  const theme = useUiTheme();
 
   const showIcon = variant === 'icon' || variant === 'icon-only';
   const showText = variant !== 'icon-only';
   const isIconOnly = variant === 'icon-only';
   const isDisabled = disabled || loading;
 
-  const iconColor = colorScheme === 'dark' ? '#e4e4e7' : '#27272a';
-
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={isDisabled}
+      style={{
+        backgroundColor: theme.surface,
+        borderColor: theme.border,
+      }}
       className={`
-        rounded-full border border-white dark:border-white/20 shadow-md overflow-hidden
+        rounded-full border shadow-md overflow-hidden
         ${isDisabled ? 'opacity-50' : 'opacity-100'}
         ${className}
       `}
     >
       <StyledBlurView
         intensity={20}
-        tint={colorScheme === 'dark' ? 'dark' : 'light'}
+        tint={theme.blurTint}
         className="absolute inset-0"
       />
       <View
@@ -56,14 +59,14 @@ export default function Button({
         {showIcon && (
           <View className={isIconOnly ? "" : "mr-4"}>
             {loading ? (
-              <ActivityIndicator size={18} color={iconColor} />
+              <ActivityIndicator size={18} color={theme.icon} />
             ) : (
               icon
             )}
           </View>
         )}
         {showText && (
-          <Text className="text-zinc-800 dark:text-zinc-200 font-bold text-center">
+          <Text className="text-foreground font-bold text-center">
             {title}
           </Text>
         )}

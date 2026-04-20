@@ -1,6 +1,6 @@
 import { Modal as RNModal, View, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
-import { useColorScheme } from 'nativewind';
 import { Title, Paragraph } from './Typography';
+import { useUiTheme } from '@/theme/useUiTheme';
 
 type ModalProps = {
   visible: boolean;
@@ -21,7 +21,7 @@ export default function Modal({
   children,
   className,
 }: ModalProps) {
-  const { colorScheme } = useColorScheme();
+  const theme = useUiTheme();
 
   return (
     <RNModal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -36,20 +36,10 @@ export default function Modal({
           <Pressable className="w-full">
             <View
               style={{
-                width: '100%',
-                borderRadius: 16,
-                overflow: 'hidden',
-                backgroundColor: colorScheme === 'dark' ? '#27272a' : '#f4f4f5',
-                borderWidth: 1,
-                borderColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,1)',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 10,
-                paddingHorizontal: 24,
-                paddingVertical: 24,
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
               }}
+              className={`w-full rounded-lg overflow-hidden border shadow-lg px-6 py-6 ${className ?? ''}`}
             >
               <View className="p-0">
                 {(icon || title || description) && (

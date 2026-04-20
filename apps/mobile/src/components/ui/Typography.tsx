@@ -31,7 +31,7 @@ interface TitleProps extends TextProps {
 }
 
 export function Title({ children, className, ...props }: TitleProps) {
-  return <StyledText className={`text-2xl font-bold text-zinc-900 dark:text-zinc-100 ${className}`} {...props}>
+  return <StyledText className={`text-2xl font-bold text-foreground ${className}`} {...props}>
     {children}
   </StyledText>
 }
@@ -42,7 +42,7 @@ interface ParagraphProps extends TextProps {
 }
 
 export function Paragraph({ children, className, ...props }: ParagraphProps) {
-  return <StyledText className={`text-zinc-600 dark:text-zinc-400 ${className}`} {...props}>
+  return <StyledText className={`text-muted-foreground ${className}`} {...props}>
     {children}
   </StyledText>
 }

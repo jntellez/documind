@@ -1,6 +1,7 @@
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useUiTheme } from '@/theme/useUiTheme';
 
 const sizeStyles = {
   sm: { container: 'w-8 h-8', image: 'w-8 h-8', text: 'text-xs', icon: 14 },
@@ -24,6 +25,7 @@ type AvatarProps = {
 
 export default function Avatar({ src, alt, fallback, size = 'md', className, onPress, editable, onEditPress }: AvatarProps) {
   const [imageError, setImageError] = useState(false);
+  const theme = useUiTheme();
   const s = sizeStyles[size];
 
   return (
@@ -31,7 +33,8 @@ export default function Avatar({ src, alt, fallback, size = 'md', className, onP
       <TouchableOpacity
         onPress={onPress}
         disabled={!onPress}
-        className={`flex items-center justify-center overflow-hidden rounded-full bg-zinc-300 dark:bg-zinc-600 ${s.container} ${className}`}
+        style={{ backgroundColor: theme.surfaceMuted }}
+        className={`flex items-center justify-center overflow-hidden rounded-full ${s.container} ${className}`}
       >
         {src && !imageError ? (
           <Image
@@ -41,15 +44,16 @@ export default function Avatar({ src, alt, fallback, size = 'md', className, onP
             onError={() => setImageError(true)}
           />
         ) : (
-          <Text className={`text-black dark:text-white font-semibold ${s.text}`}>{fallback}</Text>
+          <Text className={`text-foreground font-semibold ${s.text}`}>{fallback}</Text>
         )}
       </TouchableOpacity>
       {editable && (
         <TouchableOpacity
           onPress={onEditPress}
-          className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blue-500 items-center justify-center border-2 border-white dark:border-zinc-900"
+          style={{ borderColor: theme.background }}
+          className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary items-center justify-center border-2"
         >
-          <Ionicons name="camera" size={16} color="#fff" />
+          <Ionicons name="camera" size={16} color={theme.iconOnPrimary} />
         </TouchableOpacity>
       )}
     </View>
