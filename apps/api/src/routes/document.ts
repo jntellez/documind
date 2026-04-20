@@ -157,6 +157,7 @@ documentRoutes.get("/documents", authJwt, async (c) => {
       SELECT
         id,
         title,
+        content,
         original_url,
         word_count,
         created_at,
