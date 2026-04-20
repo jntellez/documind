@@ -38,9 +38,14 @@ export async function syncWithServer() {
             : null;
 
           if (localDoc && localDoc.server_id) {
-            await apiUpdateDocument(localDoc.server_id, data);
+            const updatedDocument = await apiUpdateDocument(localDoc.server_id, data);
+            updateLocalDocumentFromServer(localDoc.id, updatedDocument);
           } else if (data.id) {
-            await apiUpdateDocument(data.id, data);
+            const updatedDocument = await apiUpdateDocument(data.id, data);
+
+            if (item.document_id) {
+              updateLocalDocumentFromServer(item.document_id, updatedDocument);
+            }
           }
           break;
         }
