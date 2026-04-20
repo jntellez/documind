@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useDocuments } from "@/hooks/useDocuments";
+import { useDocumentCount } from "@/hooks/documents/useDocumentCount";
 import { tokenStorage } from "@/lib/storage";
 import { showToast } from "@/components/ui/Toast";
 import { useDocumentCache } from "@/context/DocumentCacheContext";
@@ -11,7 +11,7 @@ import { RootStackParamList } from "types";
 
 export function useProfile() {
   const { user, signOut } = useAuth();
-  const { documents } = useDocuments();
+  const { documentsCount } = useDocumentCount();
   const { clearCache } = useDocumentCache();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmText, setConfirmText] = useState("");
@@ -22,7 +22,6 @@ export function useProfile() {
   const email = user?.email || "no-email@example.com";
   const initials = name.charAt(0).toUpperCase();
   const avatarUrl = user?.avatar_url;
-  const documentsCount = documents.length;
   const canConfirmDelete = confirmText === "delete account";
 
   function openDeleteModal() {
