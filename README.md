@@ -97,7 +97,11 @@ This starts:
 - `postgres` on `localhost:5432` with a persistent Docker volume
 - `api` on `localhost:3000`, connected to the `postgres` service by Compose hostname
 
+On a brand new Postgres Docker volume, Compose now runs `docker/postgres/init/001-documind-schema.sql` automatically to create the local `users` and `documents` tables the API queries expect.
+
 When running the API inside Docker, keep `DATABASE_URL` pointed at `postgres` in `apps/api/.env`. If you run the API directly on your host with `pnpm api:dev`, switch to the commented `localhost` example instead.
+
+If you already have an existing `postgres-data` volume, the init script will not rerun automatically. Recreate the volume (for example with `docker compose down -v`) if you need the bootstrap SQL applied to a fresh local database.
 
 ### Cross-workspace validation
 
