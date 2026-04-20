@@ -4,8 +4,20 @@ import { LocalDocument, SyncQueueItem } from "types/storage";
 const db = SQLite.openDatabaseSync("documind.db");
 
 export const clearAllLocalData = () => {
-  db.runSync("DELETE FROM documents");
   db.runSync("DELETE FROM sync_queue");
+  clearLocalDocuments();
+};
+
+export const clearLocalDocuments = () => {
+  db.runSync("DELETE FROM documents");
+};
+
+export const hasPendingSyncActions = () => {
+  const result = db.getFirstSync(
+    "SELECT COUNT(*) as pending_count FROM sync_queue",
+  ) as { pending_count: number } | null;
+
+  return (result?.pending_count ?? 0) > 0;
 };
 
 export const initDatabase = () => {

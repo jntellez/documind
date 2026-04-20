@@ -3,6 +3,7 @@ import { CommonActions, useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import { useDocumentCache } from "@/context/DocumentCacheContext";
 import { showToast } from "@/components/ui/Toast";
+import { clearLocalDocuments, hasPendingSyncActions } from "@/storage/database";
 import { SettingsScreenProps } from "types";
 
 export function useSettingsActions() {
@@ -58,9 +59,18 @@ export function useSettingsActions() {
   };
 
   const handleClearCache = () => {
+    if (hasPendingSyncActions()) {
+      showToast({
+        type: "error",
+        text1: "Can't clear cache yet",
+        text2: "Finish syncing your offline changes before removing local documents.",
+      });
+      return;
+    }
+
     Alert.alert(
       "Clear Cache",
-      "This will clear all cached documents. You will need to reload them.",
+      "This will remove cached documents stored on this device.",
       [
         {
           text: "Cancel",
@@ -70,12 +80,21 @@ export function useSettingsActions() {
           text: "Clear",
           style: "destructive",
           onPress: () => {
-            clearCache();
-            showToast({
-              type: "success",
-              text1: "Cache cleared",
-              text2: "All cached documents have been removed",
-            });
+            try {
+              clearLocalDocuments();
+              clearCache();
+              showToast({
+                type: "success",
+                text1: "Cache cleared",
+                text2: "Local documents were removed from this device.",
+              });
+            } catch {
+              showToast({
+                type: "error",
+                text1: "Error",
+                text2: "Failed to clear cached documents",
+              });
+            }
           },
         },
       ],

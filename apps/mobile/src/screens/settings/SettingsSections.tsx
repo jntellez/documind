@@ -139,7 +139,7 @@ export function SettingsDataSection({
       <SettingsActionRow
         icon="trash-outline"
         title="Clear Cache"
-        description="Remove all cached documents"
+        description="Remove local documents when no offline sync is pending"
         isDark={isDark}
         onPress={onClearCache}
       />
