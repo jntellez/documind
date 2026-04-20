@@ -49,6 +49,7 @@ export default function DocumentViewer({
           source={{ html: content }}
           baseStyle={baseStyle}
           tagsStyles={tagsStyles}
+          ignoredDomTags={['svg']}
           customHTMLElementModels={customHTMLElementModels}
           renderers={renderers}
           WebView={WebView}
