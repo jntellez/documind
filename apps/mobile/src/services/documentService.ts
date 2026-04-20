@@ -7,6 +7,7 @@ import type {
 } from "@documind/types";
 import * as DocumentPicker from "expo-document-picker";
 import Toast from "react-native-toast-message";
+import { API_BASE_URL } from "@/lib/api";
 import { tokenStorage } from "@/lib/storage";
 import { showToast } from "@/components/ui/Toast";
 
@@ -16,8 +17,6 @@ type FilePickerResult = {
   size: number;
   mimeType: string;
 };
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export async function processUrl(url: string): Promise<ProcessedDocument> {
   try {

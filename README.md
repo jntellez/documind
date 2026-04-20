@@ -117,6 +117,12 @@ From the repo root:
 pnpm mobile:start
 ```
 
+`pnpm mobile:start` (and the `mobile:ios`, `mobile:android`, `mobile:web` variants)
+automatically detects your current LAN IPv4 and writes
+`apps/mobile/.env.development.local` with `EXPO_PUBLIC_API_URL=http://<lan-ip>:<port>`
+for local development. This keeps physical devices like iPhones pointed at the
+current machine without manually editing env files after network changes.
+
 Or use a platform-specific target:
 
 ```bash
@@ -146,12 +152,18 @@ cp apps/mobile/.env.example apps/mobile/.env
 
 Then fill in the Expo public variables locally:
 
-- `EXPO_PUBLIC_API_URL`
+- `EXPO_PUBLIC_API_URL` (optional; if unset, the start scripts auto-generate a development value)
 - `EXPO_PUBLIC_GOOGLE_ANDROID_ID`
 - `EXPO_PUBLIC_GOOGLE_IOS_ID`
 - `EXPO_PUBLIC_GOOGLE_WEB_ID`
 - `EXPO_PUBLIC_GITHUB_CLIENT_ID`
 - `EXPO_PUBLIC_GOOGLE_REDIRECT_URI`
+
+Notes:
+
+- The generated development file is `apps/mobile/.env.development.local` and is ignored by git.
+- Any explicit `EXPO_PUBLIC_API_URL` you set in your shell or local env files still wins; the auto-generated file is removed in that case.
+- `EXPO_PUBLIC_API_PORT` can still be set locally if your API does not run on port `3000`.
 
 ## Running the API
 

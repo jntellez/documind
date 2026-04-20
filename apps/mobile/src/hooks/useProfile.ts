@@ -4,11 +4,10 @@ import { useDocuments } from "@/hooks/useDocuments";
 import { tokenStorage } from "@/lib/storage";
 import { showToast } from "@/components/ui/Toast";
 import { useDocumentCache } from "@/context/DocumentCacheContext";
+import { API_BASE_URL } from "@/lib/api";
 import { clearAllLocalData } from "@/storage/database";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "types";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export function useProfile() {
   const { user, signOut } = useAuth();

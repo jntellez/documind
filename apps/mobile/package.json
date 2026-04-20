@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
+    "start": "node ../../scripts/sync-mobile-dev-api-url.mjs && expo start",
+    "android": "node ../../scripts/sync-mobile-dev-api-url.mjs && expo start --android",
+    "ios": "node ../../scripts/sync-mobile-dev-api-url.mjs && expo start --ios",
+    "web": "node ../../scripts/sync-mobile-dev-api-url.mjs && expo start --web",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "config:check": "expo config --type public"
   },

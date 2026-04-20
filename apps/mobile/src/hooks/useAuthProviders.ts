@@ -4,6 +4,7 @@ import type { AuthProvider, LoginRequest, LoginResponse } from "@documind/types"
 import * as Google from "expo-auth-session/providers/google";
 import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/lib/api";
 
 const GITHUB_DISCOVERY = {
   authorizationEndpoint: "https://github.com/login/oauth/authorize",
@@ -12,7 +13,6 @@ const GITHUB_DISCOVERY = {
     "https://github.com/settings/connections/applications/TU_CLIENT_ID",
 };
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const GOOGLE_REDIRECT_URI =
   process.env.EXPO_PUBLIC_GOOGLE_REDIRECT_URI ||
   "https://auth.expo.io/@janydev/documind";
@@ -61,7 +61,7 @@ export function useAuthProviders(onSuccess: () => void) {
         codeVerifier,
       };
 
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
