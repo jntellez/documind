@@ -8,6 +8,7 @@ import {
 import type { Document, ProcessedDocument } from "@documind/types";
 
 import { checkConnectivity } from "./connectivity";
+import { syncWithServer } from "./syncEngine";
 import {
   getAllLocalDocuments,
   getDocumentByLocalOrServerId,
@@ -24,14 +25,21 @@ import {
 } from "./repository";
 
 export async function getDocumentsOffline() {
-  const localDocs = getAllLocalDocuments();
+  let localDocs = getAllLocalDocuments();
 
   if (await checkConnectivity()) {
     try {
+      if (localDocs.some((document) => document.server_id === null)) {
+        await syncWithServer();
+        localDocs = getAllLocalDocuments();
+      }
+
       const response = await apiGetDocuments();
 
       response.documents.forEach((document) => {
-        const existing = localDocs.find((localDoc) => localDoc.server_id === document.id);
+        const existing = localDocs.find(
+          (localDoc) => Number(localDoc.server_id) === Number(document.id),
+        );
 
         if (existing) {
           if (!existing.deleted) {
