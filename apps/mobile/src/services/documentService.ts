@@ -6,10 +6,8 @@ import type {
   SaveDocumentResponse,
 } from "@documind/types";
 import * as DocumentPicker from "expo-document-picker";
-import Toast from "react-native-toast-message";
-import { API_BASE_URL } from "@/lib/api";
-import { tokenStorage } from "@/lib/storage";
 import { showToast } from "@/components/ui/Toast";
+import { apiRequest, authenticatedApiRequest } from "./apiClient";
 
 type FilePickerResult = {
   uri: string;
@@ -19,25 +17,11 @@ type FilePickerResult = {
 };
 
 export async function processUrl(url: string): Promise<ProcessedDocument> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/process-url`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ url }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Error al procesar el documento");
-    }
-
-    return data as ProcessedDocument;
-  } catch (error) {
-    throw error;
-  }
+  return apiRequest<ProcessedDocument>("/api/process-url", {
+    method: "POST",
+    body: { url },
+    errorMessage: "Error al procesar el documento",
+  });
 }
 
 export async function pickDocument(): Promise<FilePickerResult | null> {
@@ -108,144 +92,51 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
 export async function saveDocument(
   document: ProcessedDocument,
 ): Promise<SaveDocumentResponse> {
-  try {
-    const token = await tokenStorage.get();
-
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/save-document`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(document satisfies SaveDocumentRequest),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Error saving document");
-    }
-
-    return data as SaveDocumentResponse;
-  } catch (error) {
-    throw error;
-  }
+  return authenticatedApiRequest<SaveDocumentResponse>("/api/save-document", {
+    method: "POST",
+    body: document satisfies SaveDocumentRequest,
+    errorMessage: "Error saving document",
+  });
 }
 
 export async function getDocuments(): Promise<GetDocumentsResponse> {
-  try {
-    const token = await tokenStorage.get();
-
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/documents`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Error fetching documents");
-    }
-
-    return data as GetDocumentsResponse;
-  } catch (error) {
-    throw error;
-  }
+  return authenticatedApiRequest<GetDocumentsResponse>("/api/documents", {
+    method: "GET",
+    errorMessage: "Error fetching documents",
+  });
 }
 
 export async function getDocumentById(id: number): Promise<Document> {
-  try {
-    const token = await tokenStorage.get();
-
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/documents/${id}`, {
+  const data = await authenticatedApiRequest<{ document: Document }>(
+    `/api/documents/${id}`,
+    {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      errorMessage: "Error fetching document",
+    },
+  );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Error fetching document");
-    }
-
-    return data.document as Document;
-  } catch (error) {
-    throw error;
-  }
+  return data.document;
 }
 
 export async function deleteDocument(id: number): Promise<void> {
-  try {
-    const token = await tokenStorage.get();
-
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/documents/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Error deleting document");
-    }
-  } catch (error) {
-    throw error;
-  }
+  await authenticatedApiRequest(`/api/documents/${id}`, {
+    method: "DELETE",
+    errorMessage: "Error deleting document",
+  });
 }
 
 export async function updateDocument(
   id: number,
   data: Partial<Document>,
 ): Promise<Document> {
-  try {
-    const token = await tokenStorage.get();
-
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/documents/${id}`, {
+  const responseData = await authenticatedApiRequest<{ document?: Document } & Document>(
+    `/api/documents/${id}`,
+    {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    });
+      body: data,
+      errorMessage: "Failed to update document",
+    },
+  );
 
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      throw new Error(responseData.error || "Failed to update document");
-    }
-
-    return responseData.document || responseData;
-  } catch (error) {
-    throw error;
-  }
+  return responseData.document || responseData;
 }
