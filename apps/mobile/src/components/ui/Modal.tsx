@@ -28,10 +28,10 @@ export default function Modal({
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
-      >
-        <Pressable
-          onPress={onClose}
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 24 }}
+        >
+          <Pressable
+            onPress={onClose}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.overlay, paddingHorizontal: 24 }}
         >
           <Pressable className="w-full">
             <View
