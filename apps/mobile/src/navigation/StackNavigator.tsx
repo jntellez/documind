@@ -14,6 +14,7 @@ import Profile from "@/screens/profile/Profile";
 import Button from "@/components/ui/Button";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/context/AuthContext";
+import { useUiTheme } from '@/theme/useUiTheme';
 /**
  * Creamos el Stack Navigator con tipado
  */
@@ -26,6 +27,7 @@ export default function StackNavigator() {
   const { user } = useAuth();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const theme = useUiTheme();
   const rgb = isDark ? '24, 24, 27' : '244, 244, 245'; // Zinc-900 o Zinc-100
 
   return (
@@ -85,7 +87,7 @@ export default function StackNavigator() {
           headerLeft: () => <Button
             className="ml-4"
             variant="icon-only"
-            icon={<Octicons name="chevron-left" size={19} color={isDark ? '#fff' : '#000'} />}
+            icon={<Octicons name="chevron-left" size={19} color={theme.icon} />}
             onPress={() => navigation.goBack()}
           />,
           headerRight: () => null,
@@ -102,13 +104,13 @@ export default function StackNavigator() {
           headerLeft: () => <Button
             className="ml-4"
             variant="icon-only"
-            icon={<Octicons name="chevron-left" size={19} color={isDark ? '#fff' : '#000'} />}
+            icon={<Octicons name="chevron-left" size={19} color={theme.icon} />}
             onPress={() => navigation.goBack()}
           />,
           headerRight: () => <Button
             className="mr-4"
             variant="icon-only"
-            icon={<Feather name="headphones" size={19} color={isDark ? '#fff' : '#000'} />}
+            icon={<Feather name="headphones" size={19} color={theme.icon} />}
             onPress={() => { }}
           />,
         })}

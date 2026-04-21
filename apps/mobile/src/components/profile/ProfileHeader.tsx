@@ -11,7 +11,7 @@ type ProfileHeaderProps = {
 
 export default function ProfileHeader({ name, email, initials, avatarUrl }: ProfileHeaderProps) {
   return (
-    <View className="items-center mb-8 mt-6">
+    <View className="items-center mb-8 mt-4">
       <Avatar fallback={initials} src={avatarUrl} alt={name} size="xl" />
       <Title className="text-2xl mt-4 mb-1">{name}</Title>
       <Paragraph className="text-sm">{email}</Paragraph>

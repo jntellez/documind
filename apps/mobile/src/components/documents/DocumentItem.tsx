@@ -1,11 +1,12 @@
-import { View, Pressable, Animated, Text } from 'react-native';
+import { View, Pressable, Animated } from 'react-native';
 import { Document } from 'types/api';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useColorScheme } from 'nativewind';
 import { useState, useRef, useEffect } from 'react';
 import { Paragraph, Title } from '../ui/Typography';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import TagChip from '../ui/TagChip';
+import { useUiTheme } from '@/theme/useUiTheme';
 
 interface DocumentItemProps {
   document: Document;
@@ -22,8 +23,7 @@ export default function DocumentItem({
   onShare,
   onAddTag,
 }: DocumentItemProps) {
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const theme = useUiTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotation = useRef(new Animated.Value(0)).current;
@@ -74,14 +74,11 @@ export default function DocumentItem({
             {document.tags && document.tags.length > 0 && (
               <View className="flex-row flex-wrap gap-1 mt-1 mb-1">
                 {document.tags.map((tag, index) => (
-                  <Card
+                  <TagChip
                     key={`${document.id}-tag-${index}`}
-                    className="px-2 py-1"
-                  >
-                    <Text className="text-xs text-zinc-700 dark:text-zinc-300">
-                      {tag}
-                    </Text>
-                  </Card>
+                    className="px-0 py-0"
+                    label={tag}
+                  />
                 ))}
               </View>
             )}
@@ -97,7 +94,7 @@ export default function DocumentItem({
               <Ionicons
                 name="chevron-down"
                 size={20}
-                color={isDark ? '#fff' : '#000'}
+                color={theme.icon}
               />
             </Animated.View>
           </Pressable>
@@ -115,16 +112,19 @@ export default function DocumentItem({
           overflow: 'hidden'
         }}
       >
-        <View className="flex-row items-center justify-around h-full">
+        <View
+          style={{ borderTopColor: theme.borderMuted }}
+          className="h-full flex-row items-center justify-around border-t"
+        >
           <Button
             variant="icon-only"
-            icon={<Ionicons name="pricetag-outline" size={18} color={isDark ? "#a855f7" : "#9333ea"} />}
+            icon={<Ionicons name="pricetag-outline" size={18} color={theme.warning} />}
             onPress={() => onAddTag?.(document)}
             className="p-0.5"
           />
           <Button
             variant="icon-only"
-            icon={<Ionicons name="share-outline" size={18} color={isDark ? "#3b82f6" : "#2563eb"} />}
+            icon={<Ionicons name="share-outline" size={18} color={theme.primary} />}
             onPress={() => onShare?.(document)}
             className="p-0.5"
           />

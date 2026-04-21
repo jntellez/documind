@@ -1,8 +1,8 @@
-import { ScrollView, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useColorScheme } from "nativewind";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
+import Screen from "@/components/ui/Screen";
 import {
   SettingsAboutSection,
   SettingsAccountSection,
@@ -18,11 +18,7 @@ export default function Settings() {
   const isDark = colorScheme === "dark";
 
   return (
-    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
-      <ScrollView
-        className="flex-1 p-4 pt-6"
-        showsVerticalScrollIndicator={false}
-      >
+    <Screen scroll contentClassName="p-4 pt-6">
         <SettingsAccountSection user={user} isDark={isDark} onLogin={handleLogin} />
         <SettingsAppearanceSection
           isDark={isDark}
@@ -45,7 +41,6 @@ export default function Settings() {
             className="text-red-500"
           />
         )}
-      </ScrollView>
-    </View>
+    </Screen>
   );
 }
