@@ -1,6 +1,7 @@
-import { View, ScrollView, useWindowDimensions } from "react-native";
+import { View, ScrollView, useWindowDimensions, Text } from "react-native";
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from 'types';
+import { useColorScheme } from 'nativewind';
 import { useHeaderHeight } from '@react-navigation/elements';
 import DocumentViewer from '@/components/document/DocumentViewer';
 import Button from "@/components/ui/Button";
@@ -12,12 +13,6 @@ import type { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { showToast } from "@/components/ui/Toast";
-import EmptyStateCard from '@/components/ui/EmptyStateCard';
-import FloatingStatus from '@/components/ui/FloatingStatus';
-import Screen from '@/components/ui/Screen';
-import { useUiTheme } from '@/theme/useUiTheme';
-import Feather from '@expo/vector-icons/Feather';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 type DocumentScreenProps = StackScreenProps<RootStackParamList, 'Document'>;
 
@@ -26,14 +21,15 @@ export default function Document({ route }: DocumentScreenProps) {
   const { width } = useWindowDimensions();
   const headerHeight = useHeaderHeight();
   const contentWidth = width - 32;
+  const { colorScheme } = useColorScheme();
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isSaving, setIsSaving] = useState(false);
-  const theme = useUiTheme();
+  const isDark = colorScheme === 'dark';
 
-  const textColor = theme.icon;
-  const borderColor = theme.borderMuted;
+  const textColor = colorScheme === 'dark' ? 'white' : 'black';
+  const borderColor = colorScheme === 'dark' ? '#52525b' : '#ddd';
 
   // Type guard para verificar si es un Document guardado
   const isSavedDocument = (doc: any): doc is DocumentType => {
@@ -76,25 +72,19 @@ export default function Document({ route }: DocumentScreenProps) {
 
   if (!data) {
     return (
-      <Screen contentClassName="flex-1 items-center justify-center p-4">
-        <EmptyStateCard
-          className="w-full"
-          icon={<Ionicons name="document-text-outline" size={28} color={theme.iconMuted} />}
-          title="Document not found"
-          description="Go back and open another document to continue reading."
-        />
-      </Screen>
+      <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 items-center justify-center">
+        <Text className="text-zinc-900 dark:text-zinc-100 text-lg">
+          Document not found
+        </Text>
+      </View>
     );
   }
 
   return (
-    <Screen>
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
+      {/* Banner offline */}
       {!isOnline && (
-        <FloatingStatus
-          className="bottom-22"
-          label="Offline Mode"
-          icon={<Feather name="wifi-off" size={16} color={theme.warning} />}
-        />
+        <Button title="Offline Mode" className="absolute right-4 bottom-22 z-50" />
       )}
 
       <ScrollView
@@ -129,6 +119,6 @@ export default function Document({ route }: DocumentScreenProps) {
           />
         </View>
       )}
-    </Screen>
+    </View>
   );
 }

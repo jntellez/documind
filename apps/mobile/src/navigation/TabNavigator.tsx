@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
+import { useColorScheme } from 'nativewind';
 
 import Home from '@/screens/home/Home';
 import Documents from "@/screens/documents/Documents"
@@ -13,21 +14,21 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from 'types';
-import { useUiTheme } from '@/theme/useUiTheme';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function TabNavigator() {
   const { user } = useAuth();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const stackNavigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const theme = useUiTheme();
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true,
         headerStyle: {
-          backgroundColor: theme.backgroundMuted,
+          backgroundColor: isDark ? '#18181b' : '#f4f4f5',
         },
         headerShadowVisible: false,
         headerTitleAlign: "left",
@@ -46,11 +47,11 @@ export default function TabNavigator() {
           return <Text style={{ fontSize: 24, color: color }}>{iconEmoji}</Text>;
         },
         tabBarActiveTintColor: '#009bfb',
-        tabBarInactiveTintColor: theme.iconMuted,
+        tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: theme.surfaceElevated,
+          backgroundColor: isDark ? '#18181b' : 'white',
           borderTopWidth: 1,
-          borderTopColor: theme.border
+          borderTopColor: "#fff3"
         },
         tabBarLabelStyle: {
           fontSize: 12,

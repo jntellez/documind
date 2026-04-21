@@ -1,10 +1,10 @@
+import { View, ScrollView } from 'react-native';
 import { useProfile } from '@/hooks/useProfile';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import PersonalInfo from '@/components/profile/PersonalInfo';
 import ActivityStats from '@/components/profile/ActivityStats';
 import DangerZone from '@/components/profile/DangerZone';
 import DeleteAccountModal from '@/components/profile/DeleteAccountModal';
-import Screen from '@/components/ui/Screen';
 
 export default function Profile() {
   const {
@@ -23,15 +23,16 @@ export default function Profile() {
   } = useProfile();
 
   return (
-    <Screen
-      scroll
-      contentClassName={`p-4 pt-24 ${showDeleteModal ? 'opacity-50' : 'opacity-100'}`}
-    >
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
+      <ScrollView
+        className={`flex-1 p-4 pt-24 ${showDeleteModal ? 'opacity-50' : 'opacity-100'}`}
+        showsVerticalScrollIndicator={false}
+      >
         <ProfileHeader name={name} email={email} initials={initials} avatarUrl={avatarUrl} />
         <PersonalInfo name={name} email={email} />
         <ActivityStats documentsCount={documentsCount} />
         <DangerZone onDeletePress={openDeleteModal} />
-      
+      </ScrollView>
 
       <DeleteAccountModal
         visible={showDeleteModal}
@@ -41,6 +42,6 @@ export default function Profile() {
         onConfirm={handleDeleteAccount}
         onChangeText={setConfirmText}
       />
-    </Screen>
+    </View>
   );
 }

@@ -1,22 +1,20 @@
-import { Keyboard } from 'react-native';
+import { View, Text, ScrollView, Keyboard } from 'react-native';
 import { HomeScreenProps } from 'types';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useColorScheme } from 'nativewind';
+import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import { useState } from 'react';
 import { showToast } from '@/components/ui/Toast';
 import { processUrl, pickDocument } from '@/services/documentService';
 import { useNavigation } from '@react-navigation/native';
-import EmptyStateCard from '@/components/ui/EmptyStateCard';
-import InputActionField from '@/components/ui/InputActionField';
-import Screen from '@/components/ui/Screen';
-import SectionBlock from '@/components/ui/SectionBlock';
-import { useUiTheme } from '@/theme/useUiTheme';
 
 export default function Home() {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
-  const theme = useUiTheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
   const [inputValue, setInputValue] = useState<string>("");
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,54 +59,50 @@ export default function Home() {
   }
 
   return (
-    <Screen scroll contentClassName="p-4 pt-6" keyboardShouldPersistTaps="handled">
-      <SectionBlock
-        title="New document"
-        description="Paste a link or import a file to turn long content into a focused reading view."
+    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4 pt-6">
+      <ScrollView
+        className="flex-1"
+        keyboardShouldPersistTaps="handled"
       >
-        <InputActionField
-          type="url"
-          placeholder={selectedFile || 'Enter a url'}
-          className="p-5"
-          defaultValue={inputValue}
-          onChangeText={(text) => {
-            setInputValue(text);
-            if (text.length > 0) {
-              setSelectedFile('');
-            }
-          }}
-          onValidationChange={(nextIsValidated) => setIsValidated(nextIsValidated)}
-          action={
-            inputValue.length > 0 ? (
-              <Button
+        <View className="flex-1">
+          <Input
+            type="url"
+            placeholder={selectedFile || "Enter a url"}
+            className="p-5"
+            defaultValue={inputValue}
+            onChangeText={(text) => {
+              setInputValue(text);
+              if (text.length > 0) {
+                setSelectedFile("");
+              }
+            }}
+            onValidationChange={(isValidated) => setIsValidated(isValidated)}
+          />
+          {
+            inputValue.length > 0
+              ? <Button
                 variant="icon-only"
                 disabled={!isValidated}
                 loading={isLoading}
                 onPress={handleSubmit}
-                icon={<Feather name="search" size={18} color={theme.iconMuted} />}
-                className="h-10 w-10 items-center justify-center"
+                icon={<Feather name="search" size={18} color="#666" />}
+                className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center"
               />
-            ) : (
-              <Button
+              : <Button
                 variant="icon-only"
                 loading={isLoading}
                 onPress={handleFilePicker}
-                icon={<FontAwesome6 name="add" size={18} color={theme.iconMuted} />}
-                className="h-10 w-10 items-center justify-center"
+                icon={<FontAwesome6 name="add" size={18} color="#666" />}
+                className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center"
               />
-            )
           }
-        />
-      </SectionBlock>
+        </View>
 
-      <SectionBlock title="Recent documents">
-        <EmptyStateCard
-          className="py-14"
-          icon={<Ionicons name="tablet-portrait" size={32} color={theme.iconSubtle} />}
-          title="Recent documents is empty"
-          description="Processed documents will appear here once you open a link or import a file."
-        />
-      </SectionBlock>
-    </Screen>
+        <Card className="mt-6 items-center justify-center py-14">
+          <Ionicons name="tablet-portrait" size={64} color="#a5a7ad" />
+          <Text className="text-zinc-900 dark:text-zinc-100 text-lg">Recent documents is empty</Text>
+        </Card>
+      </ScrollView>
+    </View>
   );
 }
