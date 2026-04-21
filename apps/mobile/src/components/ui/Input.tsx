@@ -90,7 +90,7 @@ export default function Input({
         <TextInput
           className={`w-full p-4 text-foreground bg-transparent ${className}`}
           placeholder={placeholder}
-          placeholderTextColor={theme.iconMuted}
+          placeholderTextColor="#888888"
           value={value}
           cursorColor={theme.cursor}
           keyboardType={type === 'url' ? 'url' : 'default'}
