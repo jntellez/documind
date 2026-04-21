@@ -69,15 +69,12 @@ export default function Input({
   return (
     <View className="flex-1">
       <View
-        style={{
-          backgroundColor: theme.surface,
-          borderColor: hasError ? undefined : theme.inputBorder,
-        }}
         className={`
           flex-1
           rounded-full
-          border 
-          ${hasError ? 'border-destructive' : ''}
+          bg-surface dark:bg-dark-surface
+          border
+          ${hasError ? 'border-destructive dark:border-dark-destructive' : 'border-input-border dark:border-dark-input-border'}
           shadow-lg
           overflow-hidden
         `}
@@ -88,9 +85,9 @@ export default function Input({
           className="absolute inset-0"
         />
         <TextInput
-          className={`w-full p-4 text-foreground bg-transparent ${className}`}
+          className={`w-full p-4 text-foreground dark:text-dark-foreground bg-transparent ${className}`}
           placeholder={placeholder}
-          placeholderTextColor="#888888"
+          placeholderTextColor={theme.placeholder}
           value={value}
           cursorColor={theme.cursor}
           keyboardType={type === 'url' ? 'url' : 'default'}
@@ -102,7 +99,7 @@ export default function Input({
         />
       </View>
       {showError && hasError && (
-        <Text className="text-destructive text-sm mt-2 ml-4">{error}</Text>
+        <Text className="text-destructive dark:text-dark-destructive text-sm mt-2 ml-4">{error}</Text>
       )}
     </View>
   );

@@ -19,11 +19,7 @@ export default function ExternalLink({ url, title, className }: ExternalLinkProp
   return (
     <TouchableOpacity
       onPress={() => Linking.openURL(url)}
-      style={{
-        backgroundColor: theme.surface,
-        borderColor: theme.border,
-      }}
-      className={`rounded-lg border shadow-md overflow-hidden ${className || ""}`}
+      className={`rounded-lg border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-md overflow-hidden ${className || ""}`}
     >
       <StyledBlurView
         intensity={100}
@@ -34,13 +30,13 @@ export default function ExternalLink({ url, title, className }: ExternalLinkProp
         <View className="flex flex-row items-center justify-between">
           <View className="flex flex-row items-center gap-3">
             <Feather name="link-2" size={22} color={theme.icon} />
-            <Text className="text-foreground font-bold">
+            <Text className="text-foreground dark:text-dark-foreground font-bold">
               {title || "Go to external link"}
             </Text>
           </View>
           <Octicons name="link-external" size={16} color={theme.icon} />
         </View>
-        <Text className="text-muted-foreground text-xs mt-1" numberOfLines={1}>
+        <Text className="text-muted-foreground dark:text-dark-muted-foreground text-xs mt-1" numberOfLines={1}>
           {url}
         </Text>
       </View>

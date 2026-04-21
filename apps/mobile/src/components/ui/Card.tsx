@@ -15,12 +15,8 @@ export default function Card({ children, className }: CardProps) {
 
   return (
     <View
-      style={{
-        backgroundColor: theme.surface,
-        borderColor: theme.border,
-      }}
       className={`
-        flex gap-4 rounded-lg border shadow-lg overflow-hidden p-4
+        flex gap-4 rounded-lg border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-lg overflow-hidden p-4
         ${className}
       `}
     >

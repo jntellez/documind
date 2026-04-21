@@ -2,7 +2,6 @@ import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Card from './Card';
 import Toast from 'react-native-toast-message';
-import { useUiTheme } from '@/theme/useUiTheme';
 
 interface ToastConfig {
   text1?: string;
@@ -18,25 +17,17 @@ function GlassToast({
   iconName: keyof typeof Ionicons.glyphMap;
   iconColor: string;
 }) {
-  const theme = useUiTheme();
-
   return (
     <Card className={"flex-row items-center p-4 pl-6 mx-4"}>
-      <View
-        style={{
-          backgroundColor: theme.surfaceMuted,
-          borderColor: theme.border,
-        }}
-        className="w-12 h-12 rounded-full border shadow-md items-center justify-center"
-      >
+      <View className="w-12 h-12 rounded-full border bg-muted dark:bg-dark-muted border-border dark:border-dark-border shadow-md items-center justify-center">
         <Ionicons name={iconName} size={24} color={iconColor} />
       </View>
       <View className="ml-2 flex-1">
-        <Text className="text-foreground font-bold text-base">
+        <Text className="text-foreground dark:text-dark-foreground font-bold text-base">
           {props.text1}
         </Text>
         {props.text2 && (
-          <Text className="text-muted-foreground text-sm">
+          <Text className="text-muted-foreground dark:text-dark-muted-foreground text-sm">
             {props.text2}
           </Text>
         )}

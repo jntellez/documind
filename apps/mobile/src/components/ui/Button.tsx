@@ -35,12 +35,8 @@ export default function Button({
     <TouchableOpacity
       onPress={onPress}
       disabled={isDisabled}
-      style={{
-        backgroundColor: theme.surface,
-        borderColor: theme.border,
-      }}
       className={`
-        rounded-full border shadow-md overflow-hidden
+        rounded-full border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-md overflow-hidden
         ${isDisabled ? 'opacity-50' : 'opacity-100'}
         ${className}
       `}
@@ -66,7 +62,7 @@ export default function Button({
           </View>
         )}
         {showText && (
-          <Text className="text-foreground font-bold text-center">
+          <Text className="text-foreground dark:text-dark-foreground font-bold text-center">
             {title}
           </Text>
         )}

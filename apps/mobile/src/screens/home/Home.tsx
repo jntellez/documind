@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { showToast } from '@/components/ui/Toast';
 import { processUrl, pickDocument } from '@/services/documentService';
 import { useNavigation } from '@react-navigation/native';
+import ScreenContainer from '@/components/ui/ScreenContainer';
+import { Paragraph } from '@/components/ui/Typography';
 
 export default function Home() {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
@@ -59,7 +61,7 @@ export default function Home() {
   }
 
   return (
-    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900 p-4 pt-6">
+    <ScreenContainer>
       <ScrollView
         className="flex-1"
         keyboardShouldPersistTaps="handled"
@@ -85,24 +87,24 @@ export default function Home() {
                 disabled={!isValidated}
                 loading={isLoading}
                 onPress={handleSubmit}
-                icon={<Feather name="search" size={18} color="#666" />}
-                className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center"
+                icon={<Feather name="search" size={18} className="text-muted-foreground dark:text-dark-muted-foreground" />}
+                className="size-[40px] absolute right-2 top-2 items-center justify-center"
               />
               : <Button
                 variant="icon-only"
                 loading={isLoading}
                 onPress={handleFilePicker}
-                icon={<FontAwesome6 name="add" size={18} color="#666" />}
-                className="w-[40px] h-[40px] absolute right-2 top-2 items-center justify-center"
+                icon={<FontAwesome6 name="add" size={18} className="text-muted-foreground dark:text-dark-muted-foreground" />}
+                className="size-[40px] absolute right-2 top-2 items-center justify-center"
               />
           }
         </View>
 
         <Card className="mt-6 items-center justify-center py-14">
-          <Ionicons name="tablet-portrait" size={64} color="#a5a7ad" />
-          <Text className="text-zinc-900 dark:text-zinc-100 text-lg">Recent documents is empty</Text>
+          <Ionicons name="tablet-portrait" size={64} className="text-muted-foreground dark:text-dark-muted-foreground" />
+          <Paragraph className="text-lg">Recent documents is empty</Paragraph>
         </Card>
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 }

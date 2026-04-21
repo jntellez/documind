@@ -9,25 +9,32 @@
   --font-sans: 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-mono: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace';
 
-  /* Colores semánticos - light */
-  --color-background: oklch(0.985 0 0);
-  --color-foreground: oklch(0.205 0 0);
+  /* Semantic color pairs for explicit light/dark class usage */
+  --color-background: oklch(96.7% 0.001 286.375);
+  --color-dark-background: oklch(21% 0.006 285.885);
+  --color-surface: oklch(94.8% 0 0);
+  --color-dark-surface: oklch(0.274 0.006 286.033);
   --color-muted: oklch(0.967 0.001 286.375);
+  --color-dark-muted: oklch(0.274 0.006 286.033);
+  --color-foreground: oklch(0.205 0 0);
+  --color-dark-foreground: oklch(0.985 0 0);
   --color-muted-foreground: oklch(0.552 0.016 285.938);
+  --color-dark-muted-foreground: oklch(0.705 0.015 286.067);
+  --color-border: oklch(100% 0 0 / 1);
+  --color-dark-border: oklch(100% 0 0 / 0.12);
+  --color-input-border: oklch(100% 0 0 / 1);
+  --color-dark-input-border: oklch(100% 0 0 / 0.12);
   --color-ring: oklch(0.705 0.015 286.067);
+  --color-dark-ring: oklch(0.552 0.016 285.938);
 
   --color-primary: oklch(0.623 0.214 259.815);
+  --color-dark-primary: oklch(0.707 0.165 254.624);
   --color-primary-foreground: oklch(0.97 0.014 254.604);
-  --color-secondary: oklch(0.967 0.001 286.375);
-  --color-secondary-foreground: oklch(0.278 0.033 256.848);
-  --color-accent: oklch(0.967 0.001 286.375);
-  --color-accent-foreground: oklch(0.278 0.033 256.848);
+  --color-dark-primary-foreground: oklch(0.205 0 0);
   --color-destructive: oklch(0.577 0.245 27.325);
+  --color-dark-destructive: oklch(0.704 0.191 22.216);
   --color-destructive-foreground: oklch(0.971 0.013 17.38);
-  --color-success: oklch(0.627 0.194 149.214);
-  --color-success-foreground: oklch(0.982 0.018 155.826);
-  --color-warning: oklch(0.795 0.184 86.047);
-  --color-warning-foreground: oklch(0.279 0.077 45.635);
+  --color-dark-destructive-foreground: oklch(0.985 0 0);
 
   /* Radius */
   --radius-none: 0px;
@@ -40,29 +47,4 @@
   /* Spacing útil para componentes */
   --spacing-18: 4.5rem;
   --spacing-22: 5.5rem;
-
-}
-
-@layer base {
-  /* Theme-sensitive surface and border values are resolved in TypeScript for RN shared UI. */
-  .dark {
-    --color-background: oklch(0.141 0.005 285.823);
-    --color-foreground: oklch(0.985 0 0);
-    --color-muted: oklch(0.274 0.006 286.033);
-    --color-muted-foreground: oklch(0.705 0.015 286.067);
-    --color-ring: oklch(0.552 0.016 285.938);
-
-    --color-primary: oklch(0.707 0.165 254.624);
-    --color-primary-foreground: oklch(0.205 0 0);
-    --color-secondary: oklch(0.274 0.006 286.033);
-    --color-secondary-foreground: oklch(0.985 0 0);
-    --color-accent: oklch(0.274 0.006 286.033);
-    --color-accent-foreground: oklch(0.985 0 0);
-    --color-destructive: oklch(0.704 0.191 22.216);
-    --color-destructive-foreground: oklch(0.985 0 0);
-    --color-success: oklch(0.723 0.192 149.579);
-    --color-success-foreground: oklch(0.205 0 0);
-    --color-warning: oklch(0.852 0.169 84.429);
-    --color-warning-foreground: oklch(0.205 0 0);
-  }
 }

@@ -33,8 +33,7 @@ export default function Avatar({ src, alt, fallback, size = 'md', className, onP
       <TouchableOpacity
         onPress={onPress}
         disabled={!onPress}
-        style={{ backgroundColor: theme.surfaceMuted }}
-        className={`flex items-center justify-center overflow-hidden rounded-full ${s.container} ${className}`}
+        className={`flex items-center justify-center overflow-hidden rounded-full bg-muted dark:bg-dark-muted ${s.container} ${className}`}
       >
         {src && !imageError ? (
           <Image
@@ -44,14 +43,13 @@ export default function Avatar({ src, alt, fallback, size = 'md', className, onP
             onError={() => setImageError(true)}
           />
         ) : (
-          <Text className={`text-foreground font-semibold ${s.text}`}>{fallback}</Text>
+          <Text className={`text-foreground dark:text-dark-foreground font-semibold ${s.text}`}>{fallback}</Text>
         )}
       </TouchableOpacity>
       {editable && (
         <TouchableOpacity
           onPress={onEditPress}
-          style={{ borderColor: theme.background }}
-          className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary items-center justify-center border-2"
+          className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary dark:bg-dark-primary border-2 border-background dark:border-dark-background items-center justify-center"
         >
           <Ionicons name="camera" size={16} color={theme.iconOnPrimary} />
         </TouchableOpacity>
