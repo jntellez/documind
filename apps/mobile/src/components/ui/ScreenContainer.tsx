@@ -1,4 +1,5 @@
 import { View, type ViewProps } from "react-native";
+import { cn } from "@/lib/cn";
 
 type ScreenContainerProps = ViewProps & {
   children: React.ReactNode;
@@ -12,7 +13,7 @@ export default function ScreenContainer({
 }: ScreenContainerProps) {
   return (
     <View
-      className={`flex-1 bg-background dark:bg-dark-background p-4 pt-6 ${className}`.trim()}
+      className={cn('flex-1 bg-background dark:bg-dark-background p-4', className)}
       {...props}
     >
       {children}
