@@ -17,12 +17,12 @@ export default function Card({ children, className }: CardProps) {
   return (
     <View
       className={cn(
-        'flex gap-4 rounded-lg border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-lg overflow-hidden p-4',
+        'flex gap-4 rounded-lg border bg-surface-glass dark:bg-dark-surface-glass border-border dark:border-dark-border shadow-lg overflow-hidden p-4',
         className,
       )}
     >
       <StyledBlurView
-        intensity={100}
+        intensity={25}
         tint={theme.blurTint}
         className="absolute inset-0"
       />

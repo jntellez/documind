@@ -1,5 +1,10 @@
 import { Text, View, type ViewProps } from "react-native";
+import { styled } from "nativewind";
+import { BlurView as ExpoBlurView } from "expo-blur";
 import { cn } from "@/lib/cn";
+import { useUiTheme } from "@/theme/useUiTheme";
+
+const StyledBlurView = styled(ExpoBlurView);
 
 type BadgeVariant = "default" | "muted" | "primary" | "success" | "warning" | "destructive";
 type BadgeSize = "sm" | "md";
@@ -14,27 +19,27 @@ type BadgeProps = ViewProps & {
 
 const variantClasses: Record<BadgeVariant, { container: string; text: string }> = {
   default: {
-    container: "bg-surface dark:bg-dark-surface border border-border dark:border-dark-border",
+    container: "bg-surface-glass dark:bg-dark-surface-glass border border-border dark:border-dark-border",
     text: "text-foreground dark:text-dark-foreground",
   },
   muted: {
-    container: "bg-muted dark:bg-dark-muted border border-border dark:border-dark-border",
+    container: "bg-surface-glass dark:bg-dark-surface-glass border border-border dark:border-dark-border",
     text: "text-muted-foreground dark:text-dark-muted-foreground",
   },
   primary: {
-    container: "bg-primary dark:bg-dark-primary border border-primary dark:border-dark-primary",
-    text: "text-primary-foreground dark:text-dark-primary-foreground",
+    container: "bg-surface-glass dark:bg-dark-surface-glass border border-primary dark:border-dark-primary",
+    text: "text-primary dark:text-dark-primary",
   },
   success: {
-    container: "bg-success/15 dark:bg-success/20 border border-success/25 dark:border-success/30",
+    container: "bg-surface-glass dark:bg-dark-surface-glass border border-success/25 dark:border-success/30",
     text: "text-success",
   },
   warning: {
-    container: "bg-warning/15 dark:bg-warning/20 border border-warning/25 dark:border-warning/30",
+    container: "bg-surface-glass dark:bg-dark-surface-glass border border-warning/25 dark:border-warning/30",
     text: "text-warning-foreground dark:text-dark-warning-foreground",
   },
   destructive: {
-    container: "bg-destructive/10 dark:bg-dark-destructive/20 border border-destructive/20 dark:border-dark-destructive/30",
+    container: "bg-surface-glass dark:bg-dark-surface-glass border border-destructive/20 dark:border-dark-destructive/30",
     text: "text-destructive dark:text-dark-destructive",
   },
 };
@@ -58,19 +63,21 @@ export default function Badge({
   size = "sm",
   ...props
 }: BadgeProps) {
+  const theme = useUiTheme();
   const selectedVariant = variantClasses[variant];
   const selectedSize = sizeClasses[size];
 
   return (
     <View
       className={cn(
-        "self-start items-center justify-center",
+        "self-start items-center justify-center overflow-hidden",
         selectedVariant.container,
         selectedSize.container,
         className,
       )}
       {...props}
     >
+      <StyledBlurView intensity={10} tint={theme.blurTint} className="absolute inset-0" />
       <Text
         className={cn(
           "text-center font-medium",

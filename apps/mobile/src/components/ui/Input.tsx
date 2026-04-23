@@ -71,14 +71,14 @@ export default function Input({
     <View className="flex-1">
       <View
         className={cn(
-          'flex-1 rounded-full bg-surface dark:bg-dark-surface border shadow-lg overflow-hidden',
+          'flex-1 rounded-full bg-surface-glass dark:bg-dark-surface-glass border shadow-lg overflow-hidden',
           hasError
             ? 'border-destructive dark:border-dark-destructive'
             : 'border-input-border dark:border-dark-input-border',
         )}
       >
         <StyledBlurView
-          intensity={100}
+          intensity={15}
           tint={theme.blurTint}
           className="absolute inset-0"
         />

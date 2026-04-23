@@ -22,22 +22,22 @@ type ButtonProps = {
 
 const toneClasses = {
   default: {
-    container: 'bg-surface dark:bg-dark-surface border-border dark:border-dark-border',
+    container: 'bg-surface-glass dark:bg-dark-surface-glass border-border dark:border-dark-border',
     text: 'text-foreground dark:text-dark-foreground',
     iconClassName: undefined,
-    iconColor: undefined,
+    getIconColor: (_theme: ReturnType<typeof useUiTheme>) => undefined,
   },
   primary: {
     container: 'bg-primary dark:bg-dark-primary border-primary dark:border-dark-primary',
     text: 'text-primary-foreground dark:text-dark-primary-foreground',
     iconClassName: 'text-primary-foreground dark:text-dark-primary-foreground',
-    iconColor: themeColor('primary'),
+    getIconColor: (theme: ReturnType<typeof useUiTheme>) => theme.primaryForeground,
   },
   destructive: {
-    container: 'bg-surface dark:bg-dark-surface border-destructive dark:border-dark-destructive',
+    container: 'bg-surface-glass dark:bg-dark-surface-glass border-destructive dark:border-dark-destructive',
     text: 'text-destructive dark:text-dark-destructive',
     iconClassName: 'text-destructive dark:text-dark-destructive',
-    iconColor: themeColor('destructive'),
+    getIconColor: (_theme: ReturnType<typeof useUiTheme>) => '#ef4444',
   },
 } as const;
 
@@ -61,10 +61,6 @@ const sizeClasses = {
     gap: 'gap-3.5',
   },
 } as const;
-
-function themeColor(tone: 'primary' | 'destructive') {
-  return tone === 'primary' ? '#f5f7ff' : '#ef4444';
-}
 
 export default function Button({
   title,
@@ -92,8 +88,8 @@ export default function Button({
     ? React.cloneElement(icon as React.ReactElement<{ className?: string; color?: string }>, {
       className: cn((icon as React.ReactElement<{ className?: string; color?: string }>).props.className, selectedTone.iconClassName),
       color:
-        selectedTone.iconColor ??
-        (icon as React.ReactElement<{ className?: string; color?: string }>).props.color,
+        (icon as React.ReactElement<{ className?: string; color?: string }>).props.color ??
+        selectedTone.getIconColor(theme),
     })
     : icon;
 
@@ -109,7 +105,7 @@ export default function Button({
       )}
     >
       <StyledBlurView
-        intensity={20}
+        intensity={10}
         tint={theme.blurTint}
         className="absolute inset-0"
       />

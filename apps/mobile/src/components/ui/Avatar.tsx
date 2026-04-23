@@ -56,7 +56,7 @@ export default function Avatar({ src, alt, fallback, size = 'md', className, onP
           onPress={onEditPress}
           className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary dark:bg-dark-primary border-2 border-background dark:border-dark-background items-center justify-center"
         >
-          <Ionicons name="camera" size={16} color={theme.iconOnPrimary} />
+          <Ionicons name="camera" size={16} color={theme.primaryForeground} />
         </TouchableOpacity>
       )}
     </View>
