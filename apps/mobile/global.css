@@ -35,6 +35,14 @@
   --color-dark-destructive: oklch(0.704 0.191 22.216);
   --color-destructive-foreground: oklch(0.971 0.013 17.38);
   --color-dark-destructive-foreground: oklch(0.985 0 0);
+  --color-success: oklch(0.627 0.194 149.214);
+  --color-dark-success: oklch(0.723 0.192 149.579);
+  --color-success-foreground: oklch(0.982 0.018 155.826);
+  --color-dark-success-foreground: oklch(0.205 0 0);
+  --color-warning: oklch(0.795 0.184 86.047);
+  --color-dark-warning: oklch(0.852 0.169 84.429);
+  --color-warning-foreground: oklch(0.279 0.077 45.635);
+  --color-dark-warning-foreground: oklch(0.205 0 0);
 
   /* Radius */
   --radius-none: 0px;

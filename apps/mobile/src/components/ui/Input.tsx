@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, TextInputProps, View, Text } from 'react-native';
 import { styled } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
+import { cn } from '@/lib/cn';
 import { useUiTheme } from '@/theme/useUiTheme';
 
 const StyledBlurView = styled(ExpoBlurView);
@@ -69,15 +70,12 @@ export default function Input({
   return (
     <View className="flex-1">
       <View
-        className={`
-          flex-1
-          rounded-full
-          bg-surface dark:bg-dark-surface
-          border
-          ${hasError ? 'border-destructive dark:border-dark-destructive' : 'border-input-border dark:border-dark-input-border'}
-          shadow-lg
-          overflow-hidden
-        `}
+        className={cn(
+          'flex-1 rounded-full bg-surface dark:bg-dark-surface border shadow-lg overflow-hidden',
+          hasError
+            ? 'border-destructive dark:border-dark-destructive'
+            : 'border-input-border dark:border-dark-input-border',
+        )}
       >
         <StyledBlurView
           intensity={100}
@@ -85,7 +83,10 @@ export default function Input({
           className="absolute inset-0"
         />
         <TextInput
-          className={`w-full p-4 text-foreground dark:text-dark-foreground bg-transparent ${className}`}
+          className={cn(
+            'w-full p-4 text-foreground dark:text-dark-foreground bg-transparent',
+            className,
+          )}
           placeholder={placeholder}
           placeholderTextColor={theme.placeholder}
           value={value}

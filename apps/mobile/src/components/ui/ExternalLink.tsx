@@ -3,6 +3,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import Feather from '@expo/vector-icons/Feather';
 import { styled } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
+import { cn } from '@/lib/cn';
 import { useUiTheme } from '@/theme/useUiTheme';
 
 const StyledBlurView = styled(ExpoBlurView);
@@ -19,7 +20,10 @@ export default function ExternalLink({ url, title, className }: ExternalLinkProp
   return (
     <TouchableOpacity
       onPress={() => Linking.openURL(url)}
-      className={`rounded-lg border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-md overflow-hidden ${className || ""}`}
+      className={cn(
+        'rounded-lg border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-md overflow-hidden',
+        className,
+      )}
     >
       <StyledBlurView
         intensity={100}

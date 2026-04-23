@@ -1,6 +1,7 @@
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { cn } from '@/lib/cn';
 import { useUiTheme } from '@/theme/useUiTheme';
 
 const sizeStyles = {
@@ -33,17 +34,21 @@ export default function Avatar({ src, alt, fallback, size = 'md', className, onP
       <TouchableOpacity
         onPress={onPress}
         disabled={!onPress}
-        className={`flex items-center justify-center overflow-hidden rounded-full bg-muted dark:bg-dark-muted ${s.container} ${className}`}
+        className={cn(
+          'flex items-center justify-center overflow-hidden rounded-full bg-muted dark:bg-dark-muted',
+          s.container,
+          className,
+        )}
       >
         {src && !imageError ? (
           <Image
             source={{ uri: src }}
             alt={alt}
-            className={`${s.image} rounded-full`}
+            className={cn(s.image, 'rounded-full')}
             onError={() => setImageError(true)}
           />
         ) : (
-          <Text className={`text-foreground dark:text-dark-foreground font-semibold ${s.text}`}>{fallback}</Text>
+          <Text className={cn('text-foreground dark:text-dark-foreground font-semibold', s.text)}>{fallback}</Text>
         )}
       </TouchableOpacity>
       {editable && (

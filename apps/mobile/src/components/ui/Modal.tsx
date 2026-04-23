@@ -1,4 +1,5 @@
 import { Modal as RNModal, View, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { cn } from '@/lib/cn';
 import { Title, Paragraph } from './Typography';
 
 type ModalProps = {
@@ -32,7 +33,10 @@ export default function Modal({
         >
           <Pressable className="w-full">
             <View
-              className={`w-full rounded-lg overflow-hidden border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-lg px-6 py-6 ${className ?? ''}`}
+              className={cn(
+                'w-full rounded-lg overflow-hidden border bg-surface dark:bg-dark-surface border-border dark:border-dark-border shadow-lg px-6 py-6',
+                className,
+              )}
             >
               <View className="p-0">
                 {(icon || title || description) && (

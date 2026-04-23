@@ -3,15 +3,19 @@ import { useColorScheme } from 'nativewind';
 
 const uiThemeColors = {
   light: {
-    icon: '#27272a',
-    iconOnPrimary: '#f5f7ff',
+    foreground: '#171717', // foreground
+    mutedForeground: '#71717b', // muted-foreground
+    primary: '#2b7fff',
+    primaryForeground: '#eff6ff',
     cursor: '#000000',
     placeholder: '#888888',
     blurTint: 'light' as const,
   },
   dark: {
-    icon: '#e4e4e7',
-    iconOnPrimary: '#18181b',
+    foreground: '#fafafa', // dark-foreground
+    mutedForeground: '#9f9fa9', // dark-muted-foreground
+    primary: '#51a2ff',
+    primaryForeground: '#171717',
     cursor: '#ffffff',
     placeholder: '#a1a1aa',
     blurTint: 'dark' as const,

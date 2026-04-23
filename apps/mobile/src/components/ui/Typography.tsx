@@ -2,13 +2,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { Text, TextProps } from 'react-native';
 import { styled } from 'nativewind';
+import { cn } from '@/lib/cn';
 
 const StyledText = styled(Text);
 
 export function GradientTitle({ children, className }: { children: React.ReactNode, className?: string }) {
   return <MaskedView
     maskElement={
-      <Text className={`text-2xl font-bold ${className}`}>
+      <Text className={cn('text-2xl font-bold', className)}>
         {children}
       </Text>
     }
@@ -18,7 +19,7 @@ export function GradientTitle({ children, className }: { children: React.ReactNo
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
     >
-      <StyledText className={`text-2xl font-bold opacity-0 ${className}`}>
+      <StyledText className={cn('text-2xl font-bold opacity-0', className)}>
         {children}
       </StyledText>
     </LinearGradient>
@@ -31,7 +32,7 @@ interface TitleProps extends TextProps {
 }
 
 export function Title({ children, className, ...props }: TitleProps) {
-  return <StyledText className={`text-2xl font-bold text-foreground dark:text-dark-foreground ${className}`} {...props}>
+  return <StyledText className={cn('text-2xl font-bold text-foreground dark:text-dark-foreground', className)} {...props}>
     {children}
   </StyledText>
 }
@@ -42,7 +43,7 @@ interface ParagraphProps extends TextProps {
 }
 
 export function Paragraph({ children, className, ...props }: ParagraphProps) {
-  return <StyledText className={`text-muted-foreground dark:text-dark-muted-foreground ${className}`} {...props}>
+  return <StyledText className={cn('text-muted-foreground dark:text-dark-muted-foreground', className)} {...props}>
     {children}
   </StyledText>
 }
