@@ -1,11 +1,13 @@
-import { View, Pressable, Animated, Text } from 'react-native';
+import { View, Pressable, Animated } from 'react-native';
 import { Document } from 'types/api';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useColorScheme } from 'nativewind';
+import { Feather } from '@expo/vector-icons';
 import { useState, useRef, useEffect } from 'react';
 import { Paragraph, Title } from '../ui/Typography';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import { useUiTheme } from '@/theme/useUiTheme';
+import Badge from '../ui/Badge';
 
 interface DocumentItemProps {
   document: Document;
@@ -22,8 +24,7 @@ export default function DocumentItem({
   onShare,
   onAddTag,
 }: DocumentItemProps) {
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const theme = useUiTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotation = useRef(new Animated.Value(0)).current;
@@ -72,16 +73,14 @@ export default function DocumentItem({
 
             {/* Tags */}
             {document.tags && document.tags.length > 0 && (
-              <View className="flex-row flex-wrap gap-1 mt-1 mb-1">
+              <View className="flex-row flex-wrap gap-1 mt-1.5">
                 {document.tags.map((tag, index) => (
-                  <Card
+                  <Badge
                     key={`${document.id}-tag-${index}`}
-                    className="px-2 py-1"
+                    className="shadow-sm"
                   >
-                    <Text className="text-xs text-zinc-700 dark:text-zinc-300">
-                      {tag}
-                    </Text>
-                  </Card>
+                    {tag}
+                  </Badge>
                 ))}
               </View>
             )}
@@ -94,10 +93,11 @@ export default function DocumentItem({
             hitSlop={8}
           >
             <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-              <Ionicons
+              <Feather
                 name="chevron-down"
-                size={20}
-                color={isDark ? '#fff' : '#000'}
+                size={18}
+                color={theme.mutedForeground}
+                className="pr-0.5"
               />
             </Animated.View>
           </Pressable>
@@ -118,19 +118,19 @@ export default function DocumentItem({
         <View className="flex-row items-center justify-around h-full">
           <Button
             variant="icon-only"
-            icon={<Ionicons name="pricetag-outline" size={18} color={isDark ? "#a855f7" : "#9333ea"} />}
+            icon={<Ionicons name="pricetag-outline" size={18} color="#a855f7" />}
             onPress={() => onAddTag?.(document)}
             className="p-0.5"
           />
           <Button
             variant="icon-only"
-            icon={<Ionicons name="share-outline" size={18} color={isDark ? "#3b82f6" : "#2563eb"} />}
+            icon={<Ionicons name="share-outline" size={18} color={theme.primary} />}
             onPress={() => onShare?.(document)}
             className="p-0.5"
           />
           <Button
             variant="icon-only"
-            icon={<Ionicons name="trash-outline" size={18} color="#ef4444" />}
+            icon={<Ionicons name="trash-outline" size={18} className="text-destructive dark:text-dark-destructive" />}
             onPress={() => onDelete(document.id)}
             className="p-0.5"
           />
