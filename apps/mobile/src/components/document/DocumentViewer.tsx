@@ -2,13 +2,13 @@ import RenderHtml from 'react-native-render-html';
 import WebView from 'react-native-webview';
 import { customHTMLElementModels, renderers, getTagsStyles, getTableCss } from '@/config/documentRenderConfig';
 import { Text, View } from 'react-native';
+import { useUiTheme } from '@/theme/useUiTheme';
+import { Paragraph, Title } from '../ui/Typography';
 
 interface DocumentViewerProps {
   title: string;
   content: string | null;
   contentWidth: number;
-  textColor: string;
-  borderColor: string;
   wordCount?: number;
 }
 
@@ -22,10 +22,11 @@ export default function DocumentViewer({
   title,
   content,
   contentWidth,
-  textColor,
-  borderColor,
   wordCount
 }: DocumentViewerProps) {
+  const theme = useUiTheme();
+  const textColor = theme.foreground;
+  const borderColor = theme.mutedForeground;
   const baseStyle = { color: textColor };
   const tagsStyles = getTagsStyles(textColor, borderColor);
   const tableCss = getTableCss(textColor, borderColor);
@@ -34,12 +35,12 @@ export default function DocumentViewer({
     <View>
       {/* Header */}
       <View className="mb-4">
-        <Text className="text-[24px] font-bold dark:text-white mb-2">
+        <Title className="text-[24px] font-bold mb-2">
           {title}
-        </Text>
-        <Text className="text-zinc-500 dark:text-zinc-400">
+        </Title>
+        <Paragraph>
           {wordCount ? `${wordCount.toLocaleString()} words • ${calculateReadTime(wordCount)}` : "Quick read"}
-        </Text>
+        </Paragraph>
       </View>
 
       {/* Content */}
@@ -67,7 +68,7 @@ export default function DocumentViewer({
           }}
         />
       ) : (
-        <Text className="dark:text-white">No content found.</Text>
+        <Paragraph>No content found.</Paragraph>
       )}
     </View>
   );
