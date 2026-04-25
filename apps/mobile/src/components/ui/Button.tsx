@@ -135,7 +135,7 @@ export default function Button({
           </View>
         )}
         {showText && (
-          <Text className={cn('font-bold text-center', selectedSize.text, selectedTone.text, textClassName)}>
+          <Text className={cn('font-semibold text-center', selectedSize.text, selectedTone.text, textClassName)}>
             {title}
           </Text>
         )}
