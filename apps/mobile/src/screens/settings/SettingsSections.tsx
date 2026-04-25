@@ -6,6 +6,8 @@ import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { Paragraph, Title } from "@/components/ui/Typography";
+import { Feather } from "@expo/vector-icons";
+import { useUiTheme } from "@/theme/useUiTheme";
 
 function SettingsSection({
   title,
@@ -16,7 +18,7 @@ function SettingsSection({
 }) {
   return (
     <View className="mb-6">
-      <Paragraph className="text-xs uppercase font-semibold mb-2 px-1 opacity-60">
+      <Paragraph className="text-xs uppercase font-semibold mb-2 px-1 opacity-70">
         {title}
       </Paragraph>
       {children}
@@ -28,13 +30,13 @@ function SettingsActionRow({
   icon,
   title,
   description,
-  isDark,
+  theme,
   onPress,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
   description: string;
-  isDark: boolean;
+  theme: ReturnType<typeof useUiTheme>;
   onPress: () => void;
 }) {
   return (
@@ -44,20 +46,20 @@ function SettingsActionRow({
         className="flex-row items-center justify-between p-4 active:opacity-70"
       >
         <View className="flex-row items-center flex-1">
-          <View className="w-10 h-10 rounded-full border shadow-md border-white dark:border-white/20 items-center justify-center mr-3">
-            <Ionicons name={icon} size={20} color={isDark ? "#ccc" : "#333"} />
+          <View className="size-10 rounded-full border shadow-md border-border dark:border-dark-border items-center justify-center mr-3">
+            <Ionicons name={icon} size={20} color={theme.foreground} />
           </View>
           <View className="flex-1">
-            <Paragraph className="font-semibold text-zinc-900 dark:text-white mb-0.5">
+            <Paragraph className="font-semibold text-foreground dark:text-dark-foreground mb-0.5">
               {title}
             </Paragraph>
             <Paragraph className="text-sm">{description}</Paragraph>
           </View>
         </View>
-        <Ionicons
-          name="chevron-forward"
+        <Feather
+          name="chevron-right"
           size={20}
-          color={isDark ? "#71717a" : "#a1a1aa"}
+          color={theme.mutedForeground}
         />
       </Pressable>
     </Card>
@@ -66,11 +68,11 @@ function SettingsActionRow({
 
 export function SettingsAccountSection({
   user,
-  isDark,
+  theme,
   onLogin,
 }: {
   user: AuthUser | null;
-  isDark: boolean;
+  theme: ReturnType<typeof useUiTheme>;
   onLogin: () => void;
 }) {
   if (user) {
@@ -89,11 +91,11 @@ export function SettingsAccountSection({
 
   return (
     <View className="items-center py-8 mb-2">
-      <View className="w-20 h-20 rounded-full bg-zinc-200 dark:bg-zinc-800 items-center justify-center mb-4">
+      <View className="size-20 rounded-full bg-muted dark:bg-dark-muted items-center justify-center mb-4">
         <Ionicons
           name="person-outline"
           size={40}
-          color={isDark ? "#71717a" : "#a1a1aa"}
+          color={theme.mutedForeground}
         />
       </View>
       <Title className="text-xl mb-2">Welcome to Documind</Title>
@@ -101,26 +103,25 @@ export function SettingsAccountSection({
       <Button
         onPress={onLogin}
         title="Login"
-        icon={<Ionicons name="log-in-outline" size={20} color="#fff" />}
       />
     </View>
   );
 }
 
 export function SettingsAppearanceSection({
-  isDark,
+  theme,
   onToggleTheme,
 }: {
-  isDark: boolean;
+  theme: ReturnType<typeof useUiTheme>;
   onToggleTheme: () => void;
 }) {
   return (
     <SettingsSection title="Appearance">
       <SettingsActionRow
-        icon={isDark ? "moon" : "sunny"}
+        icon={theme.isDark ? "moon" : "sunny"}
         title="Theme"
-        description={isDark ? "Dark Mode" : "Light Mode"}
-        isDark={isDark}
+        description={theme.isDark ? "Dark Mode" : "Light Mode"}
+        theme={theme}
         onPress={onToggleTheme}
       />
     </SettingsSection>
@@ -128,10 +129,10 @@ export function SettingsAppearanceSection({
 }
 
 export function SettingsDataSection({
-  isDark,
+  theme,
   onClearCache,
 }: {
-  isDark: boolean;
+  theme: ReturnType<typeof useUiTheme>;
   onClearCache: () => void;
 }) {
   return (
@@ -140,7 +141,7 @@ export function SettingsDataSection({
         icon="trash-outline"
         title="Clear Cache"
         description="Remove local documents when no offline sync is pending"
-        isDark={isDark}
+        theme={theme}
         onPress={onClearCache}
       />
     </SettingsSection>
@@ -152,7 +153,7 @@ export function SettingsAboutSection() {
     <SettingsSection title="About">
       <Card>
         <View className="p-4">
-          <Paragraph className="font-semibold text-zinc-900 dark:text-white mb-2">
+          <Paragraph className="font-semibold text-foreground dark:text-dark-foreground mb-1.5">
             Documind
           </Paragraph>
           <Paragraph className="text-sm mb-1">Version 1.0.0</Paragraph>
