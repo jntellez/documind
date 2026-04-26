@@ -3,8 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { RootStackParamList } from "types";
 import { useColorScheme } from "nativewind";
 import Avatar from "@/components/ui/Avatar";
-import Octicons from '@expo/vector-icons/Octicons';
-import Feather from '@expo/vector-icons/Feather';
+import Icon from '@/components/ui/Icon';
 
 // Importación de pantallas
 import Login from "@/screens/auth/Login";
@@ -85,7 +84,7 @@ export default function StackNavigator() {
           headerLeft: () => <Button
             className="ml-4"
             variant="icon-only"
-            icon={<Octicons name="chevron-left" size={19} color={isDark ? '#fff' : '#000'} />}
+            icon={<Icon library="octicons" name="chevron-left" size="lg" tone="foreground" />}
             onPress={() => navigation.goBack()}
           />,
           headerRight: () => null,
@@ -96,19 +95,19 @@ export default function StackNavigator() {
       <Stack.Screen
         name="Document"
         component={Document}
-        options={({ route, navigation }) => ({
+        options={({ navigation }) => ({
           headerTitle: () => null,
           headerShown: true,
           headerLeft: () => <Button
             className="ml-4"
             variant="icon-only"
-            icon={<Octicons name="chevron-left" size={19} color={isDark ? '#fff' : '#000'} />}
+            icon={<Icon library="octicons" name="chevron-left" size="lg" />}
             onPress={() => navigation.goBack()}
           />,
           headerRight: () => <Button
             className="mr-4"
             variant="icon-only"
-            icon={<Feather name="headphones" size={19} color={isDark ? '#fff' : '#000'} />}
+            icon={<Icon library="feather" name="headphones" size="lg" />}
             onPress={() => { }}
           />,
         })}
