@@ -80,7 +80,7 @@ export default function Document({ route }: DocumentScreenProps) {
   return (
     <ScreenContainer className="p-0">
       {/* Banner offline */}
-      {isOnline && (
+      {!isOnline && (
         <Badge
           size="md"
           className={`absolute shadow-md right-4 z-50 ${isSavedDocument(data) ? "bottom-12" : "bottom-22"}`}
