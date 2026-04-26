@@ -44,7 +44,7 @@ export default function Modal({
                     {icon}
                     {title && <Title className="text-lg mt-2">{title}</Title>}
                     {description && (
-                      <Paragraph className="text-sm text-center mt-2 opacity-70">
+                      <Paragraph className="text-sm text-center mt-2">
                         {description}
                       </Paragraph>
                     )}
