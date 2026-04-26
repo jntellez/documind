@@ -42,7 +42,6 @@ export default function Settings() {
             onPress={handleLogout}
             title="Logout"
             variant="icon"
-            tone="destructive"
             icon={<Ionicons name="log-out-outline" size={20} />}
           />
         )}
