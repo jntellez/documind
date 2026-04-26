@@ -24,8 +24,8 @@ const toneClasses = {
   default: {
     container: 'bg-surface-glass dark:bg-dark-surface-glass border-border dark:border-dark-border',
     text: 'text-foreground dark:text-dark-foreground',
-    iconClassName: undefined,
-    getIconColor: (_theme: ReturnType<typeof useUiTheme>) => undefined,
+    iconClassName: 'text-foreground dark:text-dark-foreground',
+    getIconColor: (theme: ReturnType<typeof useUiTheme>) => theme.foreground,
   },
   primary: {
     container: 'bg-primary dark:bg-dark-primary border-primary dark:border-dark-primary',
