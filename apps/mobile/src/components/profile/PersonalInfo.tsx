@@ -1,8 +1,8 @@
 import { View } from 'react-native';
-import { useColorScheme } from 'nativewind';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '@/components/ui/Card';
 import { Paragraph } from '@/components/ui/Typography';
+import { useUiTheme } from '@/theme/useUiTheme';
 
 type PersonalInfoProps = {
   name: string;
@@ -10,32 +10,31 @@ type PersonalInfoProps = {
 };
 
 export default function PersonalInfo({ name, email }: PersonalInfoProps) {
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const theme = useUiTheme();
 
   return (
     <View className="mb-6">
-      <Paragraph className="text-xs uppercase font-semibold mb-2 px-1 opacity-60">
+      <Paragraph className="text-xs uppercase font-semibold mb-2 px-1 opacity-70">
         Personal Info
       </Paragraph>
       <Card>
         <View className="flex-row items-center p-4">
-          <View className="w-10 h-10 rounded-full shadow-md border border-white dark:border-white/20 items-center justify-center mr-3">
-            <Ionicons name="person-outline" size={20} color={isDark ? '#ccc' : '#333'} />
+          <View className="size-10 rounded-full border shadow-md border-border dark:border-dark-border items-center justify-center mr-3">
+            <Ionicons name="person-outline" size={20} color={theme.foreground} />
           </View>
           <View className="flex-1">
-            <Paragraph className="text-xs opacity-60">Name</Paragraph>
-            <Paragraph className="font-semibold text-zinc-900 dark:text-white">{name}</Paragraph>
+            <Paragraph className="text-xs mb-0.5">Name</Paragraph>
+            <Paragraph className="font-semibold text-foreground dark:text-dark-foreground">{name}</Paragraph>
           </View>
         </View>
 
-        <View className="flex-row items-center p-4 border-t border-zinc-200/50 dark:border-zinc-700/50">
-          <View className="w-10 h-10 rounded-full shadow-md border border-white dark:border-white/20 items-center justify-center mr-3">
-            <Ionicons name="mail-outline" size={20} color={isDark ? '#ccc' : '#333'} />
+        <View className="flex-row items-center p-4">
+          <View className="size-10 rounded-full border shadow-md border-border dark:border-dark-border items-center justify-center mr-3">
+            <Ionicons name="mail-outline" size={20} color={theme.foreground} />
           </View>
           <View className="flex-1">
-            <Paragraph className="text-xs opacity-60">Email</Paragraph>
-            <Paragraph className="font-semibold text-zinc-900 dark:text-white">{email}</Paragraph>
+            <Paragraph className="text-xs mb-0.5">Email</Paragraph>
+            <Paragraph className="font-semibold text-foreground dark:text-dark-foreground">{email}</Paragraph>
           </View>
         </View>
       </Card>

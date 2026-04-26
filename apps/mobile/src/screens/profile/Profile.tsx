@@ -1,10 +1,12 @@
-import { View, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useProfile } from '@/hooks/useProfile';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import PersonalInfo from '@/components/profile/PersonalInfo';
 import ActivityStats from '@/components/profile/ActivityStats';
-import DangerZone from '@/components/profile/DangerZone';
 import DeleteAccountModal from '@/components/profile/DeleteAccountModal';
+import ScreenContainer from '@/components/ui/ScreenContainer';
+import Button from '@/components/ui/Button';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Profile() {
   const {
@@ -23,15 +25,22 @@ export default function Profile() {
   } = useProfile();
 
   return (
-    <View className="flex-1 bg-zinc-100 dark:bg-zinc-900">
+    <ScreenContainer>
       <ScrollView
-        className={`flex-1 p-4 pt-24 ${showDeleteModal ? 'opacity-50' : 'opacity-100'}`}
+        className="flex-1 pt-24"
         showsVerticalScrollIndicator={false}
       >
         <ProfileHeader name={name} email={email} initials={initials} avatarUrl={avatarUrl} />
         <PersonalInfo name={name} email={email} />
         <ActivityStats documentsCount={documentsCount} />
-        <DangerZone onDeletePress={openDeleteModal} />
+        <Button
+          title="Delete Account"
+          variant="icon"
+          icon={<Ionicons name="trash-outline" size={20} />}
+          tone="destructive"
+          onPress={openDeleteModal}
+          className="mt-4"
+        />
       </ScrollView>
 
       <DeleteAccountModal
@@ -42,6 +51,6 @@ export default function Profile() {
         onConfirm={handleDeleteAccount}
         onChangeText={setConfirmText}
       />
-    </View>
+    </ScreenContainer>
   );
 }

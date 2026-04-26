@@ -29,13 +29,13 @@ export default function DeleteAccountModal({
       title="Delete Account"
       description="This action is irreversible. All your documents and data will be permanently deleted."
       icon={
-        <View className="w-14 h-14 rounded-full bg-red-500/10 items-center justify-center">
-          <Ionicons name="warning-outline" size={30} color="#ef4444" />
+        <View className="size-14 rounded-full border shadow-md border-border dark:border-dark-border items-center justify-center">
+          <Ionicons name="warning-outline" size={30} className="text-destructive dark:text-dark-destructive" />
         </View>
       }
     >
-      <Paragraph className="text-sm mb-2">
-        Type <Paragraph className="font-bold">"delete account"</Paragraph> to confirm:
+      <Paragraph className="text-sm mb-2.5">
+        Type <Paragraph className="font-semibold text-foreground dark:text-dark-foreground">"delete account"</Paragraph> to confirm:
       </Paragraph>
       <View className="mb-4 h-14">
         <Input
@@ -56,10 +56,11 @@ export default function DeleteAccountModal({
         />
         <Button
           title="Delete"
+          tone="destructive"
           onPress={onConfirm}
           disabled={!canConfirm || isDeleting}
           loading={isDeleting}
-          className="flex-1 border-red-500"
+          className="flex-1"
         />
       </View>
     </Modal>
