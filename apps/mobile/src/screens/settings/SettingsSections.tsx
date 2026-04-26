@@ -1,12 +1,11 @@
 import { Pressable, View } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import type { AuthUser } from "@documind/types";
 import type { ReactNode } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import Icon from "@/components/ui/Icon";
 import { Paragraph, Title } from "@/components/ui/Typography";
-import { Feather } from "@expo/vector-icons";
 import { useUiTheme } from "@/theme/useUiTheme";
 
 function SettingsSection({
@@ -30,13 +29,11 @@ function SettingsActionRow({
   icon,
   title,
   description,
-  theme,
   onPress,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: string;
   title: string;
   description: string;
-  theme: ReturnType<typeof useUiTheme>;
   onPress: () => void;
 }) {
   return (
@@ -47,7 +44,7 @@ function SettingsActionRow({
       >
         <View className="flex-row items-center flex-1">
           <View className="size-10 rounded-full border shadow-md border-border dark:border-dark-border items-center justify-center mr-3">
-            <Ionicons name={icon} size={20} color={theme.foreground} />
+            <Icon library="ionicons" name={icon} size="lg" />
           </View>
           <View className="flex-1">
             <Paragraph className="font-semibold text-foreground dark:text-dark-foreground mb-0.5">
@@ -56,11 +53,7 @@ function SettingsActionRow({
             <Paragraph className="text-sm">{description}</Paragraph>
           </View>
         </View>
-        <Feather
-          name="chevron-right"
-          size={20}
-          color={theme.mutedForeground}
-        />
+        <Icon library="feather" name="chevron-right" size="lg" tone="muted" />
       </Pressable>
     </Card>
   );
@@ -68,11 +61,9 @@ function SettingsActionRow({
 
 export function SettingsAccountSection({
   user,
-  theme,
   onLogin,
 }: {
   user: AuthUser | null;
-  theme: ReturnType<typeof useUiTheme>;
   onLogin: () => void;
 }) {
   if (user) {
@@ -92,11 +83,7 @@ export function SettingsAccountSection({
   return (
     <View className="items-center py-8 mb-2">
       <View className="size-20 rounded-full bg-muted dark:bg-dark-muted items-center justify-center mb-4">
-        <Ionicons
-          name="person-outline"
-          size={40}
-          color={theme.mutedForeground}
-        />
+        <Icon library="ionicons" name="person-outline" size={40} tone="muted" />
       </View>
       <Title className="text-xl mb-2">Welcome to Documind</Title>
       <Paragraph className="text-center mb-6">Login to access all features</Paragraph>
@@ -121,7 +108,6 @@ export function SettingsAppearanceSection({
         icon={theme.isDark ? "moon" : "sunny"}
         title="Theme"
         description={theme.isDark ? "Dark Mode" : "Light Mode"}
-        theme={theme}
         onPress={onToggleTheme}
       />
     </SettingsSection>
@@ -129,10 +115,8 @@ export function SettingsAppearanceSection({
 }
 
 export function SettingsDataSection({
-  theme,
   onClearCache,
 }: {
-  theme: ReturnType<typeof useUiTheme>;
   onClearCache: () => void;
 }) {
   return (
@@ -141,7 +125,6 @@ export function SettingsDataSection({
         icon="trash-outline"
         title="Clear Cache"
         description="Remove local documents when no offline sync is pending"
-        theme={theme}
         onPress={onClearCache}
       />
     </SettingsSection>

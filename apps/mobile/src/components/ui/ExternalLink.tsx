@@ -1,9 +1,8 @@
 import { Linking, Text, TouchableOpacity, View } from "react-native";
-import Octicons from '@expo/vector-icons/Octicons';
-import Feather from '@expo/vector-icons/Feather';
 import { styled } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
 import { cn } from '@/lib/cn';
+import Icon from '@/components/ui/Icon';
 import { useUiTheme } from '@/theme/useUiTheme';
 
 const StyledBlurView = styled(ExpoBlurView);
@@ -33,12 +32,12 @@ export default function ExternalLink({ url, title, className }: ExternalLinkProp
       <View className="p-4 flex-col gap-0.5">
         <View className="flex flex-row items-center justify-between">
           <View className="flex flex-row items-center gap-3">
-            <Feather name="link-2" size={22} color={theme.foreground} />
+            <Icon library="feather" name="link-2" size={22} tone="foreground" />
             <Text className="text-foreground dark:text-dark-foreground font-bold">
               {title || "Go to external link"}
             </Text>
           </View>
-          <Octicons name="link-external" size={16} color={theme.foreground} />
+          <Icon library="octicons" name="link-external" size="sm" tone="foreground" />
         </View>
         <Text className="text-muted-foreground dark:text-dark-muted-foreground text-xs mt-1" numberOfLines={1}>
           {url}

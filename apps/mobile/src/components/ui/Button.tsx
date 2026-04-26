@@ -3,6 +3,7 @@ import { TouchableOpacity, Text, View, ActivityIndicator } from 'react-native';
 import { styled } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
 import { cn } from '@/lib/cn';
+import Icon from '@/components/ui/Icon';
 import { useUiTheme } from '@/theme/useUiTheme';
 
 const StyledBlurView = styled(ExpoBlurView);
@@ -83,9 +84,13 @@ export default function Button({
   const isDisabled = disabled || loading;
   const selectedTone = toneClasses[tone];
   const selectedSize = sizeClasses[size];
+  const isSharedIcon = React.isValidElement(icon) && icon.type === Icon;
 
   const renderedIcon = React.isValidElement(icon)
-    ? React.cloneElement(icon as React.ReactElement<{ className?: string; color?: string }>, {
+    ? React.cloneElement(icon as React.ReactElement<{ className?: string; color?: string }>, isSharedIcon ? {
+      className: (icon as React.ReactElement<{ className?: string; color?: string }>).props.className,
+      color: (icon as React.ReactElement<{ className?: string; color?: string }>).props.color,
+    } : {
       className: cn((icon as React.ReactElement<{ className?: string; color?: string }>).props.className, selectedTone.iconClassName),
       color:
         (icon as React.ReactElement<{ className?: string; color?: string }>).props.color ??

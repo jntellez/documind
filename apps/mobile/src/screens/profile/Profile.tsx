@@ -6,7 +6,7 @@ import ActivityStats from '@/components/profile/ActivityStats';
 import DeleteAccountModal from '@/components/profile/DeleteAccountModal';
 import ScreenContainer from '@/components/ui/ScreenContainer';
 import Button from '@/components/ui/Button';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Icon from '@/components/ui/Icon';
 
 export default function Profile() {
   const {
@@ -36,7 +36,7 @@ export default function Profile() {
         <Button
           title="Delete Account"
           variant="icon"
-          icon={<Ionicons name="trash-outline" size={20} />}
+          icon={<Icon library="ionicons" name="trash-outline" size="lg" tone="destructive" />}
           tone="destructive"
           onPress={openDeleteModal}
           className="mt-4"

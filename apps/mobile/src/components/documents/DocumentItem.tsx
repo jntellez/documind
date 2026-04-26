@@ -1,13 +1,11 @@
 import { View, Pressable, Animated } from 'react-native';
 import { Document } from 'types/api';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Feather } from '@expo/vector-icons';
 import { useState, useRef, useEffect } from 'react';
 import { Paragraph, Title } from '../ui/Typography';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
-import { useUiTheme } from '@/theme/useUiTheme';
 import Badge from '../ui/Badge';
+import Icon from '../ui/Icon';
 
 interface DocumentItemProps {
   document: Document;
@@ -24,7 +22,6 @@ export default function DocumentItem({
   onShare,
   onAddTag,
 }: DocumentItemProps) {
-  const theme = useUiTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotation = useRef(new Animated.Value(0)).current;
@@ -93,12 +90,7 @@ export default function DocumentItem({
             hitSlop={8}
           >
             <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-              <Feather
-                name="chevron-down"
-                size={18}
-                color={theme.mutedForeground}
-                className="pr-0.5"
-              />
+              <Icon library="feather" name="chevron-down" size="md" tone="muted" className="pr-0.5" />
             </Animated.View>
           </Pressable>
         </View>
@@ -118,19 +110,19 @@ export default function DocumentItem({
         <View className="flex-row items-center justify-around h-full">
           <Button
             variant="icon-only"
-            icon={<Ionicons name="pricetag-outline" size={18} color="#a855f7" />}
+            icon={<Icon library="ionicons" name="pricetag-outline" size="md" color="#a855f7" />}
             onPress={() => onAddTag?.(document)}
             className="p-0.5"
           />
           <Button
             variant="icon-only"
-            icon={<Ionicons name="share-outline" size={18} color={theme.primary} />}
+            icon={<Icon library="ionicons" name="share-outline" size="md" tone="primary" />}
             onPress={() => onShare?.(document)}
             className="p-0.5"
           />
           <Button
             variant="icon-only"
-            icon={<Ionicons name="trash-outline" size={18} className="text-destructive dark:text-dark-destructive" />}
+            icon={<Icon library="ionicons" name="trash-outline" size="md" tone="destructive" />}
             onPress={() => onDelete(document.id)}
             className="p-0.5"
           />

@@ -1,6 +1,6 @@
 import { View } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import Button from '@/components/ui/Button';
+import Icon from '@/components/ui/Icon';
 import Input from '@/components/ui/Input';
 import Modal from '@/components/ui/Modal';
 import { Paragraph } from '@/components/ui/Typography';
@@ -29,9 +29,13 @@ export default function DeleteAccountModal({
       title="Delete Account"
       description="This action is irreversible. All your documents and data will be permanently deleted."
       icon={
-        <View className="size-14 rounded-full border shadow-md border-border dark:border-dark-border items-center justify-center">
-          <Ionicons name="warning-outline" size={30} className="text-destructive dark:text-dark-destructive" />
-        </View>
+        <Icon
+          library="ionicons"
+          name="warning-outline"
+          variant="circle"
+          tone="destructive"
+          size={30}
+        />
       }
     >
       <Paragraph className="text-sm mb-2.5">

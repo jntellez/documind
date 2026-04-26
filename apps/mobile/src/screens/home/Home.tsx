@@ -1,10 +1,8 @@
 import { View, ScrollView, Keyboard } from 'react-native';
 import { HomeScreenProps } from 'types';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import Feather from '@expo/vector-icons/Feather';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Icon from '@/components/ui/Icon';
 import Input from '@/components/ui/Input';
 import { useState } from 'react';
 import { showToast } from '@/components/ui/Toast';
@@ -12,11 +10,9 @@ import { processUrl, pickDocument } from '@/services/documentService';
 import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '@/components/ui/ScreenContainer';
 import { Paragraph } from '@/components/ui/Typography';
-import { useUiTheme } from '@/theme/useUiTheme';
 
 export default function Home() {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
-  const theme = useUiTheme();
   const [inputValue, setInputValue] = useState<string>("");
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -87,21 +83,21 @@ export default function Home() {
                 disabled={!isValidated}
                 loading={isLoading}
                 onPress={handleSubmit}
-                icon={<Feather name="search" size={18} color={theme.mutedForeground} />}
+                icon={<Icon library="feather" name="search" size="md" tone="muted" />}
                 className="size-[40px] absolute right-2 top-2 items-center justify-center"
               />
               : <Button
                 variant="icon-only"
                 loading={isLoading}
                 onPress={handleFilePicker}
-                icon={<FontAwesome6 name="add" size={18} color={theme.mutedForeground} />}
+                icon={<Icon library="font-awesome-6" name="add" size="md" tone="muted" />}
                 className="size-[40px] absolute right-2 top-2 items-center justify-center"
               />
           }
         </View>
 
         <Card className="mt-6 items-center justify-center py-14">
-          <Ionicons name="tablet-portrait" size={48} color={theme.mutedForeground} />
+          <Icon library="ionicons" name="tablet-portrait" size={48} tone="muted" />
           <Paragraph className="text-lg">Recent documents is empty</Paragraph>
         </Card>
       </ScrollView>

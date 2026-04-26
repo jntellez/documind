@@ -1,9 +1,9 @@
 import { ScrollView } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useColorScheme } from "nativewind";
 import { useUiTheme } from "@/theme/useUiTheme";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
+import Icon from "@/components/ui/Icon";
 import {
   SettingsAboutSection,
   SettingsAccountSection,
@@ -24,14 +24,13 @@ export default function Settings() {
       <ScrollView
         showsVerticalScrollIndicator={false}
       >
-        <SettingsAccountSection user={user} theme={theme} onLogin={handleLogin} />
+        <SettingsAccountSection user={user} onLogin={handleLogin} />
         <SettingsAppearanceSection
           theme={theme}
           onToggleTheme={toggleColorScheme}
         />
         {user && (
           <SettingsDataSection
-            theme={theme}
             onClearCache={handleClearCache}
           />
         )}
@@ -42,7 +41,7 @@ export default function Settings() {
             onPress={handleLogout}
             title="Logout"
             variant="icon"
-            icon={<Ionicons name="log-out-outline" size={20} />}
+            icon={<Icon library="ionicons" name="log-out-outline" size="lg" />}
           />
         )}
       </ScrollView>

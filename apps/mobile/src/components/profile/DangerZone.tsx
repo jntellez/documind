@@ -1,7 +1,7 @@
 import { View, TouchableOpacity } from 'react-native';
 import { useColorScheme } from 'nativewind';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '@/components/ui/Card';
+import Icon from '@/components/ui/Icon';
 import { Paragraph } from '@/components/ui/Typography';
 
 type DangerZoneProps = {
@@ -23,13 +23,13 @@ export default function DangerZone({ onDeletePress }: DangerZoneProps) {
           onPress={onDeletePress}
         >
           <View className="w-10 h-10 rounded-full bg-red-500/10 items-center justify-center mr-3">
-            <Ionicons name="trash-outline" size={20} color="#ef4444" />
+            <Icon library="ionicons" name="trash-outline" size="lg" tone="destructive" />
           </View>
           <View className="flex-1">
             <Paragraph className="font-semibold text-red-500">Delete Account</Paragraph>
             <Paragraph className="text-xs opacity-60">Permanently delete your account and all data</Paragraph>
           </View>
-          <Ionicons name="chevron-forward" size={18} color={isDark ? '#666' : '#999'} />
+          <Icon library="ionicons" name="chevron-forward" size="md" color={isDark ? '#666' : '#999'} />
         </TouchableOpacity>
       </Card>
     </View>

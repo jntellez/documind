@@ -1,7 +1,7 @@
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { cn } from '@/lib/cn';
+import Icon from '@/components/ui/Icon';
 import { useUiTheme } from '@/theme/useUiTheme';
 
 const sizeStyles = {
@@ -56,7 +56,7 @@ export default function Avatar({ src, alt, fallback, size = 'md', className, onP
           onPress={onEditPress}
           className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary dark:bg-dark-primary border-2 border-background dark:border-dark-background items-center justify-center"
         >
-          <Ionicons name="camera" size={16} color={theme.primaryForeground} />
+          <Icon library="ionicons" name="camera" size="sm" color={theme.primaryForeground} />
         </TouchableOpacity>
       )}
     </View>
