@@ -36,6 +36,7 @@ yarn-error.*
 
 # AI workspace artifacts
 .atl/
+AI-GATEWAY.md
 
 # typescript
 *.tsbuildinfo
