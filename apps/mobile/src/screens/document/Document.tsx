@@ -1,4 +1,5 @@
-import { View, ScrollView, useWindowDimensions } from "react-native";
+import { useMemo, useState } from "react";
+import { ScrollView, View, useWindowDimensions } from "react-native";
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from 'types';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -7,7 +8,6 @@ import Button from "@/components/ui/Button";
 import { saveDocumentOffline } from "@/services/offlineDocumentService";
 import { Document as DocumentType, ProcessedDocument } from 'types/api';
 import { useAuth } from '@/context/AuthContext';
-import { useState } from 'react';
 import type { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -15,6 +15,7 @@ import { showToast } from "@/components/ui/Toast";
 import ScreenContainer from "@/components/ui/ScreenContainer";
 import Badge from "@/components/ui/Badge";
 import { Paragraph } from "@/components/ui/Typography";
+import Icon from "@/components/ui/Icon";
 
 type DocumentScreenProps = StackScreenProps<RootStackParamList, 'Document'>;
 
@@ -24,7 +25,7 @@ export default function Document({ route }: DocumentScreenProps) {
   const headerHeight = useHeaderHeight();
   const contentWidth = width - 32;
   const { user } = useAuth();
-  const { isOnline } = useNetworkStatus();
+  const { isOnline, isInternetReachable } = useNetworkStatus();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -32,6 +33,12 @@ export default function Document({ route }: DocumentScreenProps) {
   const isSavedDocument = (doc: any): doc is DocumentType => {
     return doc && 'created_at' in doc;
   };
+
+  const savedDocument = useMemo(
+    () => (isSavedDocument(data) ? data : null),
+    [data],
+  );
+  const canUseChat = Boolean(savedDocument) && isOnline && isInternetReachable;
 
   async function handleSave() {
     if (!user) {
@@ -83,7 +90,7 @@ export default function Document({ route }: DocumentScreenProps) {
       {!isOnline && (
         <Badge
           size="md"
-          className={`absolute shadow-md right-4 z-50 ${isSavedDocument(data) ? "bottom-12" : "bottom-22"}`}
+          className={`absolute shadow-md right-4 z-50 ${isSavedDocument(data) ? "bottom-28" : "bottom-22"}`}
           textClassName="font-bold"
         >
           Offline Mode
@@ -120,6 +127,21 @@ export default function Document({ route }: DocumentScreenProps) {
           />
         </View>
       )}
+
+      {savedDocument ? (
+        <View className="absolute bottom-8 right-4">
+          <Button
+            title="Ask AI"
+            tone="primary"
+            icon={<Icon library="feather" name="message-circle" size="md" />}
+            onPress={() => navigation.navigate('DocumentChat', {
+              documentId: savedDocument.id,
+              title: savedDocument.title,
+            })}
+            disabled={!canUseChat}
+          />
+        </View>
+      ) : null}
     </ScreenContainer>
   );
 }

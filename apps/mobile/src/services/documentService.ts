@@ -1,5 +1,9 @@
 import type {
   Document,
+  DocumentChatMessage,
+  DocumentChatRequest,
+  DocumentChatResponse,
+  GetDocumentChatMessagesResponse,
   GetDocumentsResponse,
   ProcessedDocument,
   SaveDocumentRequest,
@@ -139,4 +143,32 @@ export async function updateDocument(
   );
 
   return responseData.document || responseData;
+}
+
+export async function sendDocumentChatMessage(
+  documentId: number,
+  message: string,
+): Promise<DocumentChatResponse> {
+  return authenticatedApiRequest<DocumentChatResponse>(
+    `/api/documents/${documentId}/chat`,
+    {
+      method: "POST",
+      body: { message } satisfies DocumentChatRequest,
+      errorMessage: "Failed to chat with document",
+    },
+  );
+}
+
+export async function getDocumentChatMessages(
+  documentId: number,
+): Promise<DocumentChatMessage[]> {
+  const data = await authenticatedApiRequest<GetDocumentChatMessagesResponse>(
+    `/api/documents/${documentId}/chat/messages`,
+    {
+      method: "GET",
+      errorMessage: "Failed to load document chat history",
+    },
+  );
+
+  return data.messages;
 }

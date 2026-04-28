@@ -11,6 +11,10 @@ export type RootStackParamList = {
     data?: ProcessedDocument | Document;
     documentId?: number;
   };
+  DocumentChat: {
+    documentId: number;
+    title: string;
+  };
 };
 
 export type RootTabParamList = {
@@ -24,6 +28,10 @@ export type LoginScreenProps = StackScreenProps<RootStackParamList, "Login">;
 export type DocumentScreenProps = StackScreenProps<
   RootStackParamList,
   "Document"
+>;
+export type DocumentChatScreenProps = StackScreenProps<
+  RootStackParamList,
+  "DocumentChat"
 >;
 
 // Tab Screen Props

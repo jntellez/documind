@@ -9,6 +9,7 @@ import Icon from '@/components/ui/Icon';
 import Login from "@/screens/auth/Login";
 import TabNavigator from "./TabNavigator";
 import Document from "@/screens/document/Document";
+import DocumentChat from "@/screens/document/DocumentChat";
 import Profile from "@/screens/profile/Profile";
 import Button from "@/components/ui/Button";
 import { LinearGradient } from "expo-linear-gradient";
@@ -104,12 +105,23 @@ export default function StackNavigator() {
             icon={<Icon library="octicons" name="chevron-left" size="lg" />}
             onPress={() => navigation.goBack()}
           />,
-          headerRight: () => <Button
-            className="mr-4"
+          headerRight: () => null,
+        })}
+      />
+
+      <Stack.Screen
+        name="DocumentChat"
+        component={DocumentChat}
+        options={({ navigation }) => ({
+          headerTitle: () => null,
+          headerShown: true,
+          headerLeft: () => <Button
+            className="ml-4"
             variant="icon-only"
-            icon={<Icon library="feather" name="headphones" size="lg" />}
-            onPress={() => { }}
+            icon={<Icon library="octicons" name="chevron-left" size="lg" />}
+            onPress={() => navigation.goBack()}
           />,
+          headerRight: () => null,
         })}
       />
     </Stack.Navigator>
