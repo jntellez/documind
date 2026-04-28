@@ -16,3 +16,11 @@ export type {
   SaveDocumentResponse,
   UpdateDocumentRequest,
 } from "./documents";
+
+export type {
+  DocumentChatCitation,
+  DocumentChatMessage,
+  DocumentChatRequest,
+  DocumentChatResponse,
+  GetDocumentChatMessagesResponse,
+} from "./chat";
