@@ -14,6 +14,8 @@ import { JSDOM } from "jsdom";
 import { z } from "zod";
 import { config } from "../config";
 import pg from "../db";
+import { countWords } from "../lib/document-text";
+import { reindexDocumentChunks } from "../services/documentChunks.service";
 
 const ProcessUrlRequestSchema = z.object({
   url: z.string().url(),
@@ -100,36 +102,42 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
     const validatedData = SaveDocumentRequestSchema.parse(body);
     const createdAt = new Date();
     const updatedAt = new Date();
-    const wordCount = validatedData.content
-      .replace(/<[^>]*>/g, "")
-      .split(/\s+/)
-      .filter(Boolean).length;
+    const wordCount = countWords(validatedData.content);
 
     const tagsPgFormat = `{${validatedData.tags.map((tag) => `"${tag.replace(/"/g, '\\"')}"`).join(",")}}`;
 
-    const result = await pg`
-      INSERT INTO documents (
-        title,
-        content,
-        original_url,
-        word_count,
-        created_at,
-        updated_at,
-        user_id,
-        tags
-      )
-      VALUES (
-        ${validatedData.title},
-        ${validatedData.content},
-        ${validatedData.original_url},
-        ${wordCount},
-        ${createdAt},
-        ${updatedAt},
-        ${userId},
-        ${tagsPgFormat}
-      )
-      RETURNING id, title, content, original_url, word_count, created_at, updated_at, tags
-    `;
+    const result = await pg.begin(async (tx) => {
+      const inserted = await tx`
+        INSERT INTO documents (
+          title,
+          content,
+          original_url,
+          word_count,
+          created_at,
+          updated_at,
+          user_id,
+          tags
+        )
+        VALUES (
+          ${validatedData.title},
+          ${validatedData.content},
+          ${validatedData.original_url},
+          ${wordCount},
+          ${createdAt},
+          ${updatedAt},
+          ${userId},
+          ${tagsPgFormat}
+        )
+        RETURNING id, title, content, original_url, word_count, created_at, updated_at, tags
+      `;
+
+      await reindexDocumentChunks(tx, {
+        documentId: Number(inserted[0].id),
+        content: validatedData.content,
+      });
+
+      return inserted;
+    });
 
     const saveResponse: SaveDocumentResponse = {
       success: true,
@@ -269,23 +277,29 @@ documentRoutes.patch("/documents/:id", authJwt, async (c) => {
     let newWordCount = currentDoc.word_count;
 
     if (validatedData.content) {
-      newWordCount = validatedData.content
-        .replace(/<[^>]*>/g, "")
-        .split(/\s+/)
-        .filter(Boolean).length;
+      newWordCount = countWords(validatedData.content);
     }
 
-    const result = await pg`
-      UPDATE documents
-      SET
-        title = ${newTitle},
-        content = ${newContent},
-        tags = ${tagsPgFormat},
-        word_count = ${newWordCount},
-        updated_at = ${updatedAt}
-      WHERE id = ${documentId} AND user_id = ${userId}
-      RETURNING id, title, content, original_url, word_count, created_at, updated_at, tags
-    `;
+    const result = await pg.begin(async (tx) => {
+      const updated = await tx`
+        UPDATE documents
+        SET
+          title = ${newTitle},
+          content = ${newContent},
+          tags = ${tagsPgFormat},
+          word_count = ${newWordCount},
+          updated_at = ${updatedAt}
+        WHERE id = ${documentId} AND user_id = ${userId}
+        RETURNING id, title, content, original_url, word_count, created_at, updated_at, tags
+      `;
+
+      await reindexDocumentChunks(tx, {
+        documentId,
+        content: newContent,
+      });
+
+      return updated;
+    });
 
     return c.json({ success: true, document: result[0] });
   } catch (error) {
