@@ -90,7 +90,7 @@ export default function Document({ route }: DocumentScreenProps) {
       {!isOnline && (
         <Badge
           size="md"
-          className={`absolute shadow-md right-4 z-50 ${isSavedDocument(data) ? "bottom-28" : "bottom-22"}`}
+          className={`absolute shadow-md right-4 z-50 bottom-22`}
           textClassName="font-bold"
         >
           Offline Mode
