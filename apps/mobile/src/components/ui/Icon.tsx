@@ -23,7 +23,7 @@ const iconLibraries = {
 
 type IconLibrary = keyof typeof iconLibraries;
 type IconVariant = 'default' | 'circle' | 'soft' | 'outline';
-type IconTone = 'foreground' | 'muted' | 'primary' | 'destructive' | 'success' | 'warning';
+type IconTone = 'foreground' | 'mutedForeground' | 'muted' | 'primary' | 'destructive' | 'success' | 'warning';
 type IconContainerTone = 'surface' | 'muted' | 'primary' | 'destructive' | 'transparent';
 type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number;
 
@@ -63,7 +63,8 @@ const containerToneClasses: Record<IconContainerTone, string> = {
 
 const toneClasses: Record<IconTone, string> = {
   foreground: 'text-foreground dark:text-dark-foreground',
-  muted: 'text-muted-foreground dark:text-dark-muted-foreground',
+  mutedForeground: 'text-muted-foreground dark:text-dark-muted-foreground',
+  muted: 'text-muted dark:text-dark-muted',
   primary: 'text-primary dark:text-dark-primary',
   destructive: 'text-destructive dark:text-dark-destructive',
   success: 'text-success',
@@ -98,7 +99,8 @@ export default function Icon({
 
   const colorByTone: Record<IconTone, string> = {
     foreground: theme.foreground,
-    muted: theme.mutedForeground,
+    mutedForeground: theme.mutedForeground,
+    muted: theme.muted,
     primary: theme.primary,
     destructive: '#ef4444',
     success: '#22c55e',
