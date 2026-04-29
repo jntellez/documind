@@ -48,7 +48,7 @@ export default function DocumentTagFilterCard({
                     key={`dropdown-tag-${tag}`}
                     onPress={() => onToggleTag(tag)}
                     variant={isSelected ? 'icon-end' : 'default'}
-                    icon={<Icon library="feather" name="check" size="xs" />}
+                    icon={<Icon library="feather" name="check" size="xs" tone="muted" />}
                     size="sm"
                     tone={isSelected ? 'primary' : 'default'}
                     textClassName="font-medium"
