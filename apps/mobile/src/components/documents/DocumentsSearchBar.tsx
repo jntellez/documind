@@ -19,7 +19,7 @@ export default function DocumentsSearchBar({ onChangeText }: DocumentsSearchBarP
         className="p-5 pl-15"
       />
       <View className="size-[40px] absolute left-2 top-2 items-center justify-center">
-        <Icon library="feather" name="search" size="md" tone="muted" />
+        <Icon library="feather" name="search" size="md" tone="mutedForeground" />
       </View>
     </View>
   );

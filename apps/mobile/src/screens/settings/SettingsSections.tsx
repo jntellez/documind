@@ -53,7 +53,7 @@ function SettingsActionRow({
             <Paragraph className="text-sm">{description}</Paragraph>
           </View>
         </View>
-        <Icon library="feather" name="chevron-right" size="lg" tone="muted" />
+        <Icon library="feather" name="chevron-right" size="lg" tone="mutedForeground" />
       </Pressable>
     </Card>
   );
@@ -83,7 +83,7 @@ export function SettingsAccountSection({
   return (
     <View className="items-center py-8 mb-2">
       <View className="size-20 rounded-full bg-muted dark:bg-dark-muted items-center justify-center mb-4">
-        <Icon library="ionicons" name="person-outline" size={40} tone="muted" />
+        <Icon library="ionicons" name="person-outline" size={40} tone="mutedForeground" />
       </View>
       <Title className="text-xl mb-2">Welcome to Documind</Title>
       <Paragraph className="text-center mb-6">Login to access all features</Paragraph>

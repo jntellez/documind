@@ -92,7 +92,7 @@ export default function DocumentChatMessage({ message }: DocumentChatMessageProp
               className="gap-2"
             >
               <Paragraph className="text-xs font-semibold text-foreground dark:text-dark-foreground">
-                {`Chunk ${citation.chunkIndex}`}
+                {`Source ${citation.chunkIndex}`}
               </Paragraph>
               <Paragraph className="text-sm text-foreground dark:text-dark-foreground">
                 {citation.excerpt}

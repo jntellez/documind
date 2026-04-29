@@ -83,21 +83,21 @@ export default function Home() {
                 disabled={!isValidated}
                 loading={isLoading}
                 onPress={handleSubmit}
-                icon={<Icon library="feather" name="search" size="md" tone="muted" />}
+                icon={<Icon library="feather" name="search" size="md" tone="mutedForeground" />}
                 className="size-[40px] absolute right-2 top-2 items-center justify-center"
               />
               : <Button
                 variant="icon-only"
                 loading={isLoading}
                 onPress={handleFilePicker}
-                icon={<Icon library="font-awesome-6" name="add" size="md" tone="muted" />}
+                icon={<Icon library="font-awesome-6" name="add" size="md" tone="mutedForeground" />}
                 className="size-[40px] absolute right-2 top-2 items-center justify-center"
               />
           }
         </View>
 
         <Card className="mt-6 items-center justify-center py-14">
-          <Icon library="ionicons" name="tablet-portrait" size={48} tone="muted" />
+          <Icon library="ionicons" name="tablet-portrait" size={48} tone="mutedForeground" />
           <Paragraph className="text-lg">Recent documents is empty</Paragraph>
         </Card>
       </ScrollView>

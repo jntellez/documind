@@ -28,12 +28,12 @@ export default function DocumentTagFilterCard({
         className="flex-row items-center justify-between px-5 py-3.5"
       >
         <View className="flex-row items-center">
-          <Icon library="feather" name="filter" size="sm" tone="muted" />
+          <Icon library="feather" name="filter" size="sm" tone="mutedForeground" />
           <Paragraph className="ml-5.5 text-sm font-semibold text-foreground dark:text-dark-foreground">
             Filtrar por Etiquetas {selectedTags.length > 0 ? `(${selectedTags.length})` : ''}
           </Paragraph>
         </View>
-        <Icon library="feather" name={isOpen ? 'chevron-up' : 'chevron-down'} size="md" tone="muted" />
+        <Icon library="feather" name={isOpen ? 'chevron-up' : 'chevron-down'} size="md" tone="mutedForeground" />
       </TouchableOpacity>
 
       {isOpen && (

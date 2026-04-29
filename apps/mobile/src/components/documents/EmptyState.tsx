@@ -7,7 +7,7 @@ export default function EmptyState() {
   return (
     <View className="flex-1 items-center justify-center px-6 mb-18">
       <Card className="size-24 items-center justify-center rounded-full mb-6">
-        <Icon library="ionicons" name="document-text-outline" size={48} tone="muted" />
+        <Icon library="ionicons" name="document-text-outline" size={48} tone="mutedForeground" />
       </Card>
       <Title className="mb-2">
         No documents yet

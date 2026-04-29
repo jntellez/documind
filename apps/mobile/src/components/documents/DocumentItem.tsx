@@ -90,7 +90,7 @@ export default function DocumentItem({
             hitSlop={8}
           >
             <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-              <Icon library="feather" name="chevron-down" size="md" tone="muted" className="pr-0.5" />
+              <Icon library="feather" name="chevron-down" size="md" tone="mutedForeground" className="pr-0.5" />
             </Animated.View>
           </Pressable>
         </View>

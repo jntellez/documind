@@ -22,7 +22,7 @@ export default function Login({ navigation }: Props) {
     <ScreenContainer className="justify-center">
       <Card className="items-center p-6">
         <View className="size-32 items-center justify-center rounded-full mb-6 bg-muted dark:bg-dark-muted">
-          <Icon library="ionicons" name="tablet-portrait" size={54} tone="muted" />
+          <Icon library="ionicons" name="tablet-portrait" size={54} tone="mutedForeground" />
         </View>
 
         <GradientTitle className="text-4xl font-medium text-center">
