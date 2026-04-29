@@ -12,7 +12,7 @@ type ButtonProps = {
   title?: string;
   icon?: React.ReactNode;
   variant?: 'default' | 'icon' | 'icon-end' | 'icon-only';
-  tone?: 'default' | 'primary' | 'destructive';
+  tone?: 'default' | 'primary' | 'destructive' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   onPress?: () => void;
   className?: string;
@@ -39,6 +39,12 @@ const toneClasses = {
     text: 'text-destructive dark:text-dark-destructive',
     iconClassName: 'text-destructive dark:text-dark-destructive',
     getIconColor: (_theme: ReturnType<typeof useUiTheme>) => '#ef4444',
+  },
+  ghost: {
+    container: 'bg-transparent border-transparent shadow-none',
+    text: 'text-muted-foreground dark:text-dark-muted-foreground',
+    iconClassName: 'text-muted-foreground dark:text-dark-muted-foreground',
+    getIconColor: (theme: ReturnType<typeof useUiTheme>) => theme.mutedForeground,
   },
 } as const;
 
@@ -104,16 +110,19 @@ export default function Button({
       disabled={isDisabled}
       className={cn(
         'rounded-full border shadow-md overflow-hidden',
+        tone === 'ghost' && 'shadow-none',
         selectedTone.container,
         isDisabled ? 'opacity-50' : 'opacity-100',
         className,
       )}
     >
-      <StyledBlurView
-        intensity={10}
-        tint={theme.blurTint}
-        className="absolute inset-0"
-      />
+      {tone !== 'ghost' ? (
+        <StyledBlurView
+          intensity={10}
+          tint={theme.blurTint}
+          className="absolute inset-0"
+        />
+      ) : null}
       <View
         className={cn(
           'flex-row items-center justify-center',
