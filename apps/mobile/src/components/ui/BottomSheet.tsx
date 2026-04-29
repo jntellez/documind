@@ -5,6 +5,7 @@ import {
   PanResponder,
   Pressable,
   ScrollView,
+  StyleSheet,
   type ScrollViewProps,
   View,
 } from "react-native";
@@ -77,11 +78,10 @@ export default function BottomSheet({
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => false,
+        onStartShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponder: (_, gestureState) =>
           gestureState.dy > 2 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx),
-        onMoveShouldSetPanResponderCapture: (_, gestureState) =>
-          gestureState.dy > 2 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx),
+        onMoveShouldSetPanResponderCapture: () => false,
         onPanResponderTerminationRequest: () => false,
         onPanResponderGrant: () => {
           translateY.stopAnimation();
@@ -160,22 +160,22 @@ export default function BottomSheet({
 
   return (
     <RNModal transparent visible={isMounted} animationType="none" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
-        <Animated.View
-          pointerEvents="none"
-          className="absolute inset-0 bg-black"
-          style={{
-            opacity: backdropOpacity.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 0.45],
-            }),
-          }}
-        />
+      <View className="flex-1 justify-end" pointerEvents="box-none">
+        <Pressable className="absolute inset-0" onPress={onClose}>
+          <Animated.View
+            pointerEvents="none"
+            className="absolute inset-0 bg-black"
+            style={{
+              opacity: backdropOpacity.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 0.45],
+              }),
+            }}
+          />
+        </Pressable>
 
-        <Pressable className="absolute inset-0" onPress={onClose} />
-
         <Animated.View
-          style={{ transform: [{ translateY }] }}
+          style={[styles.sheet, { transform: [{ translateY }] }]}
           onLayout={({ nativeEvent }) => {
             setSheetHeight((currentHeight) => {
               const nextHeight = nativeEvent.layout.height;
@@ -191,6 +191,7 @@ export default function BottomSheet({
           <View
             className="items-center px-4 pb-3 pt-3"
             collapsable={false}
+            hitSlop={{ bottom: 12, top: 12 }}
             {...panResponder.panHandlers}
           >
             {showDragHandle ? (
@@ -205,3 +206,10 @@ export default function BottomSheet({
     </RNModal>
   );
 }
+
+const styles = StyleSheet.create({
+  sheet: {
+    elevation: 1,
+    zIndex: 1,
+  },
+});
