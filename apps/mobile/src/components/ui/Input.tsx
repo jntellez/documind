@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextInput, TextInputProps, View, Text } from 'react-native';
 import { styled } from 'nativewind';
 import { BlurView as ExpoBlurView } from 'expo-blur';
@@ -31,6 +31,12 @@ export default function Input({
   const [value, setValue] = useState<string>(defaultValue || "");
   const [touched, setTouched] = useState<boolean>(false);
   const hasError = touched && Boolean(error);
+
+  useEffect(() => {
+    if (props.value !== undefined) {
+      setValue(String(props.value));
+    }
+  }, [props.value]);
 
   function validateUrl(url: string): boolean {
     const urlPattern = /^(https?:\/\/)?([\w\d-]+\.)+[\w\d]{2,}(\/.*)?$/i;
@@ -71,7 +77,7 @@ export default function Input({
     <View className="flex-1">
       <View
         className={cn(
-          'flex-1 rounded-full bg-surface-glass dark:bg-dark-surface-glass border shadow-lg overflow-hidden',
+          'w-full min-h-14 rounded-4xl bg-surface-glass dark:bg-dark-surface-glass border shadow-lg overflow-hidden',
           hasError
             ? 'border-destructive dark:border-dark-destructive'
             : 'border-input-border dark:border-dark-input-border',
