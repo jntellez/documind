@@ -21,7 +21,7 @@ export default function DocumentTagFilterCard({
   onToggleTag,
 }: DocumentTagFilterCardProps) {
   return (
-    <Card className="mb-4 z-20 p-0 gap-0 overflow-hidden">
+    <Card className="mb-4 mt-2 z-20 p-0 gap-0 overflow-hidden">
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onToggleOpen}
