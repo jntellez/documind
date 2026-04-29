@@ -1,5 +1,6 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Text, View } from "react-native";
 import { RootStackParamList } from "types";
 import { useColorScheme } from "nativewind";
 import Avatar from "@/components/ui/Avatar";
@@ -14,6 +15,8 @@ import Profile from "@/screens/profile/Profile";
 import Button from "@/components/ui/Button";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/context/AuthContext";
+import Card from "@/components/ui/Card";
+import { Title } from "@/components/ui/Typography";
 /**
  * Creamos el Stack Navigator con tipado
  */
@@ -112,9 +115,20 @@ export default function StackNavigator() {
       <Stack.Screen
         name="DocumentChat"
         component={DocumentChat}
-        options={({ navigation }) => ({
-          headerTitle: () => null,
+        options={({ navigation, route }) => ({
+          headerTitle: () => (
+            <Card className="max-w-[240px] px-4 py-2 shadow-md">
+              <Title
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className="text-lg"
+              >
+                {route.params.title}
+              </Title>
+            </Card>
+          ),
           headerShown: true,
+          headerTitleAlign: "center",
           headerLeft: () => <Button
             className="ml-4"
             variant="icon-only"
