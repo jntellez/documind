@@ -5,6 +5,7 @@ const uiThemeColors = {
   light: {
     foreground: '#171717', // foreground
     mutedForeground: '#71717b', // muted-foreground
+    muted: '#dedede', // muted
     primary: '#2b7fff',
     primaryForeground: '#eff6ff',
     cursor: '#000000',
@@ -14,6 +15,7 @@ const uiThemeColors = {
   dark: {
     foreground: '#fafafa', // dark-foreground
     mutedForeground: '#9f9fa9', // dark-muted-foreground
+    muted: '#3a3a3e', // dark-muted
     primary: '#51a2ff',
     primaryForeground: '#171717',
     cursor: '#ffffff',
