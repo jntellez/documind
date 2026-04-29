@@ -12,11 +12,13 @@ import { config } from "../config";
 import pg from "../db";
 import {
   AiGatewayError,
+  requestAiGatewayEmbeddings,
   requestAiGatewayResponse,
   rewriteDocumentRetrievalQuery,
 } from "../services/aiGateway.service";
 import {
   getLeadingDocumentChunks,
+  retrieveSemanticDocumentChunks,
   retrieveRelevantDocumentChunks,
   type RetrievedDocumentChunk,
 } from "../services/documentChunks.service";
@@ -126,6 +128,22 @@ async function getOwnedDocument(documentId: number, userId: number) {
   } satisfies OwnedDocument;
 }
 
+async function getQuestionEmbedding(question: string) {
+  try {
+    const response = await requestAiGatewayEmbeddings({
+      input: question,
+      metadata: {
+        source: "documind-document-chat-query-embedding",
+      },
+    });
+
+    const vector = response.data.embeddings.find((entry) => entry.index === 0)?.vector;
+    return Array.isArray(vector) && vector.length > 0 ? vector : null;
+  } catch {
+    return null;
+  }
+}
+
 function serializeDocumentChatMessage(
   message: DocumentChatMessageRow,
 ): DocumentChatMessage {
@@ -218,6 +236,18 @@ function isWeakChunkRetrieval(chunks: RetrievedDocumentChunk[]) {
     return true;
   }
 
+  const semanticChunks = chunks.filter(
+    (chunk) => typeof chunk.semanticDistance === "number",
+  );
+
+  if (semanticChunks.length > 0) {
+    const bestDistance = Math.min(
+      ...semanticChunks.map((chunk) => chunk.semanticDistance as number),
+    );
+
+    return bestDistance > 0.6;
+  }
+
   const strongestRank = Math.max(
     ...chunks.map((chunk) => chunk.fullTextRank * 2 + chunk.lexicalRank),
   );
@@ -269,24 +299,38 @@ documentChatRoutes.post("/documents/:id/chat", authJwt, async (c) => {
       question: message,
     });
 
+    const queryEmbedding = await getQuestionEmbedding(retrievalQuery.query);
+
+    const semanticChunks = queryEmbedding
+      ? await retrieveSemanticDocumentChunks({
+          documentId,
+          queryEmbedding,
+          limit: 4,
+        })
+      : [];
+
     const lexicalChunks = await retrieveRelevantDocumentChunks({
       documentId,
       question: retrievalQuery.query,
       limit: 4,
     });
 
+    const primaryChunks = semanticChunks.length > 0
+      ? mergeChunks(semanticChunks, lexicalChunks)
+      : lexicalChunks;
+
     const needsLeadingFallback =
-      isWeakChunkRetrieval(lexicalChunks) ||
-      (isBroadDocumentQuestion(message) && lexicalChunks.length < 4);
+      isWeakChunkRetrieval(primaryChunks) ||
+      (isBroadDocumentQuestion(message) && primaryChunks.length < 4);
 
     const fallbackChunks = needsLeadingFallback
       ? await getLeadingDocumentChunks({
           documentId,
-          limit: lexicalChunks.length === 0 ? 4 : 2,
+          limit: primaryChunks.length === 0 ? 4 : 2,
         })
       : [];
 
-    const relevantChunks = mergeChunks(lexicalChunks, fallbackChunks);
+    const relevantChunks = mergeChunks(primaryChunks, fallbackChunks);
 
     if (relevantChunks.length === 0) {
       const answer = "I can't answer that from this document.";
@@ -331,6 +375,7 @@ documentChatRoutes.post("/documents/:id/chat", authJwt, async (c) => {
         retrievalQuery: retrievalQuery.query,
         retrievalQueryRewritten: retrievalQuery.rewritten,
         retrievedChunkCount: relevantChunks.length,
+        semanticChunkCount: semanticChunks.length,
         lexicalChunkCount: lexicalChunks.length,
         leadingFallbackChunkCount: fallbackChunks.length,
       },

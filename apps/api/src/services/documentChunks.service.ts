@@ -3,6 +3,7 @@ import {
   documentContentToPlainText,
   splitTextIntoChunks,
 } from "../lib/document-text";
+import { requestAiGatewayEmbeddings } from "./aiGateway.service";
 
 type DatabaseClient = typeof pg;
 
@@ -11,7 +12,77 @@ export type RetrievedDocumentChunk = {
   content: string;
   fullTextRank: number;
   lexicalRank: number;
+  semanticDistance?: number;
 };
+
+function toVectorLiteral(values: number[]) {
+  return `[${values.join(",")}]`;
+}
+
+async function buildChunkEmbeddings(chunks: Array<{ content: string }>) {
+  if (chunks.length === 0) {
+    return [] as Array<number[] | null>;
+  }
+
+  try {
+    const response = await requestAiGatewayEmbeddings({
+      input: chunks.map((chunk) => chunk.content),
+      metadata: {
+        source: "documind-document-chunks-reindex",
+      },
+    });
+
+    const vectorsByIndex = new Map<number, number[]>();
+
+    for (const embedding of response.data.embeddings) {
+      if (Array.isArray(embedding.vector) && embedding.vector.length > 0) {
+        vectorsByIndex.set(embedding.index, embedding.vector);
+      }
+    }
+
+    return chunks.map((_, index) => vectorsByIndex.get(index) ?? null);
+  } catch (error) {
+    console.warn("Chunk embedding generation failed. Continuing with lexical fallback.", error);
+    return chunks.map(() => null);
+  }
+}
+
+export async function retrieveSemanticDocumentChunks(params: {
+  documentId: number;
+  queryEmbedding: number[];
+  limit?: number;
+}) {
+  if (params.queryEmbedding.length === 0) {
+    return [] as RetrievedDocumentChunk[];
+  }
+
+  const limit = params.limit ?? 4;
+  const queryVector = toVectorLiteral(params.queryEmbedding);
+
+  const rows = (await pg`
+    SELECT
+      chunk_index,
+      content,
+      (embedding <=> ${queryVector}::vector) AS semantic_distance
+    FROM document_chunks
+    WHERE document_id = ${params.documentId}
+      AND embedding IS NOT NULL
+    ORDER BY semantic_distance ASC, chunk_index ASC
+    LIMIT ${limit}
+  `) as Array<{
+    chunk_index: number | string;
+    content: string;
+    semantic_distance: number | string | null;
+  }>;
+
+  return rows.map((row) => ({
+    chunkIndex: Number(row.chunk_index),
+    content: String(row.content),
+    fullTextRank: 0,
+    lexicalRank: 0,
+    semanticDistance: Number(row.semantic_distance ?? 1),
+  })) as RetrievedDocumentChunk[];
+}
 
 export async function reindexDocumentChunks(
   db: DatabaseClient,
@@ -19,16 +90,22 @@ export async function reindexDocumentChunks(
 ) {
   const plainText = documentContentToPlainText(params.content);
   const chunks = splitTextIntoChunks(plainText);
+  const chunkEmbeddings = await buildChunkEmbeddings(chunks);
 
   await db`DELETE FROM document_chunks WHERE document_id = ${params.documentId}`;
 
-  for (const chunk of chunks) {
+  for (const [index, chunk] of chunks.entries()) {
+    const embeddingVector = chunkEmbeddings[index]
+      ? toVectorLiteral(chunkEmbeddings[index] as number[])
+      : null;
+
     await db`
       INSERT INTO document_chunks (
         document_id,
         chunk_index,
         content,
         token_count,
+        embedding,
         created_at,
         updated_at
       )
@@ -37,6 +114,7 @@ export async function reindexDocumentChunks(
         ${chunk.chunkIndex},
         ${chunk.content},
         ${chunk.tokenCount},
+        ${embeddingVector}::vector,
         NOW(),
         NOW()
       )

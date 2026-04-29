@@ -43,6 +43,24 @@ type AiGatewayErrorResponse = {
   };
 };
 
+type AiGatewayEmbeddingRequest = {
+  input: string | string[];
+  metadata?: Record<string, unknown>;
+};
+
+type AiGatewayEmbeddingResponse = {
+  requestId: string;
+  data: {
+    provider: string;
+    model: string;
+    embeddings: Array<{
+      index: number;
+      vector: number[];
+    }>;
+    fallbackUsed: boolean;
+  };
+};
+
 export class AiGatewayError extends Error {
   status: number;
   type?: string;
@@ -111,6 +129,63 @@ export async function requestAiGatewayResponse(request: AiGatewayRequest) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new AiGatewayError({
         message: "AI Gateway request timed out",
+        status: 504,
+        type: "TIMEOUT",
+      });
+    }
+
+    throw new AiGatewayError({
+      message: error instanceof Error ? error.message : "Failed to reach AI Gateway",
+      status: 502,
+      type: "UNAVAILABLE",
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+export async function requestAiGatewayEmbeddings(
+  request: AiGatewayEmbeddingRequest,
+) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), config.aiGatewayTimeoutMs);
+
+  try {
+    const response = await fetch(`${config.aiGatewayUrl}/v1/ai/embed`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    const rawBody = await response.text();
+    const payload = rawBody
+      ? (JSON.parse(rawBody) as AiGatewayEmbeddingResponse | AiGatewayErrorResponse)
+      : undefined;
+
+    if (!response.ok) {
+      const errorPayload = payload as AiGatewayErrorResponse | undefined;
+
+      throw new AiGatewayError({
+        message: errorPayload?.error?.message || "AI Gateway embedding request failed",
+        status: response.status,
+        type: errorPayload?.error?.type,
+        details: errorPayload?.error?.details,
+        requestId: errorPayload?.requestId,
+      });
+    }
+
+    return payload as AiGatewayEmbeddingResponse;
+  } catch (error) {
+    if (error instanceof AiGatewayError) {
+      throw error;
+    }
+
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new AiGatewayError({
+        message: "AI Gateway embedding request timed out",
         status: 504,
         type: "TIMEOUT",
       });
