@@ -106,7 +106,7 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
 
     const tagsPgFormat = `{${validatedData.tags.map((tag) => `"${tag.replace(/"/g, '\\"')}"`).join(",")}}`;
 
-    const result = await pg.begin(async (tx) => {
+    const result = await pg.begin(async (tx: any) => {
       const inserted = await tx`
         INSERT INTO documents (
           title,
@@ -280,7 +280,7 @@ documentRoutes.patch("/documents/:id", authJwt, async (c) => {
       newWordCount = countWords(validatedData.content);
     }
 
-    const result = await pg.begin(async (tx) => {
+    const result = await pg.begin(async (tx: any) => {
       const updated = await tx`
         UPDATE documents
         SET

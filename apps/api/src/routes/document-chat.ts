@@ -171,7 +171,7 @@ async function storeDocumentChatTurn({
   assistantMessage: string;
   assistantCitations?: DocumentChatCitation[];
 }) {
-  await pg.begin(async (tx) => {
+  await pg.begin(async (tx: any) => {
     await tx`
       INSERT INTO document_chat_messages (document_id, user_id, role, content)
       VALUES (${documentId}, ${userId}, 'user', ${userMessage})
