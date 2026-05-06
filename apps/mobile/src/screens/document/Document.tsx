@@ -16,6 +16,7 @@ import ScreenContainer from "@/components/ui/ScreenContainer";
 import Badge from "@/components/ui/Badge";
 import { Paragraph } from "@/components/ui/Typography";
 import Icon from "@/components/ui/Icon";
+import { useDocumentPreferences } from "@/context/DocumentPreferencesContext";
 
 type DocumentScreenProps = StackScreenProps<RootStackParamList, 'Document'>;
 
@@ -28,6 +29,7 @@ export default function Document({ route }: DocumentScreenProps) {
   const { isOnline, isInternetReachable } = useNetworkStatus();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isSaving, setIsSaving] = useState(false);
+  const { showImagesInDetail, documentContentFontSize } = useDocumentPreferences();
 
   // Type guard para verificar si es un Document guardado
   const isSavedDocument = (doc: any): doc is DocumentType => {
@@ -113,6 +115,8 @@ export default function Document({ route }: DocumentScreenProps) {
             content={data.content}
             contentWidth={contentWidth}
             wordCount={isSavedDocument(data) ? data.word_count : undefined}
+            showImages={showImagesInDetail}
+            contentFontSize={documentContentFontSize}
           />
         </View>
       </ScrollView>

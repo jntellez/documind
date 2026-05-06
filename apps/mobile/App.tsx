@@ -6,6 +6,7 @@ import Toast from 'react-native-toast-message';
 import toastConfig from '@/components/ui/Toast';
 import { AuthProvider } from '@/context/AuthContext';
 import { DocumentCacheProvider } from '@/context/DocumentCacheContext';
+import { DocumentPreferencesProvider } from '@/context/DocumentPreferencesContext';
 import { useEffect } from 'react';
 import { initDatabase } from '@/storage/database';
 import { syncWithServer } from '@/services/offlineDocumentService';
@@ -19,11 +20,13 @@ export default function App() {
   return (
     <AuthProvider>
       <DocumentCacheProvider>
-        <NavigationContainer>
-          <StatusBar style="auto" />
-          <StackNavigator />
-        </NavigationContainer>
-        <Toast config={toastConfig} />
+        <DocumentPreferencesProvider>
+          <NavigationContainer>
+            <StatusBar style="auto" />
+            <StackNavigator />
+          </NavigationContainer>
+          <Toast config={toastConfig} />
+        </DocumentPreferencesProvider>
       </DocumentCacheProvider>
     </AuthProvider>
   );

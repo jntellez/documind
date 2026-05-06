@@ -1,63 +1,15 @@
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import type { AuthUser } from "@documind/types";
-import type { ReactNode } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
 import { Paragraph, Title } from "@/components/ui/Typography";
 import { useUiTheme } from "@/theme/useUiTheme";
+import { SettingsActionRow } from "./components/SettingsActionRow";
+import { SettingsSection } from "./components/SettingsSection";
+export { SettingsReadingSection } from "./components/SettingsReadingSection";
 
-function SettingsSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <View className="mb-6">
-      <Paragraph className="text-xs uppercase font-semibold mb-2 px-1 opacity-70">
-        {title}
-      </Paragraph>
-      {children}
-    </View>
-  );
-}
-
-function SettingsActionRow({
-  icon,
-  title,
-  description,
-  onPress,
-}: {
-  icon: string;
-  title: string;
-  description: string;
-  onPress: () => void;
-}) {
-  return (
-    <Card>
-      <Pressable
-        onPress={onPress}
-        className="flex-row items-center justify-between p-4 active:opacity-70"
-      >
-        <View className="flex-row items-center flex-1">
-          <View className="size-10 rounded-full border shadow-md border-border dark:border-dark-border items-center justify-center mr-3">
-            <Icon library="ionicons" name={icon} size="lg" />
-          </View>
-          <View className="flex-1">
-            <Paragraph className="font-semibold text-foreground dark:text-dark-foreground mb-0.5">
-              {title}
-            </Paragraph>
-            <Paragraph className="text-sm">{description}</Paragraph>
-          </View>
-        </View>
-        <Icon library="feather" name="chevron-right" size="lg" tone="mutedForeground" />
-      </Pressable>
-    </Card>
-  );
-}
 
 export function SettingsAccountSection({
   user,

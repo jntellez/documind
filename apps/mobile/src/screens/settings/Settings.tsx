@@ -9,15 +9,23 @@ import {
   SettingsAccountSection,
   SettingsAppearanceSection,
   SettingsDataSection,
+  SettingsReadingSection,
 } from "./SettingsSections";
 import { useSettingsActions } from "./useSettingsActions";
 import ScreenContainer from "@/components/ui/ScreenContainer";
+import { useDocumentPreferences } from "@/context/DocumentPreferencesContext";
 
 export default function Settings() {
   const { toggleColorScheme } = useColorScheme();
   const theme = useUiTheme();
   const { user } = useAuth();
   const { handleLogin, handleLogout, handleClearCache } = useSettingsActions();
+  const {
+    showImagesInDetail,
+    setShowImagesInDetail,
+    documentContentFontSize,
+    setDocumentContentFontSize,
+  } = useDocumentPreferences();
 
   return (
     <ScreenContainer className="pt-6">
@@ -28,6 +36,12 @@ export default function Settings() {
         <SettingsAppearanceSection
           theme={theme}
           onToggleTheme={toggleColorScheme}
+        />
+        <SettingsReadingSection
+          showImagesInDetail={showImagesInDetail}
+          onToggleShowImagesInDetail={() => setShowImagesInDetail(!showImagesInDetail)}
+          documentContentFontSize={documentContentFontSize}
+          onChangeDocumentContentFontSize={setDocumentContentFontSize}
         />
         {user && (
           <SettingsDataSection

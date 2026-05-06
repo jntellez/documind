@@ -24,14 +24,14 @@ export const renderers = {
   table: TableRenderer,
 };
 
-export const getTagsStyles = (textColor: string, borderColor: string) => ({
-  p: { marginVertical: 12, color: textColor, lineHeight: 22, fontSize: 14 },
+export const getTagsStyles = (textColor: string, borderColor: string, baseFontSize: number = 14) => ({
+  p: { marginVertical: 12, color: textColor, lineHeight: Math.round(baseFontSize * 1.6), fontSize: baseFontSize },
   ul: { marginVertical: 12, paddingLeft: 25 },
   ol: { marginVertical: 12, paddingLeft: 25 },
   li: { color: textColor, marginBottom: 8 },
-  h2: { fontSize: 20, fontWeight: '700' as const, marginVertical: 10, color: textColor },
-  h3: { fontSize: 18, fontWeight: '700' as const, marginVertical: 10, color: textColor },
-  h4: { fontSize: 18, fontWeight: '700' as const, marginVertical: 10, color: textColor },
+  h2: { fontSize: Math.round(baseFontSize * 1.43), fontWeight: '700' as const, marginVertical: 10, color: textColor },
+  h3: { fontSize: Math.round(baseFontSize * 1.29), fontWeight: '700' as const, marginVertical: 10, color: textColor },
+  h4: { fontSize: Math.round(baseFontSize * 1.29), fontWeight: '700' as const, marginVertical: 10, color: textColor },
   strong: { fontWeight: '700' as const },
   b: { fontWeight: '700' as const },
   em: { fontStyle: 'italic' as const },
@@ -58,14 +58,14 @@ export const getTagsStyles = (textColor: string, borderColor: string) => ({
   },
 });
 
-export const getTableCss = (textColor: string, borderColor: string) => `
+export const getTableCss = (textColor: string, borderColor: string, baseFontSize: number = 14) => `
   body {
     background-color: transparent;
     color: ${textColor};
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
     padding: 0;
-    font-size: 14px;
+    font-size: ${baseFontSize}px;
   }
   table {
     width: 100% !important;
