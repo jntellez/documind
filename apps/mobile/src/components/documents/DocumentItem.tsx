@@ -1,11 +1,10 @@
-import { View, Pressable, Animated } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Document } from 'types/api';
-import { useState, useRef, useEffect } from 'react';
 import { Paragraph, Title } from '../ui/Typography';
-import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import Icon from '../ui/Icon';
+import ExpandableCard, { ExpandableChevronButton } from '../ui/ExpandableCard';
 
 interface DocumentItemProps {
   document: Document;
@@ -22,10 +21,6 @@ export default function DocumentItem({
   onShare,
   onAddTag,
 }: DocumentItemProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const animatedHeight = useRef(new Animated.Value(0)).current;
-  const animatedRotation = useRef(new Animated.Value(0)).current;
-
   const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
@@ -34,79 +29,50 @@ export default function DocumentItem({
     });
   };
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(animatedHeight, {
-        toValue: isExpanded ? 60 : 0,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(animatedRotation, {
-        toValue: isExpanded ? 1 : 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [isExpanded]);
-
-  const rotation = animatedRotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
-
   return (
-    <Card className="overflow-hidden pb-0">
-      {/* Header de la tarjeta */}
-      <Pressable onPress={() => onPress(document)} className="active:opacity-70">
-        <View className="flex-row items-start justify-between">
-          <View className="flex-1">
-            <Title className="text-base font-semibold pr-4" numberOfLines={1}>
-              {document.title}
-            </Title>
+    <ExpandableCard
+      className="pb-0"
+      contentContainerClassName="border-t-0"
+      contentClassName="h-[60px]"
+      renderHeader={({ toggleExpanded, chevronRotationStyle }) => (
+        <Pressable onPress={() => onPress(document)} className="active:opacity-70 p-4">
+          <View className="flex-row items-start justify-between">
+            <View className="flex-1">
+              <Title className="text-base font-semibold pr-4" numberOfLines={1}>
+                {document.title}
+              </Title>
 
-            <Paragraph className="text-sm">
-              {formatDate(document.created_at)}
-            </Paragraph>
+              <Paragraph className="text-sm">
+                {formatDate(document.created_at)}
+              </Paragraph>
 
-            {/* Tags */}
-            {document.tags && document.tags.length > 0 && (
-              <View className="flex-row flex-wrap gap-1 mt-1.5">
-                {document.tags.map((tag, index) => (
-                  <Badge
-                    key={`${document.id}-tag-${index}`}
-                    className="shadow-sm"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </View>
-            )}
+              {document.tags && document.tags.length > 0 && (
+                <View className="flex-row flex-wrap gap-1 mt-1.5">
+                  {document.tags.map((tag, index) => (
+                    <Badge
+                      key={`${document.id}-tag-${index}`}
+                      className="shadow-sm"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            <ExpandableChevronButton
+              onPress={(event) => {
+                if (event && typeof event === 'object' && 'stopPropagation' in event) {
+                  (event as { stopPropagation: () => void }).stopPropagation();
+                }
+                toggleExpanded();
+              }}
+              rotationStyle={chevronRotationStyle}
+            />
           </View>
-
-          {/* Botón de expansión */}
-          <Pressable
-            onPress={() => setIsExpanded(!isExpanded)}
-            className="p-0.5 active:opacity-50 mt-1"
-            hitSlop={8}
-          >
-            <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-              <Icon library="feather" name="chevron-down" size="md" tone="mutedForeground" className="pr-0.5" />
-            </Animated.View>
-          </Pressable>
-        </View>
-      </Pressable>
-
-      {/* Acciones rápidas (menú oculto) */}
-      <Animated.View
-        style={{
-          height: animatedHeight,
-          opacity: animatedHeight.interpolate({
-            inputRange: [0, 60],
-            outputRange: [0, 1],
-          }),
-          overflow: 'hidden'
-        }}
-      >
+        </Pressable>
+      )}
+      expandedContent={(
         <View className="flex-row items-center justify-around h-full">
           <Button
             variant="icon-only"
@@ -127,7 +93,7 @@ export default function DocumentItem({
             className="p-0.5"
           />
         </View>
-      </Animated.View>
-    </Card>
+      )}
+    />
   );
 }
