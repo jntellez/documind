@@ -7,6 +7,7 @@ import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
 import { showToast } from "@/components/ui/Toast";
 import { Paragraph } from "@/components/ui/Typography";
+import { useDocumentReader } from "@/hooks/useDocumentReader";
 import { useState } from "react";
 
 type DocumentChatMessageProps = {
@@ -17,6 +18,18 @@ export default function DocumentChatMessage({ message }: DocumentChatMessageProp
   const [isSourcesVisible, setIsSourcesVisible] = useState(false);
   const isUserMessage = message.role === "user";
   const citations = message.citations ?? [];
+  const { canRead, isReading, toggle } = useDocumentReader({
+    title: null,
+    content: null,
+    plainText: message.content,
+    onError: () => {
+      showToast({
+        type: "error",
+        text1: "Couldn’t play audio",
+        text2: "Please try again in a moment.",
+      });
+    },
+  });
 
   async function handleCopy() {
     await Clipboard.setStringAsync(message.content);
@@ -29,11 +42,7 @@ export default function DocumentChatMessage({ message }: DocumentChatMessageProp
   }
 
   function handleListen() {
-    showToast({
-      type: "info",
-      text1: "Listen coming soon",
-      text2: "Text-to-speech can be added next.",
-    });
+    toggle();
   }
 
   if (isUserMessage) {
@@ -67,8 +76,16 @@ export default function DocumentChatMessage({ message }: DocumentChatMessageProp
           tone="ghost"
           size="sm"
           variant="icon-only"
-          icon={<Icon library="feather" name="volume-2" size={17} tone="mutedForeground" />}
+          icon={
+            <Icon
+              library="feather"
+              name={isReading ? "square" : "volume-2"}
+              size={17}
+              tone="mutedForeground"
+            />
+          }
           onPress={handleListen}
+          disabled={!canRead}
         />
         <Button
           tone="ghost"

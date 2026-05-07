@@ -11,6 +11,7 @@ const MAX_SPEECH_CHUNK_LENGTH = 1800;
 interface UseDocumentReaderOptions {
   title?: string | null;
   content: string | null;
+  plainText?: string | null;
   onDone?: () => void;
   onError?: (error: Error) => void;
 }
@@ -76,6 +77,7 @@ async function prepareSpeechAudio() {
 export function useDocumentReader({
   title,
   content,
+  plainText,
   onDone,
   onError,
 }: UseDocumentReaderOptions) {
@@ -84,8 +86,8 @@ export function useDocumentReader({
   const sequenceRef = useRef(0);
 
   const speechText = useMemo(
-    () => buildDocumentSpeechText({ title, content }),
-    [title, content],
+    () => (plainText?.trim() ? plainText : buildDocumentSpeechText({ title, content })),
+    [content, plainText, title],
   );
   const speechChunks = useMemo(() => splitSpeechText(speechText), [speechText]);
 
