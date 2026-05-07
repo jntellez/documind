@@ -80,7 +80,7 @@ export default function Documents() {
         contentContainerStyle={{
           flexGrow: 1,
           gap: 16,
-          paddingBottom: 20
+          paddingBottom: 120
         }}
         ListEmptyComponent={<EmptyState />}
         refreshControl={

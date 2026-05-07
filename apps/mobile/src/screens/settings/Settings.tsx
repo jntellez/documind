@@ -66,6 +66,7 @@ export default function Settings() {
     <ScreenContainer>
       <ScrollView
         className="flex-1 pt-30"
+        contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
