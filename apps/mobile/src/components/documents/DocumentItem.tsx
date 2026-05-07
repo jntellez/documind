@@ -2,6 +2,7 @@ import { View, Pressable } from 'react-native';
 import { Document } from 'types/api';
 import { Paragraph, Title } from '../ui/Typography';
 import Button from '../ui/Button';
+import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 import Icon from '../ui/Icon';
 import ExpandableCard, { ExpandableChevronButton } from '../ui/ExpandableCard';
@@ -9,9 +10,10 @@ import ExpandableCard, { ExpandableChevronButton } from '../ui/ExpandableCard';
 interface DocumentItemProps {
   document: Document;
   onPress: (document: Document) => void;
-  onDelete: (id: number) => void;
+  onDelete?: (id: number) => void;
   onShare?: (document: Document) => void;
   onAddTag?: (document: Document) => void;
+  variant?: 'default' | 'compact';
 }
 
 export default function DocumentItem({
@@ -20,6 +22,7 @@ export default function DocumentItem({
   onDelete,
   onShare,
   onAddTag,
+  variant = 'default',
 }: DocumentItemProps) {
   const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -28,6 +31,26 @@ export default function DocumentItem({
       year: 'numeric',
     });
   };
+
+  if (variant === 'compact') {
+    return (
+      <Card className="p-0">
+        <Pressable onPress={() => onPress(document)} className="flex-row items-center justify-between p-4 active:opacity-70">
+          <View className="flex-1 pr-3">
+            <Title className="text-base font-semibold" numberOfLines={1}>
+              {document.title}
+            </Title>
+
+            <Paragraph className="text-sm">
+              {formatDate(document.created_at)}
+            </Paragraph>
+          </View>
+
+          <Icon library="feather" name="chevron-right" size="md" tone="mutedForeground" />
+        </Pressable>
+      </Card>
+    );
+  }
 
   return (
     <ExpandableCard
@@ -89,7 +112,7 @@ export default function DocumentItem({
           <Button
             variant="icon-only"
             icon={<Icon library="ionicons" name="trash-outline" size="md" tone="destructive" />}
-            onPress={() => onDelete(document.id)}
+            onPress={() => onDelete?.(document.id)}
             className="p-0.5"
           />
         </View>
