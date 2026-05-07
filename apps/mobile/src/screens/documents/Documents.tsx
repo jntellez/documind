@@ -13,7 +13,6 @@ import Badge from '@/components/ui/Badge';
 
 export default function Documents() {
   const theme = useUiTheme();
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const {
@@ -39,7 +38,7 @@ export default function Documents() {
 
   if (isLoading) {
     return (
-      <ScreenContainer className="items-center justify-center">
+      <ScreenContainer className="items-center justify-center pt-30">
         <ActivityIndicator size="large" color={theme.mutedForeground} />
         <Paragraph className="mt-4">
           {isOnline ? 'Syncing documents' : 'Loading documents'}
@@ -49,7 +48,7 @@ export default function Documents() {
   }
 
   return (
-    <ScreenContainer className="pt-6">
+    <ScreenContainer className="flex-1 pt-34">
       {!isOnline && (
         <Badge size="md" className="absolute shadow-md right-4 bottom-4 z-50" textClassName="font-bold">
           Offline Mode

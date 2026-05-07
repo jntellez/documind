@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from "react-native";
 import { useColorScheme } from "nativewind";
 import { useUiTheme } from "@/theme/useUiTheme";
 import { useAuth } from "@/context/AuthContext";
@@ -14,12 +14,47 @@ import {
 import { useSettingsActions } from "./useSettingsActions";
 import ScreenContainer from "@/components/ui/ScreenContainer";
 import { useDocumentPreferences } from "@/context/DocumentPreferencesContext";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Settings() {
   const { toggleColorScheme } = useColorScheme();
   const theme = useUiTheme();
+  const navigation = useNavigation();
   const { user } = useAuth();
   const { handleLogin, handleLogout, handleClearCache } = useSettingsActions();
+  const [isHeaderShown, setIsHeaderShown] = useState(true);
+  const lastScrollYRef = useRef(0);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: isHeaderShown,
+    });
+  }, [isHeaderShown, navigation]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = Math.max(0, event.nativeEvent.contentOffset.y);
+    const delta = y - lastScrollYRef.current;
+    const threshold = 8;
+    const topThreshold = 4;
+
+    if (y <= topThreshold) {
+      setIsHeaderShown((current) => (current ? current : true));
+      lastScrollYRef.current = y;
+      return;
+    }
+
+    if (Math.abs(delta) >= threshold) {
+      if (delta > 0 && y > 0) {
+        setIsHeaderShown((current) => (current ? false : current));
+      } else {
+        setIsHeaderShown((current) => (current ? current : true));
+      }
+    }
+
+    lastScrollYRef.current = y;
+  }, []);
+
   const {
     showImagesInDetail,
     setShowImagesInDetail,
@@ -28,9 +63,12 @@ export default function Settings() {
   } = useDocumentPreferences();
 
   return (
-    <ScreenContainer className="pt-6">
+    <ScreenContainer>
       <ScrollView
+        className="flex-1 pt-30"
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         <SettingsAccountSection user={user} onLogin={handleLogin} />
         <SettingsAppearanceSection

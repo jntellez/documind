@@ -7,11 +7,12 @@ import Settings from "@/screens/settings/Settings"
 import { RootTabParamList } from 'types';
 import Avatar from '@/components/ui/Avatar';
 import Icon from '@/components/ui/Icon';
-import { GradientTitle } from '@/components/ui/Typography';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from 'types';
+import { LinearGradient } from 'expo-linear-gradient';
+import { GradientTitle } from '@/components/ui/Typography';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -19,15 +20,28 @@ export default function TabNavigator() {
   const { user } = useAuth();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const rgb = isDark ? '24, 24, 27' : '244, 244, 245';
   const stackNavigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        headerTransparent: true,
+        headerBackground: () => (
+          <LinearGradient
+            colors={[
+              `rgba(${rgb}, 1)`,
+              `rgba(${rgb}, 0.9)`,
+              `rgba(${rgb}, 0.5)`,
+              `rgba(${rgb}, 0)`
+            ]}
+            locations={[0, 0.4, 0.8, 1]}
+            style={{ flex: 1 }}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+          />
+        ),
         headerShown: true,
-        headerStyle: {
-          backgroundColor: isDark ? '#18181b' : '#f4f4f5',
-        },
         headerShadowVisible: false,
         headerTitleAlign: "left",
         headerRight: () => <Avatar

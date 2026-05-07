@@ -25,7 +25,6 @@ export default function Home() {
   const [recentDocuments, setRecentDocuments] = useState<Document[]>([]);
   const [isLoadingRecentDocuments, setIsLoadingRecentDocuments] = useState<boolean>(true);
   const [hasLoadedRecentDocuments, setHasLoadedRecentDocuments] = useState<boolean>(false);
-
   const loadRecentDocuments = useCallback(async () => {
     if (!hasLoadedRecentDocuments) {
       setIsLoadingRecentDocuments(true);
@@ -95,9 +94,9 @@ export default function Home() {
   }
 
   return (
-    <ScreenContainer className="pt-6">
+    <ScreenContainer>
       <ScrollView
-        className="flex-1"
+        className="flex-1 pt-30"
         keyboardShouldPersistTaps="handled"
       >
         <View className="flex-1">
