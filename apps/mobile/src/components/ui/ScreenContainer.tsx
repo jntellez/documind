@@ -13,7 +13,7 @@ export default function ScreenContainer({
 }: ScreenContainerProps) {
   return (
     <View
-      className={cn('flex-1 bg-background dark:bg-dark-background p-4', className)}
+      className={cn('flex-1 bg-background dark:bg-dark-background p-4 pb-0', className)}
       {...props}
     >
       {children}

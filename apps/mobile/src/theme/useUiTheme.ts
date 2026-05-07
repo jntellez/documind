@@ -11,6 +11,8 @@ const uiThemeColors = {
     cursor: '#000000',
     placeholder: '#888888',
     blurTint: 'light' as const,
+    border: '#ffffff',
+    background: 'rgb(244, 244, 245, 0.32)',
   },
   dark: {
     foreground: '#fafafa', // dark-foreground
@@ -21,6 +23,8 @@ const uiThemeColors = {
     cursor: '#ffffff',
     placeholder: '#a1a1aa',
     blurTint: 'dark' as const,
+    border: 'rgba(255, 255, 255, 0.12)',
+    background: 'rgb(24, 24, 27, 0.34)',
   },
 };
 
