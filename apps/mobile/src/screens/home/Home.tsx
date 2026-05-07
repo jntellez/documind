@@ -135,7 +135,7 @@ export default function Home() {
         </View>
 
         <View className="mt-6">
-          {!isLoadingRecentDocuments ? (
+          {isLoadingRecentDocuments ? (
             <View className="items-center justify-center py-14">
               <ActivityIndicator size="large" color={theme.mutedForeground} />
               <Paragraph className="mt-4">Loading recent documents</Paragraph>
