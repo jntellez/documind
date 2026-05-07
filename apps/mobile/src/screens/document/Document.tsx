@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { ScrollView, View, useWindowDimensions } from "react-native";
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from 'types';
@@ -17,6 +17,7 @@ import Badge from "@/components/ui/Badge";
 import { Paragraph } from "@/components/ui/Typography";
 import Icon from "@/components/ui/Icon";
 import { useDocumentPreferences } from "@/context/DocumentPreferencesContext";
+import { useDocumentReader } from '@/hooks/useDocumentReader';
 
 type DocumentScreenProps = StackScreenProps<RootStackParamList, 'Document'>;
 
@@ -30,6 +31,17 @@ export default function Document({ route }: DocumentScreenProps) {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isSaving, setIsSaving] = useState(false);
   const { showImagesInDetail, documentContentFontSize } = useDocumentPreferences();
+  const { isReading, canRead, toggle } = useDocumentReader({
+    title: data?.title,
+    content: data?.content ?? null,
+    onError: () => {
+      showToast({
+        type: 'error',
+        text1: 'Read error',
+        text2: 'Unable to read this document right now.',
+      });
+    },
+  });
 
   // Type guard para verificar si es un Document guardado
   const isSavedDocument = (doc: any): doc is DocumentType => {
@@ -41,6 +53,27 @@ export default function Document({ route }: DocumentScreenProps) {
     [data],
   );
   const canUseChat = Boolean(savedDocument) && isOnline && isInternetReachable;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          className="mr-4"
+          variant="icon-only"
+          tone={isReading ? 'destructive' : 'default'}
+          icon={
+            <Icon
+              library="feather"
+              name={isReading ? 'stop-circle' : 'volume-2'}
+              size={19}
+            />
+          }
+          onPress={toggle}
+          disabled={!canRead}
+        />
+      ),
+    });
+  }, [canRead, isReading, navigation, toggle]);
 
   async function handleSave() {
     if (!user) {
