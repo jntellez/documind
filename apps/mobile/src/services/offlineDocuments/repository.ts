@@ -48,7 +48,7 @@ export function insertLocalProcessedDocument(document: ProcessedDocument) {
   return documentQueries.insert({
     server_id: null,
     title: document.title,
-    content: document.content,
+    content: document.renderedHtml || document.content,
     word_count: document.word_count || 0,
     original_url: document.original_url || "",
     created_at: now,

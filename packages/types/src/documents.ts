@@ -5,6 +5,12 @@ export interface ProcessUrlRequest {
 export interface ProcessedDocument {
   title: string;
   content: string;
+  renderedHtml: string;
+  rawText: string;
+  sourceType: "url";
+  sourceName?: string;
+  sourceMimeType?: string;
+  originalUrl?: string;
   original_url: string;
   word_count?: number;
   tags?: string[];
@@ -14,6 +20,12 @@ export interface Document {
   id: number;
   title: string;
   content: string;
+  renderedHtml: string;
+  rawText: string;
+  sourceType: string;
+  sourceName?: string;
+  sourceMimeType?: string;
+  originalUrl?: string;
   original_url: string;
   word_count: number;
   created_at: string;
@@ -25,6 +37,12 @@ export interface Document {
 export interface SaveDocumentRequest {
   title: string;
   content: string;
+  renderedHtml?: string;
+  rawText?: string;
+  sourceType?: string;
+  sourceName?: string;
+  sourceMimeType?: string;
+  originalUrl?: string;
   original_url: string;
   tags?: string[];
 }
@@ -32,6 +50,12 @@ export interface SaveDocumentRequest {
 export interface UpdateDocumentRequest {
   title?: string;
   content?: string;
+  renderedHtml?: string;
+  rawText?: string;
+  sourceType?: string;
+  sourceName?: string;
+  sourceMimeType?: string;
+  originalUrl?: string;
   tags?: string[];
 }
 

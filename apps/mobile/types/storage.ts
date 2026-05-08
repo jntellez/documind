@@ -24,10 +24,17 @@ export interface SyncQueueItem {
 
 // Utilidad para convertir LocalDocument a Document
 export function toDocument(local: LocalDocument): Document {
+  const renderedHtml = local.content;
+  const rawText = local.content;
+
   return {
     id: local.server_id || local.id,
     title: local.title,
-    content: local.content,
+    content: renderedHtml,
+    renderedHtml,
+    rawText,
+    sourceType: "url",
+    originalUrl: local.original_url,
     original_url: local.original_url,
     word_count: local.word_count,
     created_at: local.created_at,
@@ -43,7 +50,7 @@ export function fromDocument(
   return {
     server_id: doc.id,
     title: doc.title,
-    content: doc.content,
+    content: doc.renderedHtml || doc.content,
     original_url: doc.original_url,
     word_count: doc.word_count,
     created_at: doc.created_at,

@@ -2,7 +2,7 @@ import postgres from "postgres";
 import { config } from "./config";
 
 const sql = postgres(config.dbUrl, {
-  ssl: "require",
+  ssl: config.dbSsl ? "require" : false,
   prepare: false,
 });
 

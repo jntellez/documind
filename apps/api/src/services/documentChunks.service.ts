@@ -86,9 +86,11 @@ export async function retrieveSemanticDocumentChunks(params: {
 
 export async function reindexDocumentChunks(
   db: DatabaseClient,
-  params: { documentId: number; content: string },
+  params: { documentId: number; renderedHtml: string; rawText?: string },
 ) {
-  const plainText = documentContentToPlainText(params.content);
+  const plainText = params.rawText?.trim()
+    ? documentContentToPlainText(params.rawText)
+    : documentContentToPlainText(params.renderedHtml);
   const chunks = splitTextIntoChunks(plainText);
   const chunkEmbeddings = await buildChunkEmbeddings(chunks);
 
