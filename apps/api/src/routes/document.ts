@@ -15,6 +15,7 @@ import pg from "../db";
 import { countWords } from "../lib/document-text";
 import {
   ensureDocumentIngestionColumns,
+  ingestPdfFile,
   ingestUrlDocument,
 } from "../services/documentIngestion.service";
 import { reindexDocumentChunks } from "../services/documentChunks.service";
@@ -31,8 +32,8 @@ const SaveDocumentRequestSchema = z.object({
   sourceType: z.string().optional(),
   sourceName: z.string().optional(),
   sourceMimeType: z.string().optional(),
-  originalUrl: z.string().url().optional(),
-  original_url: z.string().url(),
+  originalUrl: z.string().min(1).optional(),
+  original_url: z.string().min(1),
   tags: z.array(z.string()).optional().default([]),
 }) satisfies z.ZodType<SaveDocumentRequest>;
 
@@ -44,7 +45,7 @@ const UpdateDocumentRequestSchema = z.object({
   sourceType: z.string().optional(),
   sourceName: z.string().optional(),
   sourceMimeType: z.string().optional(),
-  originalUrl: z.string().url().optional(),
+  originalUrl: z.string().min(1).optional(),
   tags: z.array(z.string()).optional(),
 }) satisfies z.ZodType<UpdateDocumentRequest>;
 
@@ -90,6 +91,42 @@ documentRoutes.post("/process-url", async (c) => {
 });
 
 documentRoutes.get("/process-url", (c) => {
+  return c.json({ message: "This endpoint requires the POST method" }, 405);
+});
+
+documentRoutes.post("/process-file", async (c) => {
+  try {
+    const formData = await c.req.formData();
+    const entry = formData.get("file");
+
+    if (!(entry instanceof File)) {
+      return c.json({ error: "Missing file in multipart field 'file'" }, 400);
+    }
+
+    const mimeType = entry.type || "";
+    const isPdfByMime = mimeType === "application/pdf";
+    const isPdfByName = /\.pdf$/i.test(entry.name);
+
+    if (!isPdfByMime && !isPdfByName) {
+      return c.json(
+        {
+          error: "Unsupported file type. Only PDF is currently supported.",
+          sourceMimeType: mimeType || undefined,
+          sourceName: entry.name,
+        },
+        400,
+      );
+    }
+
+    const processedDocument: ProcessedDocument = await ingestPdfFile(entry);
+    return c.json(processedDocument);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return c.json({ error: errorMessage, details: error }, 400);
+  }
+});
+
+documentRoutes.get("/process-file", (c) => {
   return c.json({ message: "This endpoint requires the POST method" }, 405);
 });
 

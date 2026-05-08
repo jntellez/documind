@@ -6,7 +6,7 @@ import Icon from '@/components/ui/Icon';
 import Input from '@/components/ui/Input';
 import { useCallback, useState } from 'react';
 import { showToast } from '@/components/ui/Toast';
-import { processUrl, pickDocument } from '@/services/documentService';
+import { processFile, processUrl, pickDocument } from '@/services/documentService';
 import { getDocumentsOffline } from '@/services/offlineDocumentService';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ScreenContainer from '@/components/ui/ScreenContainer';
@@ -79,18 +79,27 @@ export default function Home() {
   async function handleFilePicker() {
     setIsLoading(true);
 
-    const file = await pickDocument();
+    try {
+      const file = await pickDocument();
 
-    if (file) {
+      if (!file) {
+        return;
+      }
+
       setSelectedFile(file.name);
       setInputValue("");
 
-      // Procesar el archivo local
-      // const data = await processLocalFile(file);
-      // navigation.navigate("Document", { data });
+      const data = await processFile(file);
+      navigation.navigate("Document", { data });
+    } catch (error: any) {
+      showToast({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to process file',
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }
 
   return (

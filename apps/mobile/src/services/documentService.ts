@@ -11,6 +11,8 @@ import type {
 } from "@documind/types";
 import * as DocumentPicker from "expo-document-picker";
 import { showToast } from "@/components/ui/Toast";
+import { API_BASE_URL } from "@/lib/api";
+import { tokenStorage } from "@/lib/storage";
 import { apiRequest, authenticatedApiRequest } from "./apiClient";
 
 type FilePickerResult = {
@@ -91,6 +93,45 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
     });
     return null;
   }
+}
+
+export async function processFile(file: FilePickerResult): Promise<ProcessedDocument> {
+  if (file.mimeType !== "application/pdf") {
+    throw new Error("DOCX y PPTX aún no están soportados. Por ahora usa un PDF.");
+  }
+
+  const token = await tokenStorage.get();
+  const formData = new FormData();
+
+  formData.append("file", {
+    uri: file.uri,
+    name: file.name,
+    type: file.mimeType || "application/pdf",
+  } as unknown as Blob);
+
+  const headers = new Headers();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/process-file`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  const rawBody = await response.text();
+  const data = rawBody
+    ? (JSON.parse(rawBody) as ProcessedDocument | { error?: string })
+    : undefined;
+
+  if (!response.ok) {
+    const apiError =
+      data && typeof data === "object" && "error" in data ? data.error : undefined;
+    throw new Error(apiError || "Failed to process file");
+  }
+
+  return data as ProcessedDocument;
 }
 
 export async function saveDocument(

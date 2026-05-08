@@ -7,7 +7,7 @@ export interface ProcessedDocument {
   content: string;
   renderedHtml: string;
   rawText: string;
-  sourceType: "url";
+  sourceType: "url" | "file";
   sourceName?: string;
   sourceMimeType?: string;
   originalUrl?: string;
