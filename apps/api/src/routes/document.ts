@@ -24,11 +24,41 @@ const ProcessUrlRequestSchema = z.object({
   url: z.string().url(),
 }) satisfies z.ZodType<ProcessUrlRequest>;
 
+type DocumentListItemInput = {
+  text: string;
+  marker?: string;
+  children?: DocumentListItemInput[];
+};
+
+const DocumentListItemSchema: z.ZodType<DocumentListItemInput> = z.lazy(() =>
+  z.object({
+    text: z.string(),
+    marker: z.string().optional(),
+    children: z.array(DocumentListItemSchema).optional(),
+  }),
+);
+
+const DocumentBlockSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("heading"),
+    text: z.string(),
+    level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5), z.literal(6)]).optional(),
+  }),
+  z.object({ type: z.literal("paragraph"), text: z.string() }),
+  z.object({
+    type: z.literal("list"),
+    ordered: z.boolean().optional(),
+    items: z.array(z.union([z.string(), DocumentListItemSchema])),
+  }),
+  z.object({ type: z.literal("divider") }),
+]);
+
 const SaveDocumentRequestSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   renderedHtml: z.string().optional(),
   rawText: z.string().optional(),
+  blocks: z.array(DocumentBlockSchema).optional(),
   sourceType: z.string().optional(),
   sourceName: z.string().optional(),
   sourceMimeType: z.string().optional(),
@@ -42,6 +72,7 @@ const UpdateDocumentRequestSchema = z.object({
   content: z.string().min(1, "Content cannot be empty").optional(),
   renderedHtml: z.string().min(1).optional(),
   rawText: z.string().optional(),
+  blocks: z.array(DocumentBlockSchema).optional(),
   sourceType: z.string().optional(),
   sourceName: z.string().optional(),
   sourceMimeType: z.string().optional(),
@@ -60,6 +91,7 @@ type JwtPayload = {
 function serializeDocumentRow(row: any) {
   const renderedHtml = row.rendered_html ?? row.content;
   const rawText = row.raw_text ?? renderedHtml;
+  const blocks = row.canonical_blocks ?? undefined;
   const sourceType = row.source_type ?? "url";
   const sourceName = row.source_name ?? undefined;
   const sourceMimeType = row.source_mime_type ?? undefined;
@@ -70,6 +102,7 @@ function serializeDocumentRow(row: any) {
     content: renderedHtml,
     renderedHtml,
     rawText,
+    blocks,
     sourceType,
     sourceName,
     sourceMimeType,
@@ -147,6 +180,7 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
     const updatedAt = new Date();
     const renderedHtml = validatedData.renderedHtml ?? validatedData.content;
     const rawText = validatedData.rawText ?? renderedHtml;
+    const blocks = validatedData.blocks;
     const sourceType = validatedData.sourceType ?? "url";
     const sourceName = validatedData.sourceName;
     const sourceMimeType = validatedData.sourceMimeType;
@@ -165,6 +199,7 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
           source_type,
           source_name,
           source_mime_type,
+          canonical_blocks,
           original_url_v2,
           original_url,
           word_count,
@@ -181,6 +216,7 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
           ${sourceType},
           ${sourceName ?? null},
           ${sourceMimeType ?? null},
+          ${blocks ? JSON.stringify(blocks) : null}::jsonb,
           ${originalUrl},
           ${validatedData.original_url},
           ${wordCount},
@@ -189,7 +225,7 @@ documentRoutes.post("/save-document", authJwt, async (c) => {
           ${userId},
           ${tagsPgFormat}
         )
-        RETURNING id, title, content, rendered_html, raw_text, source_type, source_name, source_mime_type, original_url_v2, original_url, word_count, created_at, updated_at, tags
+        RETURNING id, title, content, rendered_html, raw_text, canonical_blocks, source_type, source_name, source_mime_type, original_url_v2, original_url, word_count, created_at, updated_at, tags
       `;
 
       await reindexDocumentChunks(tx, {
@@ -235,6 +271,7 @@ documentRoutes.get("/documents", authJwt, async (c) => {
         COALESCE(source_type, 'url') AS source_type,
         source_name,
         source_mime_type,
+        canonical_blocks,
         COALESCE(original_url_v2, original_url) AS original_url_v2,
         original_url,
         word_count,
@@ -287,6 +324,7 @@ documentRoutes.get("/documents/:id", authJwt, async (c) => {
         COALESCE(source_type, 'url') AS source_type,
         source_name,
         source_mime_type,
+        canonical_blocks,
         COALESCE(original_url_v2, original_url) AS original_url_v2,
         original_url,
         word_count,
@@ -351,6 +389,7 @@ documentRoutes.patch("/documents/:id", authJwt, async (c) => {
     const newTitle = validatedData.title ?? currentDoc.title;
     const newRenderedHtml = validatedData.renderedHtml ?? validatedData.content ?? currentDoc.rendered_html ?? currentDoc.content;
     const newRawText = validatedData.rawText ?? currentDoc.raw_text ?? newRenderedHtml;
+    const newBlocks = validatedData.blocks ?? currentDoc.canonical_blocks ?? null;
     const newContent = validatedData.content ?? validatedData.renderedHtml ?? currentDoc.content;
     const newSourceType = validatedData.sourceType ?? currentDoc.source_type ?? "url";
     const newSourceName = validatedData.sourceName ?? currentDoc.source_name ?? null;
@@ -377,12 +416,13 @@ documentRoutes.patch("/documents/:id", authJwt, async (c) => {
           source_type = ${newSourceType},
           source_name = ${newSourceName},
           source_mime_type = ${newSourceMimeType},
+          canonical_blocks = ${newBlocks ? JSON.stringify(newBlocks) : null}::jsonb,
           original_url_v2 = ${newOriginalUrl},
           tags = ${tagsPgFormat},
           word_count = ${newWordCount},
           updated_at = ${updatedAt}
         WHERE id = ${documentId} AND user_id = ${userId}
-        RETURNING id, title, content, rendered_html, raw_text, source_type, source_name, source_mime_type, original_url_v2, original_url, word_count, created_at, updated_at, tags
+        RETURNING id, title, content, rendered_html, raw_text, canonical_blocks, source_type, source_name, source_mime_type, original_url_v2, original_url, word_count, created_at, updated_at, tags
       `;
 
       await reindexDocumentChunks(tx, {

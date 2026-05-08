@@ -1,8 +1,14 @@
 import { Readability } from "@mozilla/readability";
 import type { ProcessedDocument } from "@documind/types";
 import { JSDOM } from "jsdom";
-import { PDFParse } from "pdf-parse";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import pg from "../db";
+import {
+  articleHtmlToBlocks,
+  rawTextToBlocks,
+  renderBlocksToHtml,
+  renderBlocksToRawText,
+} from "../lib/document-blocks";
 import { documentContentToPlainText } from "../lib/document-text";
 
 let ensureIngestionColumnsPromise: Promise<void> | null = null;
@@ -19,6 +25,7 @@ export function ensureDocumentIngestionColumns() {
     await pg`ALTER TABLE documents ADD COLUMN IF NOT EXISTS source_name TEXT`;
     await pg`ALTER TABLE documents ADD COLUMN IF NOT EXISTS source_mime_type TEXT`;
     await pg`ALTER TABLE documents ADD COLUMN IF NOT EXISTS original_url_v2 TEXT`;
+    await pg`ALTER TABLE documents ADD COLUMN IF NOT EXISTS canonical_blocks JSONB`;
 
     await pg`
       UPDATE documents
@@ -64,29 +71,23 @@ export async function ingestUrlDocument(url: string): Promise<ProcessedDocument>
     throw new Error("Failed to extract content (article.content was null)");
   }
 
-  const renderedHtml = article.content.replace(/\n\s*/g, "");
-  const rawText = documentContentToPlainText(article.textContent || renderedHtml);
+  const articleHtml = article.content.replace(/\n\s*/g, "");
+  const blocks = articleHtmlToBlocks(articleHtml);
+  const renderedHtml = renderBlocksToHtml(blocks);
+  const rawText = renderBlocksToRawText(blocks) || documentContentToPlainText(article.textContent || articleHtml);
 
   return {
     title: article.title || "Title not found",
     content: renderedHtml,
     renderedHtml,
     rawText,
+    blocks,
     sourceType: "url",
     sourceName: undefined,
     sourceMimeType: response.headers.get("content-type") ?? undefined,
     originalUrl: url,
     original_url: url,
   };
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
 
 function decodeHumanText(value: string) {
@@ -126,108 +127,141 @@ function getReadablePdfTitle(params: { metadataTitle?: string | null; fileName: 
   return fileTitle || "Untitled PDF";
 }
 
-function isSeparatorLine(line: string) {
-  return /^[-=_*]{3,}$/.test(line.trim());
-}
-
-function isListItemLine(line: string) {
-  return /^(?:[-*•]|\d+[\.)])\s+/.test(line.trim());
-}
-
-function isHeadingLine(line: string) {
-  const text = line.trim();
-
-  if (!text || text.length > 90 || text.split(/\s+/).length > 12) {
-    return false;
-  }
-
-  if (/[.!?;:]$/.test(text)) {
-    return false;
-  }
-
-  const letters = text.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, "");
-  const uppercaseLetters = letters.replace(/[^A-ZÁÉÍÓÚÜÑ]/g, "");
-  const uppercaseRatio = letters.length > 0 ? uppercaseLetters.length / letters.length : 0;
-
-  return uppercaseRatio >= 0.6 || /^\d+(?:\.\d+)*\s+\S+/.test(text);
-}
-
-function rawTextToRenderedHtml(rawText: string) {
-  const blocks = rawText
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean);
-
-  if (blocks.length === 0) {
-    return "<p></p>";
-  }
-
-  const renderedBlocks = blocks.map((block) => {
-    const lines = block
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    if (lines.length === 0) {
-      return "";
-    }
-
-    const firstLine = lines[0];
-
-    if (lines.length === 1 && firstLine && isSeparatorLine(firstLine)) {
-      return "<hr />";
-    }
-
-    if (lines.length === 1 && firstLine && isHeadingLine(firstLine)) {
-      return `<h2>${escapeHtml(firstLine)}</h2>`;
-    }
-
-    if (lines.every(isListItemLine)) {
-      const items = lines
-        .map((line) => line.replace(/^(?:[-*•]|\d+[\.)])\s+/, "").trim())
-        .filter(Boolean)
-        .map((line) => `<li>${escapeHtml(line)}</li>`)
-        .join("");
-
-      return `<ul>${items}</ul>`;
-    }
-
-    const htmlParagraphs = lines
-      .map((line) => `<p>${escapeHtml(line)}</p>`)
-      .join("");
-
-    return htmlParagraphs;
-  });
-
-  return renderedBlocks.join("") || "<p></p>";
-}
-
 function buildFileSourceReference(fileName: string) {
   return `file:${encodeURIComponent(fileName)}`;
 }
 
-export async function ingestPdfFile(file: File): Promise<ProcessedDocument> {
-  const arrayBuffer = await file.arrayBuffer();
-  const parser = new PDFParse({ data: Buffer.from(arrayBuffer) });
-  let pdfText;
-  let pdfInfo;
+type PdfLayoutLine = {
+  text: string;
+  x: number;
+  y: number;
+  height: number;
+};
+
+function toNumber(value: unknown, fallback: number) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function buildTextFromLayoutLines(linesByPage: PdfLayoutLine[][]) {
+  const allLines: string[] = [];
+
+  linesByPage.forEach((lines, pageIndex) => {
+    let previousY: number | null = null;
+    let previousHeight = 0;
+
+    lines.forEach((line) => {
+      const normalized = documentContentToPlainText(line.text);
+
+      if (!normalized) {
+        return;
+      }
+
+      if (previousY !== null) {
+        const gap = Math.abs(previousY - line.y);
+        const threshold = Math.max(previousHeight, line.height, 8) * 1.6;
+
+        if (gap > threshold) {
+          allLines.push("");
+        }
+      }
+
+      allLines.push(normalized);
+      previousY = line.y;
+      previousHeight = line.height;
+    });
+
+    if (pageIndex < linesByPage.length - 1) {
+      allLines.push("");
+    }
+  });
+
+  return allLines.join("\n").trim();
+}
+
+async function extractPdfLayoutAndMetadata(arrayBuffer: ArrayBuffer) {
+  const pdf = await getDocument({
+    data: new Uint8Array(arrayBuffer),
+    useWorkerFetch: false,
+  }).promise;
 
   try {
-    pdfText = await parser.getText();
-    pdfInfo = await parser.getInfo();
-  } finally {
-    await parser.destroy();
-  }
+    const linesByPage: PdfLayoutLine[][] = [];
 
-  const rawText = documentContentToPlainText(pdfText.text || "");
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const textContent = await page.getTextContent();
+      const tolerance = 3;
+      const linesMap = new Map<number, PdfLayoutLine[]>();
+
+      for (const item of textContent.items) {
+        if (!("str" in item)) {
+          continue;
+        }
+
+        const text = item.str?.trim();
+
+        if (!text) {
+          continue;
+        }
+
+        const transform = item.transform ?? [];
+        const x = toNumber(transform[4], 0);
+        const y = toNumber(transform[5], 0);
+        const key = Math.round(y / tolerance) * tolerance;
+        const lineItems = linesMap.get(key) ?? [];
+        lineItems.push({
+          text,
+          x,
+          y,
+          height: toNumber(item.height, 0),
+        });
+        linesMap.set(key, lineItems);
+      }
+
+      const lines = Array.from(linesMap.values())
+        .map((lineItems) => {
+          const sortedItems = lineItems.sort((a, b) => a.x - b.x);
+          const lineText = sortedItems.map((entry) => entry.text).join(" ").replace(/\s+/g, " ").trim();
+          const first = sortedItems[0];
+          return {
+            text: lineText,
+            x: first?.x ?? 0,
+            y: first?.y ?? 0,
+            height: Math.max(...sortedItems.map((entry) => entry.height), 0),
+          };
+        })
+        .filter((line) => line.text.length > 0)
+        .sort((a, b) => (Math.abs(a.y - b.y) <= tolerance ? a.x - b.x : b.y - a.y));
+
+      linesByPage.push(lines);
+    }
+
+    const metadata = await pdf.getMetadata().catch(() => null);
+    const metadataInfo = metadata?.info as { Title?: string } | undefined;
+
+    return {
+      linesByPage,
+      metadataTitle: metadataInfo?.Title,
+    };
+  } finally {
+    await pdf.destroy();
+  }
+}
+
+export async function ingestPdfFile(file: File): Promise<ProcessedDocument> {
+  const arrayBuffer = await file.arrayBuffer();
+  const { linesByPage, metadataTitle } = await extractPdfLayoutAndMetadata(arrayBuffer);
+  const rawText = buildTextFromLayoutLines(linesByPage);
 
   if (!rawText) {
     throw new Error("No text could be extracted from this PDF");
   }
 
-  const renderedHtml = rawTextToRenderedHtml(rawText);
+  const blocks = rawTextToBlocks(rawText);
+  const renderedHtml = renderBlocksToHtml(blocks);
+  const normalizedRawText = renderBlocksToRawText(blocks) || rawText;
   const title = getReadablePdfTitle({
-    metadataTitle: pdfInfo.info?.Title,
+    metadataTitle,
     fileName: file.name,
   });
   const sourceReference = buildFileSourceReference(file.name);
@@ -236,7 +270,8 @@ export async function ingestPdfFile(file: File): Promise<ProcessedDocument> {
     title,
     content: renderedHtml,
     renderedHtml,
-    rawText,
+    rawText: normalizedRawText,
+    blocks,
     sourceType: "file",
     sourceName: file.name,
     sourceMimeType: file.type || "application/pdf",

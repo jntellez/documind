@@ -7,6 +7,8 @@ export type {
 
 export type {
   ApiError,
+  DocumentBlock,
+  DocumentListItem,
   Document,
   GetDocumentResponse,
   GetDocumentsResponse,
