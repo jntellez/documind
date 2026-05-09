@@ -1,8 +1,9 @@
-import { Alert, Share } from "react-native";
+import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { Document } from "@documind/types";
 
 import { showToast } from "@/components/ui/Toast";
+import { shareDocumentAsPdf } from "@/services/documentExportService";
 import { DocumentsScreenProps } from "types";
 
 type UseDocumentActionsOptions = {
@@ -27,12 +28,9 @@ export function useDocumentActions({
 
   const handleShare = async (document: Document) => {
     try {
-      await Share.share({
-        message: `${document.title}\n\n${document.content}`,
-        title: document.title,
-      });
+      await shareDocumentAsPdf(document);
     } catch {
-      showToast({ type: "error", text1: "Error", text2: "Failed to share" });
+      showToast({ type: "error", text1: "Error", text2: "Failed to share PDF" });
     }
   };
 
