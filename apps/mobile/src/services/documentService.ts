@@ -96,8 +96,20 @@ export async function pickDocument(): Promise<FilePickerResult | null> {
 }
 
 export async function processFile(file: FilePickerResult): Promise<ProcessedDocument> {
-  if (file.mimeType !== "application/pdf") {
-    throw new Error("DOCX y PPTX aún no están soportados. Por ahora usa un PDF.");
+  const isPdf = file.mimeType === "application/pdf" || /\.pdf$/i.test(file.name);
+  const isDocx =
+    file.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    /\.docx$/i.test(file.name);
+  const isPptx =
+    file.mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+    /\.pptx$/i.test(file.name);
+
+  if (isPptx) {
+    throw new Error("PPTX aún no está soportado. Por ahora usa PDF o DOCX.");
+  }
+
+  if (!isPdf && !isDocx) {
+    throw new Error("Tipo de archivo no soportado. Usa PDF o DOCX.");
   }
 
   const token = await tokenStorage.get();

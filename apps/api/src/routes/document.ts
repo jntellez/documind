@@ -15,6 +15,7 @@ import pg from "../db";
 import { countWords } from "../lib/document-text";
 import {
   ensureDocumentIngestionColumns,
+  ingestDocxFile,
   ingestPdfFile,
   ingestUrlDocument,
 } from "../services/documentIngestion.service";
@@ -139,11 +140,17 @@ documentRoutes.post("/process-file", async (c) => {
     const mimeType = entry.type || "";
     const isPdfByMime = mimeType === "application/pdf";
     const isPdfByName = /\.pdf$/i.test(entry.name);
+    const isDocxByMime =
+      mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    const isDocxByName = /\.docx$/i.test(entry.name);
+    const isPptxByMime =
+      mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    const isPptxByName = /\.pptx$/i.test(entry.name);
 
-    if (!isPdfByMime && !isPdfByName) {
+    if (isPptxByMime || isPptxByName) {
       return c.json(
         {
-          error: "Unsupported file type. Only PDF is currently supported.",
+          error: "PPTX todavía no está soportado. Por ahora usa PDF o DOCX.",
           sourceMimeType: mimeType || undefined,
           sourceName: entry.name,
         },
@@ -151,7 +158,19 @@ documentRoutes.post("/process-file", async (c) => {
       );
     }
 
-    const processedDocument: ProcessedDocument = await ingestPdfFile(entry);
+    if (!isPdfByMime && !isPdfByName && !isDocxByMime && !isDocxByName) {
+      return c.json(
+        {
+          error: "Unsupported file type. Only PDF and DOCX are currently supported.",
+          sourceMimeType: mimeType || undefined,
+          sourceName: entry.name,
+        },
+        400,
+      );
+    }
+
+    const processedDocument: ProcessedDocument =
+      isPdfByMime || isPdfByName ? await ingestPdfFile(entry) : await ingestDocxFile(entry);
     return c.json(processedDocument);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";

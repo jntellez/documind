@@ -1,6 +1,7 @@
 import { Readability } from "@mozilla/readability";
 import type { ProcessedDocument } from "@documind/types";
 import { JSDOM } from "jsdom";
+import mammoth from "mammoth";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import pg from "../db";
 import {
@@ -129,6 +130,12 @@ function getReadablePdfTitle(params: { metadataTitle?: string | null; fileName: 
 
 function buildFileSourceReference(fileName: string) {
   return `file:${encodeURIComponent(fileName)}`;
+}
+
+function getReadableDocxTitle(fileName: string) {
+  const fileNameWithoutExtension = fileName.replace(/\.docx$/i, "");
+  const fileTitle = cleanPdfTitle(fileNameWithoutExtension);
+  return fileTitle || "Untitled DOCX";
 }
 
 type PdfLayoutLine = {
@@ -275,6 +282,43 @@ export async function ingestPdfFile(file: File): Promise<ProcessedDocument> {
     sourceType: "file",
     sourceName: file.name,
     sourceMimeType: file.type || "application/pdf",
+    originalUrl: sourceReference,
+    original_url: sourceReference,
+  };
+}
+
+export async function ingestDocxFile(file: File): Promise<ProcessedDocument> {
+  const arrayBuffer = await file.arrayBuffer();
+  const conversion = await mammoth.convertToHtml({ buffer: Buffer.from(arrayBuffer) });
+  const html = conversion.value?.trim();
+
+  if (!html) {
+    throw new Error("No content could be extracted from this DOCX");
+  }
+
+  const blocks = articleHtmlToBlocks(html);
+  const renderedHtml = renderBlocksToHtml(blocks);
+  const rawText =
+    renderBlocksToRawText(blocks) || documentContentToPlainText(html) || "";
+
+  if (!rawText.trim()) {
+    throw new Error("No text could be extracted from this DOCX");
+  }
+
+  const title = getReadableDocxTitle(file.name);
+  const sourceReference = buildFileSourceReference(file.name);
+
+  return {
+    title,
+    content: renderedHtml,
+    renderedHtml,
+    rawText,
+    blocks,
+    sourceType: "file",
+    sourceName: file.name,
+    sourceMimeType:
+      file.type ||
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     originalUrl: sourceReference,
     original_url: sourceReference,
   };
