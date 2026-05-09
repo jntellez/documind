@@ -1,6 +1,7 @@
 import { Readability } from "@mozilla/readability";
 import type { ProcessedDocument } from "@documind/types";
 import { JSDOM } from "jsdom";
+import JSZip from "jszip";
 import mammoth from "mammoth";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import pg from "../db";
@@ -136,6 +137,70 @@ function getReadableDocxTitle(fileName: string) {
   const fileNameWithoutExtension = fileName.replace(/\.docx$/i, "");
   const fileTitle = cleanPdfTitle(fileNameWithoutExtension);
   return fileTitle || "Untitled DOCX";
+}
+
+function getReadablePptxTitle(fileName: string) {
+  const fileNameWithoutExtension = fileName.replace(/\.pptx$/i, "");
+  const fileTitle = cleanPdfTitle(fileNameWithoutExtension);
+  return fileTitle || "Untitled PPTX";
+}
+
+function decodeXmlEntities(value: string) {
+  return value
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
+function isPptxXmlNoise(value: string) {
+  const text = value.trim();
+
+  return (
+    /^<\/?[a-zA-Z0-9]+:/.test(text) ||
+    /xmlns[:=]/.test(text) ||
+    /schemas\.microsoft\.com/.test(text) ||
+    /<\/?a:/.test(text) ||
+    /<\/?p:/.test(text)
+  );
+}
+
+function isLowQualityPptxText(value: string) {
+  const text = value.trim();
+
+  if (!text) {
+    return true;
+  }
+
+  if (/^[A-ZÁÉÍÓÚÜÑ]$/i.test(text)) {
+    return true;
+  }
+
+  const timeMatches = text.match(/\b\d{1,2}:\d{2}\s*(?:am|pm)\b/gi) ?? [];
+  if (timeMatches.length >= 3) {
+    return true;
+  }
+
+  const words = text.split(/\s+/);
+  const uniqueWords = new Set(words.map((word) => word.toLowerCase()));
+  if (words.length >= 8 && uniqueWords.size <= Math.max(2, Math.floor(words.length / 3))) {
+    return true;
+  }
+
+  if (text.length < 16 && /^[a-záéíóúüñ]/.test(text)) {
+    return true;
+  }
+
+  return false;
+}
+
+function extractSlideTexts(slideXml: string) {
+  const textRuns = Array.from(slideXml.matchAll(/<a:t[^>]*>([\s\S]*?)<\/a:t>/g), (match) =>
+    decodeXmlEntities(match[1] ?? "").replace(/\s+/g, " ").trim(),
+  ).filter((text) => Boolean(text) && !isPptxXmlNoise(text) && !isLowQualityPptxText(text));
+
+  return textRuns;
 }
 
 type PdfLayoutLine = {
@@ -319,6 +384,87 @@ export async function ingestDocxFile(file: File): Promise<ProcessedDocument> {
     sourceMimeType:
       file.type ||
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    originalUrl: sourceReference,
+    original_url: sourceReference,
+  };
+}
+
+export async function ingestPptxFile(file: File): Promise<ProcessedDocument> {
+  const arrayBuffer = await file.arrayBuffer();
+  const zip = await JSZip.loadAsync(arrayBuffer);
+  const slideEntries = Object.keys(zip.files)
+    .filter((name) => /^ppt\/slides\/slide\d+\.xml$/i.test(name))
+    .map((name) => ({
+      name,
+      slideNumber: Number(name.match(/slide(\d+)\.xml$/i)?.[1] ?? Number.POSITIVE_INFINITY),
+    }))
+    .sort((a, b) => a.slideNumber - b.slideNumber);
+
+  if (slideEntries.length === 0) {
+    throw new Error("No slides were found in this PPTX");
+  }
+
+  const title = getReadablePptxTitle(file.name);
+  const lines: string[] = [title, ""];
+
+  for (const slide of slideEntries) {
+    const slideXml = await zip.file(slide.name)?.async("string");
+
+    if (!slideXml) {
+      continue;
+    }
+
+    const slideTexts = extractSlideTexts(slideXml);
+    if (slideTexts.length === 0) {
+      lines.push("(No text found)", "");
+      continue;
+    }
+
+    const [firstLine, ...rest] = slideTexts;
+
+    if (firstLine) {
+      lines.push(firstLine);
+    }
+
+    for (const text of rest) {
+      const normalized = text.replace(/\s+/g, " ").trim();
+
+      if (!normalized) {
+        continue;
+      }
+
+      if (/^[•\-–—]\s+/.test(normalized)) {
+        lines.push(`- ${normalized.replace(/^[•\-–—]\s+/, "").trim()}`);
+      } else {
+        lines.push(normalized);
+      }
+    }
+
+    lines.push("");
+  }
+
+  const rawTextInput = lines.join("\n").trim();
+
+  if (!rawTextInput) {
+    throw new Error("No text could be extracted from this PPTX");
+  }
+
+  const blocks = rawTextToBlocks(rawTextInput);
+  const renderedHtml = renderBlocksToHtml(blocks);
+  const rawText = renderBlocksToRawText(blocks) || rawTextInput;
+  const sourceReference = buildFileSourceReference(file.name);
+
+  return {
+    title,
+    content: renderedHtml,
+    renderedHtml,
+    rawText,
+    blocks,
+    sourceType: "file",
+    sourceName: file.name,
+    sourceMimeType:
+      file.type ||
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     originalUrl: sourceReference,
     original_url: sourceReference,
   };

@@ -104,12 +104,8 @@ export async function processFile(file: FilePickerResult): Promise<ProcessedDocu
     file.mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
     /\.pptx$/i.test(file.name);
 
-  if (isPptx) {
-    throw new Error("PPTX aún no está soportado. Por ahora usa PDF o DOCX.");
-  }
-
-  if (!isPdf && !isDocx) {
-    throw new Error("Tipo de archivo no soportado. Usa PDF o DOCX.");
+  if (!isPdf && !isDocx && !isPptx) {
+    throw new Error("Tipo de archivo no soportado. Usa PDF, DOCX o PPTX.");
   }
 
   const token = await tokenStorage.get();

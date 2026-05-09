@@ -17,6 +17,7 @@ import {
   ensureDocumentIngestionColumns,
   ingestDocxFile,
   ingestPdfFile,
+  ingestPptxFile,
   ingestUrlDocument,
 } from "../services/documentIngestion.service";
 import { reindexDocumentChunks } from "../services/documentChunks.service";
@@ -147,21 +148,17 @@ documentRoutes.post("/process-file", async (c) => {
       mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation";
     const isPptxByName = /\.pptx$/i.test(entry.name);
 
-    if (isPptxByMime || isPptxByName) {
+    if (
+      !isPdfByMime &&
+      !isPdfByName &&
+      !isDocxByMime &&
+      !isDocxByName &&
+      !isPptxByMime &&
+      !isPptxByName
+    ) {
       return c.json(
         {
-          error: "PPTX todavía no está soportado. Por ahora usa PDF o DOCX.",
-          sourceMimeType: mimeType || undefined,
-          sourceName: entry.name,
-        },
-        400,
-      );
-    }
-
-    if (!isPdfByMime && !isPdfByName && !isDocxByMime && !isDocxByName) {
-      return c.json(
-        {
-          error: "Unsupported file type. Only PDF and DOCX are currently supported.",
+          error: "Unsupported file type. Only PDF, DOCX, and PPTX are currently supported.",
           sourceMimeType: mimeType || undefined,
           sourceName: entry.name,
         },
@@ -170,7 +167,11 @@ documentRoutes.post("/process-file", async (c) => {
     }
 
     const processedDocument: ProcessedDocument =
-      isPdfByMime || isPdfByName ? await ingestPdfFile(entry) : await ingestDocxFile(entry);
+      isPdfByMime || isPdfByName
+        ? await ingestPdfFile(entry)
+        : isDocxByMime || isDocxByName
+          ? await ingestDocxFile(entry)
+          : await ingestPptxFile(entry);
     return c.json(processedDocument);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
