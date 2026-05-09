@@ -14,6 +14,7 @@ import { config } from "../config";
 import pg from "../db";
 import { countWords } from "../lib/document-text";
 import {
+  detectSupportedFileType,
   ensureDocumentIngestionColumns,
   ingestDocxFile,
   ingestPdfFile,
@@ -139,23 +140,9 @@ documentRoutes.post("/process-file", async (c) => {
     }
 
     const mimeType = entry.type || "";
-    const isPdfByMime = mimeType === "application/pdf";
-    const isPdfByName = /\.pdf$/i.test(entry.name);
-    const isDocxByMime =
-      mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    const isDocxByName = /\.docx$/i.test(entry.name);
-    const isPptxByMime =
-      mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-    const isPptxByName = /\.pptx$/i.test(entry.name);
+    const supportedFileType = detectSupportedFileType(entry);
 
-    if (
-      !isPdfByMime &&
-      !isPdfByName &&
-      !isDocxByMime &&
-      !isDocxByName &&
-      !isPptxByMime &&
-      !isPptxByName
-    ) {
+    if (!supportedFileType) {
       return c.json(
         {
           error: "Unsupported file type. Only PDF, DOCX, and PPTX are currently supported.",
@@ -167,9 +154,9 @@ documentRoutes.post("/process-file", async (c) => {
     }
 
     const processedDocument: ProcessedDocument =
-      isPdfByMime || isPdfByName
+      supportedFileType === "pdf"
         ? await ingestPdfFile(entry)
-        : isDocxByMime || isDocxByName
+        : supportedFileType === "docx"
           ? await ingestDocxFile(entry)
           : await ingestPptxFile(entry);
     return c.json(processedDocument);
