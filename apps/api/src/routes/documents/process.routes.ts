@@ -9,26 +9,43 @@ import {
 } from "../../services/documentIngestion.service";
 import { ProcessUrlRequestSchema } from "./schemas";
 
-const processDocumentRoutes = new Hono();
+type ProcessDocumentDeps = {
+  detectSupportedFileType: typeof detectSupportedFileType;
+  ingestUrlDocument: typeof ingestUrlDocument;
+  ingestPdfFile: typeof ingestPdfFile;
+  ingestDocxFile: typeof ingestDocxFile;
+  ingestPptxFile: typeof ingestPptxFile;
+};
 
-processDocumentRoutes.post("/process-url", async (c) => {
+const defaultDeps: ProcessDocumentDeps = {
+  detectSupportedFileType,
+  ingestUrlDocument,
+  ingestPdfFile,
+  ingestDocxFile,
+  ingestPptxFile,
+};
+
+export function createProcessDocumentRoutes(deps: ProcessDocumentDeps = defaultDeps) {
+  const processDocumentRoutes = new Hono();
+
+  processDocumentRoutes.post("/process-url", async (c) => {
   try {
     const body = await c.req.json();
     const validatedData = ProcessUrlRequestSchema.parse(body);
-    const processedDocument: ProcessedDocument = await ingestUrlDocument(validatedData.url);
+    const processedDocument: ProcessedDocument = await deps.ingestUrlDocument(validatedData.url);
 
     return c.json(processedDocument);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return c.json({ error: errorMessage, details: error }, 400);
   }
-});
+  });
 
-processDocumentRoutes.get("/process-url", (c) => {
-  return c.json({ message: "This endpoint requires the POST method" }, 405);
-});
+  processDocumentRoutes.get("/process-url", (c) => {
+    return c.json({ message: "This endpoint requires the POST method" }, 405);
+  });
 
-processDocumentRoutes.post("/process-file", async (c) => {
+  processDocumentRoutes.post("/process-file", async (c) => {
   try {
     const formData = await c.req.formData();
     const entry = formData.get("file");
@@ -38,7 +55,7 @@ processDocumentRoutes.post("/process-file", async (c) => {
     }
 
     const mimeType = entry.type || "";
-    const supportedFileType = detectSupportedFileType(entry);
+    const supportedFileType = deps.detectSupportedFileType(entry);
 
     if (!supportedFileType) {
       return c.json(
@@ -53,19 +70,22 @@ processDocumentRoutes.post("/process-file", async (c) => {
 
     const processedDocument: ProcessedDocument =
       supportedFileType === "pdf"
-        ? await ingestPdfFile(entry)
+        ? await deps.ingestPdfFile(entry)
         : supportedFileType === "docx"
-          ? await ingestDocxFile(entry)
-          : await ingestPptxFile(entry);
+          ? await deps.ingestDocxFile(entry)
+          : await deps.ingestPptxFile(entry);
     return c.json(processedDocument);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return c.json({ error: errorMessage, details: error }, 400);
   }
-});
+  });
 
-processDocumentRoutes.get("/process-file", (c) => {
-  return c.json({ message: "This endpoint requires the POST method" }, 405);
-});
+  processDocumentRoutes.get("/process-file", (c) => {
+    return c.json({ message: "This endpoint requires the POST method" }, 405);
+  });
 
-export default processDocumentRoutes;
+  return processDocumentRoutes;
+}
+
+export default createProcessDocumentRoutes();

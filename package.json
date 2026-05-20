@@ -11,6 +11,7 @@
     "docker:logs": "docker compose logs -f api postgres",
     "api:dev": "pnpm --filter @documind/api dev",
     "api:start": "pnpm --filter @documind/api start",
+    "api:test": "pnpm --filter @documind/api test",
     "api:typecheck": "pnpm --filter @documind/api typecheck",
     "types:typecheck": "pnpm --filter @documind/types typecheck",
     "mobile:config": "pnpm --filter @documind/mobile config:check",
@@ -18,8 +19,10 @@
     "mobile:lan": "REACT_NATIVE_PACKAGER_HOSTNAME=${REACT_NATIVE_PACKAGER_HOSTNAME:-192.168.1.9} pnpm --filter @documind/mobile start --lan",
     "mobile:android": "pnpm --filter @documind/mobile android",
     "mobile:ios": "pnpm --filter @documind/mobile ios",
+    "mobile:test": "pnpm --filter @documind/mobile test",
     "mobile:typecheck": "pnpm --filter @documind/mobile typecheck",
     "mobile:web": "pnpm --filter @documind/mobile web",
+    "test": "pnpm run api:test && pnpm run mobile:test",
     "typecheck": "pnpm run types:typecheck && pnpm run mobile:typecheck && pnpm run api:typecheck",
     "validate": "pnpm run typecheck && pnpm run mobile:config"
   },

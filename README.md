@@ -215,6 +215,36 @@ pnpm mobile:config
 
 For the API, a lightweight runtime validation can be done by starting it briefly with Bun from `apps/api` using the local `.env`.
 
+## Testing (v1)
+
+### Commands
+
+From repo root:
+
+```bash
+pnpm api:test
+pnpm mobile:test
+pnpm test
+```
+
+### Where tests live
+
+- API: `apps/api/src/**/*.test.ts`
+- Mobile: `apps/mobile/src/**/*.test.ts(x)`
+
+### What this v1 covers
+
+- API route behavior for `/api/process-url` and `/api/process-file` (method handling, validation, happy paths, and controlled failures with injected doubles).
+- API file type detection behavior for supported/unsupported inputs.
+- Mobile hook behavior for document chat flows (`useDocumentChat`).
+- Mobile `DocumentChat` screen baseline states (empty, offline, suggestion interaction) plus history error + retry action.
+
+### Out of scope / pending
+
+- End-to-end integration tests (mobile ↔ API ↔ DB).
+- Coverage thresholds/CI quality gates.
+- Broader resilience cases beyond current targeted route/screen scenarios.
+
 ## Tech stack
 
 - Expo SDK 54

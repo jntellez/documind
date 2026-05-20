@@ -4,7 +4,9 @@
     "../../tsconfig.base.json"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
+    "types": [
+      "jest"
+    ],
     "paths": {
       "@documind/types": [
         "../../packages/types/src/index.ts"
