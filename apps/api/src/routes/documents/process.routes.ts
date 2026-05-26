@@ -2,7 +2,7 @@ import type { ProcessedDocument } from "@documind/types";
 import { Hono } from "hono";
 import { config } from "../../config";
 import { buildSanitizedErrorPayload } from "../../lib/httpErrors";
-import { createRateLimit } from "../../middleware/rateLimit";
+import { createUsageLimit } from "../../middleware/usageLimit";
 import {
   detectSupportedFileType,
   ingestDocxFile,
@@ -30,13 +30,13 @@ const defaultDeps: ProcessDocumentDeps = {
 
 export function createProcessDocumentRoutes(deps: ProcessDocumentDeps = defaultDeps) {
   const processDocumentRoutes = new Hono();
-  const processRateLimit = createRateLimit({
-    key: "document-processing",
-    windowMs: config.rateLimitWindowMs,
-    max: config.documentRateLimitMax,
+  const processUsageLimit = createUsageLimit({
+    type: "processing",
+    guestMax: config.guestProcessingLimit,
+    authMax: config.authProcessingLimit,
   });
 
-  processDocumentRoutes.post("/process-url", processRateLimit, async (c) => {
+  processDocumentRoutes.post("/process-url", processUsageLimit, async (c) => {
     try {
       const body = await c.req.json();
       const validatedData = ProcessUrlRequestSchema.parse(body);
@@ -54,7 +54,7 @@ export function createProcessDocumentRoutes(deps: ProcessDocumentDeps = defaultD
     return c.json({ message: "This endpoint requires the POST method" }, 405);
   });
 
-  processDocumentRoutes.post("/process-file", processRateLimit, async (c) => {
+  processDocumentRoutes.post("/process-file", processUsageLimit, async (c) => {
     try {
       const formData = await c.req.formData();
       const entry = formData.get("file");

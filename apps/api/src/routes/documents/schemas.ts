@@ -49,7 +49,7 @@ export const SaveDocumentRequestSchema = z.object({
   sourceMimeType: z.string().optional(),
   originalUrl: z.string().min(1).optional(),
   original_url: z.string().min(1),
-  tags: z.array(z.string()).optional().default([]),
+  tags: z.array(z.string()).max(5, "Maximum 5 tags per document").optional().default([]),
 }) satisfies z.ZodType<SaveDocumentRequest>;
 
 export const UpdateDocumentRequestSchema = z.object({
@@ -62,5 +62,5 @@ export const UpdateDocumentRequestSchema = z.object({
   sourceName: z.string().optional(),
   sourceMimeType: z.string().optional(),
   originalUrl: z.string().min(1).optional(),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()).max(5, "Maximum 5 tags per document").optional(),
 }) satisfies z.ZodType<UpdateDocumentRequest>;

@@ -11,7 +11,7 @@ import { ZodError, z } from "zod";
 import { config } from "../config";
 import pg from "../db";
 import { buildSanitizedErrorPayload, sanitizeErrorMessage } from "../lib/httpErrors";
-import { createRateLimit } from "../middleware/rateLimit";
+import { createUsageLimit } from "../middleware/usageLimit";
 import {
   AiGatewayError,
   requestAiGatewayEmbeddings,
@@ -27,10 +27,10 @@ import {
 
 const documentChatRoutes = new Hono();
 const authJwt = jwt({ secret: config.jwtSecret, alg: "HS256" });
-const chatRateLimit = createRateLimit({
-  key: "document-chat",
-  windowMs: config.rateLimitWindowMs,
-  max: config.chatRateLimitMax,
+const chatUsageLimit = createUsageLimit({
+  type: "chat",
+  guestMax: 0,
+  authMax: config.chatLimit,
 });
 
 type JwtPayload = {
@@ -277,7 +277,7 @@ function mergeChunks(
   return [...merged.values()];
 }
 
-documentChatRoutes.post("/documents/:id/chat", chatRateLimit, authJwt, async (c) => {
+documentChatRoutes.post("/documents/:id/chat", chatUsageLimit, authJwt, async (c) => {
   try {
     const payload = c.get("jwtPayload") as JwtPayload;
     const userId = getUserId(payload);
@@ -440,7 +440,7 @@ documentChatRoutes.post("/documents/:id/chat", chatRateLimit, authJwt, async (c)
   }
 });
 
-documentChatRoutes.get("/documents/:id/chat/messages", chatRateLimit, authJwt, async (c) => {
+documentChatRoutes.get("/documents/:id/chat/messages", authJwt, async (c) => {
   try {
     const payload = c.get("jwtPayload") as JwtPayload;
     const userId = getUserId(payload);

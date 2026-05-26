@@ -5,6 +5,7 @@ import type {
 } from "@documind/types";
 import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
+import { config } from "../../config";
 import pg from "../../db";
 import { countWords } from "../../lib/document-text";
 import { buildSanitizedErrorPayload } from "../../lib/httpErrors";
@@ -16,6 +17,7 @@ import {
   listDocumentsByUser,
   updateDocumentByIdForUser,
 } from "../../repositories/documents.repository";
+import { getDocumentCount } from "../../repositories/usage.repository";
 import { ensureDocumentIngestionColumns } from "../../services/documentIngestion.service";
 import { reindexDocumentChunks } from "../../services/documentChunks.service";
 import { getUserId, parseDocumentId, type JwtPayload, toPgTextArray } from "./helpers";
@@ -38,6 +40,16 @@ export function registerCrudDocumentRoutes(authJwt: MiddlewareHandler) {
 
       const body = await c.req.json();
       const validatedData = SaveDocumentRequestSchema.parse(body);
+
+      const documentCount = await getDocumentCount(pg, { userId });
+
+      if (documentCount >= config.savedDocumentsLimit) {
+        return c.json(
+          { error: "Document storage limit reached. Delete some documents to save more." },
+          400,
+        );
+      }
+
       const createdAt = new Date();
       const updatedAt = new Date();
       const renderedHtml = validatedData.renderedHtml ?? validatedData.content;

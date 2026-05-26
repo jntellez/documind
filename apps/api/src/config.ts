@@ -73,6 +73,11 @@ export const config = {
   dbSsl: booleanEnv("DATABASE_SSL", false),
   aiGatewayUrl: requireEnv("AI_GATEWAY_URL"),
   aiGatewayTimeoutMs: numberEnv("AI_GATEWAY_TIMEOUT_MS", 15000),
+  guestProcessingLimit: numberEnv("GUEST_PROCESSING_LIMIT", 5),
+  authProcessingLimit: numberEnv("AUTH_PROCESSING_LIMIT", 12),
+  savedDocumentsLimit: numberEnv("SAVED_DOCUMENTS_LIMIT", 30),
+  tagsPerDocumentLimit: numberEnv("TAGS_PER_DOCUMENT_LIMIT", 5),
+  chatLimit: numberEnv("CHAT_LIMIT", 20),
   google: {
     clientId: requireEnv("GOOGLE_CLIENT_ID"),
     clientSecret: requireEnv("GOOGLE_CLIENT_SECRET"),

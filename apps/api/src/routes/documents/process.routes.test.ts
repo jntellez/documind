@@ -1,8 +1,24 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
+
+process.env.JWT_SECRET ??= "test-jwt-secret";
+process.env.DATABASE_URL ??= "postgres://localhost:5432/documind_test";
+process.env.AI_GATEWAY_URL ??= "http://localhost:9999";
+process.env.GOOGLE_CLIENT_ID ??= "test-google-id";
+process.env.GOOGLE_CLIENT_SECRET ??= "test-google-secret";
+process.env.GITHUB_CLIENT_ID ??= "test-github-id";
+process.env.GITHUB_CLIENT_SECRET ??= "test-github-secret";
+
 import { Hono } from "hono";
-import processDocumentRoutes, { createProcessDocumentRoutes } from "./process.routes";
+
+// Mock usageLimit middleware to avoid DB connections in route tests
+mock.module("../../middleware/usageLimit", () => ({
+  createUsageLimit: () => async (_c: any, next: any) => next(),
+}));
+
+const { default: processDocumentRoutes, createProcessDocumentRoutes } = await import("./process.routes");
 
 describe("process document routes", () => {
+
   const app = new Hono().route("/api", processDocumentRoutes);
 
   test("GET /api/process-url returns method guidance", async () => {
