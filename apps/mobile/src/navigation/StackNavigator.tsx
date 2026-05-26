@@ -64,9 +64,17 @@ export default function StackNavigator() {
       <Stack.Screen
         name="Login"
         component={Login}
-        options={{
-          headerShown: false, // Ocultamos el header en login
-        }}
+        options={({ navigation }) => ({
+          headerTitle: () => null,
+          headerShown: true,
+          headerLeft: () => <Button
+            className="ml-4"
+            variant="icon-only"
+            icon={<Icon library="octicons" name="chevron-left" size="lg" tone="foreground" />}
+            onPress={() => navigation.replace('Main')}
+          />,
+          headerRight: () => null,
+        })}
       />
 
       {/* Home Screen (TabNavigator) */}
@@ -91,6 +99,7 @@ export default function StackNavigator() {
             icon={<Icon library="octicons" name="chevron-left" size="lg" />}
             onPress={() => navigation.goBack()}
           />,
+          headerRight: () => null,
         })}
       />
 

@@ -9,8 +9,10 @@ import ScreenContainer from '@/components/ui/ScreenContainer';
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
 import AuthRequiredState from '@/components/ui/AuthRequiredState';
+import { useSettingsActions } from '@/screens/settings/useSettingsActions';
 
 function AuthenticatedProfile() {
+  const { handleLogout } = useSettingsActions();
   const {
     name,
     email,
@@ -42,6 +44,13 @@ function AuthenticatedProfile() {
           documentsLimit={documentsLimit}
           processingUsage={processingUsage}
           chatUsage={chatUsage}
+        />
+        <Button
+          title="Logout"
+          variant="icon"
+          icon={<Icon library="ionicons" name="log-out-outline" size="lg" tone="mutedForeground" />}
+          onPress={handleLogout}
+          className="mt-4"
         />
         <Button
           title="Delete Account"
