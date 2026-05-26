@@ -18,35 +18,39 @@ function toResetAt(resetInSeconds: number) {
 }
 
 export async function syncUsageSummary() {
-  const token = await tokenStorage.get();
-  const headers = new Headers();
+  try {
+    const token = await tokenStorage.get();
+    const headers = new Headers();
 
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
 
-  const response = await fetch(`${API_BASE_URL}/api/usage-summary`, {
-    method: "GET",
-    headers,
-  });
-
-  if (!response.ok) {
-    return;
-  }
-
-  const data = await response.json() as UsageSummaryResponse;
-
-  hydrateUsage("processing", {
-    count: data.processing.count,
-    limit: data.processing.limit,
-    resetAt: toResetAt(data.processing.resetInSeconds),
-  });
-
-  if (data.chat) {
-    hydrateUsage("chat", {
-      count: data.chat.count,
-      limit: data.chat.limit,
-      resetAt: toResetAt(data.chat.resetInSeconds),
+    const response = await fetch(`${API_BASE_URL}/api/usage-summary`, {
+      method: "GET",
+      headers,
     });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = await response.json() as UsageSummaryResponse;
+
+    hydrateUsage("processing", {
+      count: data.processing.count,
+      limit: data.processing.limit,
+      resetAt: toResetAt(data.processing.resetInSeconds),
+    });
+
+    if (data.chat) {
+      hydrateUsage("chat", {
+        count: data.chat.count,
+        limit: data.chat.limit,
+        resetAt: toResetAt(data.chat.resetInSeconds),
+      });
+    }
+  } catch {
+    return;
   }
 }
