@@ -10,6 +10,8 @@ import { jwt } from "hono/jwt";
 import { ZodError, z } from "zod";
 import { config } from "../config";
 import pg from "../db";
+import { buildSanitizedErrorPayload, sanitizeErrorMessage } from "../lib/httpErrors";
+import { createRateLimit } from "../middleware/rateLimit";
 import {
   AiGatewayError,
   requestAiGatewayEmbeddings,
@@ -25,6 +27,11 @@ import {
 
 const documentChatRoutes = new Hono();
 const authJwt = jwt({ secret: config.jwtSecret, alg: "HS256" });
+const chatRateLimit = createRateLimit({
+  key: "document-chat",
+  windowMs: config.rateLimitWindowMs,
+  max: config.chatRateLimitMax,
+});
 
 type JwtPayload = {
   sub?: string | number;
@@ -270,7 +277,7 @@ function mergeChunks(
   return [...merged.values()];
 }
 
-documentChatRoutes.post("/documents/:id/chat", authJwt, async (c) => {
+documentChatRoutes.post("/documents/:id/chat", chatRateLimit, authJwt, async (c) => {
   try {
     const payload = c.get("jwtPayload") as JwtPayload;
     const userId = getUserId(payload);
@@ -420,21 +427,20 @@ documentChatRoutes.post("/documents/:id/chat", authJwt, async (c) => {
       c.status(normalizeGatewayStatus(error.status));
       return c.json(
         {
-          error: error.message,
+          error: sanitizeErrorMessage(error, "Upstream AI service request failed"),
           type: error.type,
           requestId: error.requestId,
-          details: error.details,
+          details: config.isProduction ? undefined : error.details,
         },
       );
     }
 
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error chatting with document:", error);
-    return c.json({ error: errorMessage }, 500);
+    return c.json({ error: sanitizeErrorMessage(error) }, 500);
   }
 });
 
-documentChatRoutes.get("/documents/:id/chat/messages", authJwt, async (c) => {
+documentChatRoutes.get("/documents/:id/chat/messages", chatRateLimit, authJwt, async (c) => {
   try {
     const payload = c.get("jwtPayload") as JwtPayload;
     const userId = getUserId(payload);
@@ -471,9 +477,8 @@ documentChatRoutes.get("/documents/:id/chat/messages", authJwt, async (c) => {
 
     return c.json(response);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error fetching document chat messages:", error);
-    return c.json({ error: errorMessage }, 500);
+    return c.json(buildSanitizedErrorPayload(error), 500);
   }
 });
 

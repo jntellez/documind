@@ -42,9 +42,32 @@ const booleanEnv = (name: string, fallback: boolean) => {
   throw new Error(`Invalid boolean environment variable: ${name}`);
 };
 
+const csvEnv = (name: string) => {
+  const value = process.env[name];
+
+  if (!value) {
+    return [] as string[];
+  }
+
+  return value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+};
+
+const nodeEnv = process.env.NODE_ENV ?? "development";
+const isProduction = nodeEnv === "production";
+
 export const config = {
+  nodeEnv,
+  isProduction,
   host: process.env.HOST ?? "0.0.0.0",
   port: Number(process.env.PORT ?? 3000),
+  corsAllowedOrigins: csvEnv("CORS_ALLOWED_ORIGINS"),
+  rateLimitWindowMs: numberEnv("RATE_LIMIT_WINDOW_MS", 60_000),
+  authRateLimitMax: numberEnv("AUTH_RATE_LIMIT_MAX", 20),
+  documentRateLimitMax: numberEnv("DOCUMENT_RATE_LIMIT_MAX", 30),
+  chatRateLimitMax: numberEnv("CHAT_RATE_LIMIT_MAX", 60),
   jwtSecret: requireEnv("JWT_SECRET"),
   dbUrl: requireEnv("DATABASE_URL"),
   dbSsl: booleanEnv("DATABASE_SSL", false),

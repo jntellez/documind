@@ -46,6 +46,12 @@ This app expects the same runtime variables used by the original standalone API,
 - `GITHUB_CLIENT_SECRET`
 - `HOST` (optional, default `0.0.0.0`)
 - `PORT` (optional, default `3000`)
+- `NODE_ENV` (optional, `production` enables hardened error responses)
+- `CORS_ALLOWED_ORIGINS` (optional CSV list; required for browser clients in production)
+- `RATE_LIMIT_WINDOW_MS` (optional, default `60000`)
+- `AUTH_RATE_LIMIT_MAX` (optional, default `20`)
+- `DOCUMENT_RATE_LIMIT_MAX` (optional, default `30`)
+- `CHAT_RATE_LIMIT_MAX` (optional, default `60`)
 
 Create the local file from the example and fill it with local values only.
 

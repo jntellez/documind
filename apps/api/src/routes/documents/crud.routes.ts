@@ -7,6 +7,7 @@ import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
 import pg from "../../db";
 import { countWords } from "../../lib/document-text";
+import { buildSanitizedErrorPayload } from "../../lib/httpErrors";
 import {
   deleteDocumentByIdForUser,
   getDocumentByIdForUser,
@@ -84,9 +85,8 @@ export function registerCrudDocumentRoutes(authJwt: MiddlewareHandler) {
 
       return c.json(saveResponse, 201);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Error saving document:", error);
-      return c.json({ error: errorMessage, details: error }, 400);
+      return c.json(buildSanitizedErrorPayload(error, "Unable to save document"), 400);
     }
   });
 
@@ -111,9 +111,8 @@ export function registerCrudDocumentRoutes(authJwt: MiddlewareHandler) {
 
       return c.json(response);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Error fetching documents:", error);
-      return c.json({ error: errorMessage }, 400);
+      return c.json(buildSanitizedErrorPayload(error, "Unable to fetch documents"), 400);
     }
   });
 
@@ -147,9 +146,8 @@ export function registerCrudDocumentRoutes(authJwt: MiddlewareHandler) {
 
       return c.json(response);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Error fetching document:", error);
-      return c.json({ error: errorMessage }, 400);
+      return c.json(buildSanitizedErrorPayload(error, "Unable to fetch document"), 400);
     }
   });
 
@@ -232,9 +230,8 @@ export function registerCrudDocumentRoutes(authJwt: MiddlewareHandler) {
 
       return c.json({ success: true, document: serializeDocumentRow(result[0]) });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Error updating document:", error);
-      return c.json({ error: errorMessage, details: error }, 400);
+      return c.json(buildSanitizedErrorPayload(error, "Unable to update document"), 400);
     }
   });
 
@@ -265,9 +262,8 @@ export function registerCrudDocumentRoutes(authJwt: MiddlewareHandler) {
         deletedId: result[0].id,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Error deleting document:", error);
-      return c.json({ error: errorMessage }, 400);
+      return c.json(buildSanitizedErrorPayload(error, "Unable to delete document"), 400);
     }
   });
 
