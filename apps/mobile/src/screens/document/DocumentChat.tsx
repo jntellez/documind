@@ -1,21 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import DocumentChatComposer from "@/components/document/DocumentChatComposer";
 import DocumentChatContent from "@/components/document/DocumentChatContent";
 import DocumentChatOfflineNotice from "@/components/document/DocumentChatOfflineNotice";
+import UsageBadge from "@/components/ui/UsageBadge";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { useUsageLimits } from "@/hooks/useUsageLimits";
 import ScreenContainer from "@/components/ui/ScreenContainer";
 import { useUiTheme } from "@/theme/useUiTheme";
 import type { DocumentChatScreenProps } from "types";
 import { useDocumentChat } from "./useDocumentChat";
 
 
-export default function DocumentChat({ route }: DocumentChatScreenProps) {
+export default function DocumentChat({ route, navigation }: DocumentChatScreenProps) {
   const { documentId, title } = route.params;
   const headerHeight = useHeaderHeight();
   const { isOnline, isInternetReachable } = useNetworkStatus();
   const theme = useUiTheme();
+  const { chat } = useUsageLimits();
   const scrollViewRef = useRef<ScrollView>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -51,6 +54,20 @@ export default function DocumentChat({ route }: DocumentChatScreenProps) {
     }
   }, [hasMessages, isChatLoading, messages, scrollToBottom]);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () =>
+        chat ? (
+          <UsageBadge
+            count={chat.count}
+            limit={chat.limit}
+            showDot={false}
+            className="py-3 mr-4"
+          />
+        ) : null,
+    });
+  }, [navigation, chat]);
+
   return (
     <ScreenContainer className="px-0 pb-0">
       <KeyboardAvoidingView
@@ -68,6 +85,7 @@ export default function DocumentChat({ route }: DocumentChatScreenProps) {
               flexGrow: 1,
               paddingTop: canUseChat ? headerHeight + 8 : 8,
               paddingHorizontal: 16,
+              paddingBottom: 16,
               gap: 12,
             }}
             keyboardShouldPersistTaps="handled"

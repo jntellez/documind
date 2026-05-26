@@ -4,10 +4,14 @@ import type { Document } from '@documind/types';
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
 import Input from '@/components/ui/Input';
-import { useCallback, useState } from 'react';
+import UsageBadge from '@/components/ui/UsageBadge';
+import Avatar from '@/components/ui/Avatar';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { showToast } from '@/components/ui/Toast';
 import { processFile, processUrl, pickDocument } from '@/services/documentService';
 import { getDocumentsOffline } from '@/services/offlineDocumentService';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
+import { useAuth } from '@/context/AuthContext';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ScreenContainer from '@/components/ui/ScreenContainer';
 import { Paragraph } from '@/components/ui/Typography';
@@ -18,6 +22,8 @@ import { useUiTheme } from '@/theme/useUiTheme';
 export default function Home() {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
   const theme = useUiTheme();
+  const { user } = useAuth();
+  const { processing } = useUsageLimits();
   const [inputValue, setInputValue] = useState<string>("");
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -54,6 +60,27 @@ export default function Home() {
       void loadRecentDocuments();
     }, [loadRecentDocuments]),
   );
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View className="flex-row items-center pr-4 gap-4">
+          {processing && (
+            <UsageBadge
+              count={processing.count}
+              limit={processing.limit}
+            />
+          )}
+          <Avatar
+            fallback={user?.name?.charAt(0).toUpperCase() || 'U'}
+            src={user?.avatar_url}
+            alt={user?.name || 'User'}
+            onPress={() => navigation.navigate('Profile' as never)}
+          />
+        </View>
+      ),
+    });
+  }, [navigation, processing, user]);
 
   async function handleSubmit() {
     if (!isValidated) return;

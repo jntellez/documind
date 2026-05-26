@@ -27,6 +27,10 @@ jest.mock("@/theme/useUiTheme", () => ({
   }),
 }));
 
+jest.mock("@/hooks/useUsageLimits", () => ({
+  useUsageLimits: () => ({ chat: null }),
+}));
+
 jest.mock("./useDocumentChat", () => ({
   useDocumentChat: jest.fn(),
 }));
@@ -36,7 +40,7 @@ const { useNetworkStatus } = jest.requireMock("@/hooks/useNetworkStatus") as {
 };
 
 const mockedUseDocumentChat = useDocumentChat as jest.MockedFunction<typeof useDocumentChat>;
-const navigation = {} as never;
+const navigation = { setOptions: jest.fn() } as never;
 const route = {
   key: "DocumentChat",
   name: "DocumentChat",

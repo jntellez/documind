@@ -277,7 +277,7 @@ function mergeChunks(
   return [...merged.values()];
 }
 
-documentChatRoutes.post("/documents/:id/chat", chatUsageLimit, authJwt, async (c) => {
+documentChatRoutes.post("/documents/:id/chat", authJwt, chatUsageLimit, async (c) => {
   try {
     const payload = c.get("jwtPayload") as JwtPayload;
     const userId = getUserId(payload);

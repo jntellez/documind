@@ -88,10 +88,9 @@ export default function StackNavigator() {
           headerLeft: () => <Button
             className="ml-4"
             variant="icon-only"
-            icon={<Icon library="octicons" name="chevron-left" size="lg" tone="foreground" />}
+            icon={<Icon library="octicons" name="chevron-left" size="lg" />}
             onPress={() => navigation.goBack()}
           />,
-          headerRight: () => null,
         })}
       />
 
