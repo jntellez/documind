@@ -8,17 +8,23 @@ import UsageBadge from "@/components/ui/UsageBadge";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { useUsageLimits } from "@/hooks/useUsageLimits";
 import ScreenContainer from "@/components/ui/ScreenContainer";
+import { syncUsageSummary } from "@/services/usageService";
 import { useUiTheme } from "@/theme/useUiTheme";
 import type { DocumentChatScreenProps } from "types";
 import { useDocumentChat } from "./useDocumentChat";
-
+import {
+  buildUsageTooltipMessage,
+  DEFAULT_USAGE_LIMITS,
+  withFallbackUsage,
+} from "@/utils/usage";
 
 export default function DocumentChat({ route, navigation }: DocumentChatScreenProps) {
   const { documentId, title } = route.params;
   const headerHeight = useHeaderHeight();
   const { isOnline, isInternetReachable } = useNetworkStatus();
   const theme = useUiTheme();
-  const { chat } = useUsageLimits();
+  const { chat, resetAt } = useUsageLimits();
+  const chatUsage = withFallbackUsage(chat, DEFAULT_USAGE_LIMITS.chat, resetAt);
   const scrollViewRef = useRef<ScrollView>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -46,6 +52,7 @@ export default function DocumentChat({ route, navigation }: DocumentChatScreenPr
 
   useEffect(() => {
     void loadMessages();
+    void syncUsageSummary();
   }, [loadMessages]);
 
   useEffect(() => {
@@ -54,19 +61,26 @@ export default function DocumentChat({ route, navigation }: DocumentChatScreenPr
     }
   }, [hasMessages, isChatLoading, messages, scrollToBottom]);
 
+  const chatTooltip = buildUsageTooltipMessage(
+    'chat messages sent',
+    chatUsage,
+    !!resetAt,
+  );
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () =>
-        chat ? (
+        (
           <UsageBadge
-            count={chat.count}
-            limit={chat.limit}
+            count={chatUsage.count}
+            limit={chatUsage.limit}
             showDot={false}
             className="py-3 mr-4"
+            tooltipMessage={chatTooltip}
           />
-        ) : null,
+        ),
     });
-  }, [navigation, chat]);
+  }, [navigation, chatTooltip, chatUsage.count, chatUsage.limit]);
 
   return (
     <ScreenContainer className="px-0 pb-0">

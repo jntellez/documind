@@ -15,6 +15,9 @@ export default function Profile() {
     initials,
     avatarUrl,
     documentsCount,
+    documentsLimit,
+    processingUsage,
+    chatUsage,
     showDeleteModal,
     isDeleting,
     canConfirmDelete,
@@ -32,7 +35,12 @@ export default function Profile() {
       >
         <ProfileHeader name={name} email={email} initials={initials} avatarUrl={avatarUrl} />
         <PersonalInfo name={name} email={email} />
-        <ActivityStats documentsCount={documentsCount} />
+        <ActivityStats
+          documentsCount={documentsCount}
+          documentsLimit={documentsLimit}
+          processingUsage={processingUsage}
+          chatUsage={chatUsage}
+        />
         <Button
           title="Delete Account"
           variant="icon"

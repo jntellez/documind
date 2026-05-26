@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { AuthUser } from '@documind/types';
 import { tokenStorage } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearUsage } from '@/services/usageTracker';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     await tokenStorage.remove();
     await AsyncStorage.removeItem('user_data');
+    clearUsage();
     setUser(null);
   };
 

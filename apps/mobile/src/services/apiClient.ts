@@ -90,6 +90,27 @@ export async function apiRequest<T>(
   return parseApiResponse<T>(response, errorMessage, usageType);
 }
 
+export async function optionalAuthenticatedApiRequest<T>(
+  path: string,
+  options: ApiRequestOptions,
+): Promise<T> {
+  const token = await tokenStorage.get();
+  const usageType = resolveUsageType(path);
+  const requestHeaders = buildHeaders(options.headers);
+
+  if (token) {
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: requestHeaders,
+    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+  });
+
+  return parseApiResponse<T>(response, options.errorMessage, usageType);
+}
+
 export async function authenticatedApiRequest<T>(
   path: string,
   options: ApiRequestOptions,

@@ -1,8 +1,16 @@
 import type { ProcessedDocument } from "@documind/types";
 import { Hono } from "hono";
+import { verify } from "hono/jwt";
 import { config } from "../../config";
+import pg from "../../db";
 import { buildSanitizedErrorPayload } from "../../lib/httpErrors";
-import { createUsageLimit } from "../../middleware/usageLimit";
+import {
+  createUsageLimit,
+  getClientIp,
+  getUserIdFromPayload,
+  secondsUntilMidnightUtc,
+} from "../../middleware/usageLimit";
+import { getUsageCount } from "../../repositories/usage.repository";
 import {
   detectSupportedFileType,
   ingestDocxFile,
@@ -10,7 +18,24 @@ import {
   ingestPptxFile,
   ingestUrlDocument,
 } from "../../services/documentIngestion.service";
+import type { JwtPayload } from "./helpers";
 import { ProcessUrlRequestSchema } from "./schemas";
+
+async function attachOptionalJwtPayload(c: any, next: any) {
+  const authHeader = c.req.header("authorization");
+
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      const token = authHeader.slice("Bearer ".length);
+      const payload = await verify(token, config.jwtSecret, "HS256") as JwtPayload;
+      c.set("jwtPayload", payload);
+    } catch {
+      // Ignore invalid tokens here: processing supports guest access.
+    }
+  }
+
+  await next();
+}
 
 type ProcessDocumentDeps = {
   detectSupportedFileType: typeof detectSupportedFileType;
@@ -36,7 +61,7 @@ export function createProcessDocumentRoutes(deps: ProcessDocumentDeps = defaultD
     authMax: config.authProcessingLimit,
   });
 
-  processDocumentRoutes.post("/process-url", processUsageLimit, async (c) => {
+  processDocumentRoutes.post("/process-url", attachOptionalJwtPayload, processUsageLimit, async (c) => {
     try {
       const body = await c.req.json();
       const validatedData = ProcessUrlRequestSchema.parse(body);
@@ -54,7 +79,7 @@ export function createProcessDocumentRoutes(deps: ProcessDocumentDeps = defaultD
     return c.json({ message: "This endpoint requires the POST method" }, 405);
   });
 
-  processDocumentRoutes.post("/process-file", processUsageLimit, async (c) => {
+  processDocumentRoutes.post("/process-file", attachOptionalJwtPayload, processUsageLimit, async (c) => {
     try {
       const formData = await c.req.formData();
       const entry = formData.get("file");
@@ -92,6 +117,60 @@ export function createProcessDocumentRoutes(deps: ProcessDocumentDeps = defaultD
 
   processDocumentRoutes.get("/process-file", (c) => {
     return c.json({ message: "This endpoint requires the POST method" }, 405);
+  });
+
+  processDocumentRoutes.get("/usage-summary", async (c) => {
+    try {
+      const authHeader = c.req.header("authorization");
+      let userId: number | undefined;
+
+      if (authHeader?.startsWith("Bearer ")) {
+        try {
+          const token = authHeader.slice("Bearer ".length);
+          const payload = await verify(token, config.jwtSecret, "HS256") as JwtPayload;
+          userId = getUserIdFromPayload(payload);
+        } catch {
+          userId = undefined;
+        }
+      }
+
+      const ip = getClientIp(c);
+      const date = new Date().toISOString().slice(0, 10);
+      const resetInSeconds = secondsUntilMidnightUtc();
+
+      const processingCount = await getUsageCount(pg, {
+        userId,
+        ip,
+        type: "processing",
+        date,
+      });
+
+      const chatCount = userId
+        ? await getUsageCount(pg, {
+            userId,
+            ip,
+            type: "chat",
+            date,
+          })
+        : 0;
+
+      return c.json({
+        processing: {
+          count: processingCount,
+          limit: userId ? config.authProcessingLimit : config.guestProcessingLimit,
+          resetInSeconds,
+        },
+        chat: userId
+          ? {
+              count: chatCount,
+              limit: config.chatLimit,
+              resetInSeconds,
+            }
+          : null,
+      });
+    } catch (error) {
+      return c.json(buildSanitizedErrorPayload(error, "Unable to load usage summary"), 400);
+    }
   });
 
   return processDocumentRoutes;

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useDocumentCount } from "@/hooks/documents/useDocumentCount";
+import { useUsageLimits } from "@/hooks/useUsageLimits";
 import { tokenStorage } from "@/lib/storage";
 import { showToast } from "@/components/ui/Toast";
 import { useDocumentCache } from "@/context/DocumentCacheContext";
@@ -8,10 +9,12 @@ import { API_BASE_URL } from "@/lib/api";
 import { clearAllLocalData } from "@/storage/database";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "types";
+import { DEFAULT_USAGE_LIMITS, withFallbackUsage } from "@/utils/usage";
 
 export function useProfile() {
   const { user, signOut } = useAuth();
   const { documentsCount } = useDocumentCount();
+  const { processing, chat, documentsLimit, resetAt } = useUsageLimits();
   const { clearCache } = useDocumentCache();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmText, setConfirmText] = useState("");
@@ -23,6 +26,12 @@ export function useProfile() {
   const initials = name.charAt(0).toUpperCase();
   const avatarUrl = user?.avatar_url;
   const canConfirmDelete = confirmText === "delete account";
+  const processingUsage = withFallbackUsage(
+    processing,
+    user ? DEFAULT_USAGE_LIMITS.authProcessing : DEFAULT_USAGE_LIMITS.guestProcessing,
+    resetAt,
+  );
+  const chatUsage = withFallbackUsage(chat, DEFAULT_USAGE_LIMITS.chat, resetAt);
 
   function openDeleteModal() {
     setShowDeleteModal(true);
@@ -68,6 +77,9 @@ export function useProfile() {
     initials,
     avatarUrl,
     documentsCount,
+    documentsLimit,
+    processingUsage,
+    chatUsage,
     showDeleteModal,
     confirmText,
     isDeleting,

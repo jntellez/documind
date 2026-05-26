@@ -1,13 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAllUsage, subscribeUsage, type UsageData } from "@/services/usageTracker";
-
-const SAVED_DOCUMENTS_LIMIT = 30;
-
-type UsageEntry = {
-  count: number;
-  limit: number;
-  resetAt: Date;
-};
+import { DEFAULT_USAGE_LIMITS, type UsageEntry } from "@/utils/usage";
 
 type UsageLimitsState = {
   processing: UsageEntry | null;
@@ -42,7 +35,7 @@ export function useUsageLimits(): UsageLimitsState {
     return {
       processing: processingRaw ? toUsageEntry(processingRaw) : null,
       chat: chatRaw ? toUsageEntry(chatRaw) : null,
-      documentsLimit: SAVED_DOCUMENTS_LIMIT,
+      documentsLimit: DEFAULT_USAGE_LIMITS.documents,
       resetAt: processingRaw?.resetAt ?? chatRaw?.resetAt ?? null,
     };
   }, [tick]);

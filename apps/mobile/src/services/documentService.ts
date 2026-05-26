@@ -13,7 +13,11 @@ import * as DocumentPicker from "expo-document-picker";
 import { showToast } from "@/components/ui/Toast";
 import { API_BASE_URL } from "@/lib/api";
 import { tokenStorage } from "@/lib/storage";
-import { apiRequest, authenticatedApiRequest } from "./apiClient";
+import { updateUsage } from "@/services/usageTracker";
+import {
+  authenticatedApiRequest,
+  optionalAuthenticatedApiRequest,
+} from "./apiClient";
 
 type FilePickerResult = {
   uri: string;
@@ -23,7 +27,7 @@ type FilePickerResult = {
 };
 
 export async function processUrl(url: string): Promise<ProcessedDocument> {
-  return apiRequest<ProcessedDocument>("/api/process-url", {
+  return optionalAuthenticatedApiRequest<ProcessedDocument>("/api/process-url", {
     method: "POST",
     body: { url },
     errorMessage: "Error al procesar el documento",
@@ -138,6 +142,8 @@ export async function processFile(file: FilePickerResult): Promise<ProcessedDocu
       data && typeof data === "object" && "error" in data ? data.error : undefined;
     throw new Error(apiError || "Failed to process file");
   }
+
+  updateUsage(response.headers, "processing");
 
   return data as ProcessedDocument;
 }

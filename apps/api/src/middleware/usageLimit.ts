@@ -14,7 +14,7 @@ type JwtPayload = {
   id?: string | number;
 };
 
-function getClientIp(c: Context) {
+export function getClientIp(c: Context) {
   const forwardedFor = c.req.header("x-forwarded-for");
 
   if (forwardedFor) {
@@ -53,13 +53,13 @@ function getClientIp(c: Context) {
   return "unknown";
 }
 
-function getUserIdFromPayload(payload: JwtPayload | undefined): number | undefined {
+export function getUserIdFromPayload(payload: JwtPayload | undefined): number | undefined {
   if (!payload) return undefined;
   const id = Number(payload.sub || payload.id);
   return id && !Number.isNaN(id) ? id : undefined;
 }
 
-function secondsUntilMidnightUtc(): number {
+export function secondsUntilMidnightUtc(): number {
   const now = new Date();
   const midnight = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),

@@ -10,6 +10,7 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import { showToast } from '@/components/ui/Toast';
 import { processFile, processUrl, pickDocument } from '@/services/documentService';
 import { getDocumentsOffline } from '@/services/offlineDocumentService';
+import { syncUsageSummary } from '@/services/usageService';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { useAuth } from '@/context/AuthContext';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -18,12 +19,22 @@ import { Paragraph } from '@/components/ui/Typography';
 import DocumentItem from '@/components/documents/DocumentItem';
 import Card from '@/components/ui/Card';
 import { useUiTheme } from '@/theme/useUiTheme';
+import {
+  buildUsageTooltipMessage,
+  DEFAULT_USAGE_LIMITS,
+  withFallbackUsage,
+} from '@/utils/usage';
 
 export default function Home() {
   const navigation = useNavigation<HomeScreenProps['navigation']>();
   const theme = useUiTheme();
   const { user } = useAuth();
-  const { processing } = useUsageLimits();
+  const { processing, resetAt } = useUsageLimits();
+  const processingUsage = withFallbackUsage(
+    processing,
+    user ? DEFAULT_USAGE_LIMITS.authProcessing : DEFAULT_USAGE_LIMITS.guestProcessing,
+    resetAt,
+  );
   const [inputValue, setInputValue] = useState<string>("");
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -58,19 +69,25 @@ export default function Home() {
   useFocusEffect(
     useCallback(() => {
       void loadRecentDocuments();
+      void syncUsageSummary();
     }, [loadRecentDocuments]),
+  );
+
+  const processingTooltip = buildUsageTooltipMessage(
+    'processed',
+    processingUsage,
+    !!resetAt,
   );
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View className="flex-row items-center pr-4 gap-4">
-          {processing && (
-            <UsageBadge
-              count={processing.count}
-              limit={processing.limit}
-            />
-          )}
+          <UsageBadge
+            count={processingUsage.count}
+            limit={processingUsage.limit}
+            tooltipMessage={processingTooltip}
+          />
           <Avatar
             fallback={user?.name?.charAt(0).toUpperCase() || 'U'}
             src={user?.avatar_url}
@@ -80,7 +97,7 @@ export default function Home() {
         </View>
       ),
     });
-  }, [navigation, processing, user]);
+  }, [navigation, processingTooltip, processingUsage.count, processingUsage.limit, user]);
 
   async function handleSubmit() {
     if (!isValidated) return;

@@ -1,6 +1,9 @@
+import { Pressable } from "react-native";
 import Icon from "@/components/ui/Icon";
 import { Title } from "./Typography";
 import Card from "./Card";
+import Tooltip from "./Tooltip";
+import { useTooltipAnchor } from "@/hooks/useTooltipAnchor";
 import { cn } from "@/lib/cn";
 
 type UsageBadgeProps = {
@@ -8,6 +11,7 @@ type UsageBadgeProps = {
   limit: number;
   className?: string;
   showDot?: boolean;
+  tooltipMessage?: string;
 };
 
 function getRatio(count: number, limit: number): number {
@@ -21,11 +25,20 @@ function getDotTone(ratio: number): "success" | "warning" | "destructive" {
   return "success";
 }
 
-export default function UsageBadge({ count, limit, className, showDot = true }: UsageBadgeProps) {
+export default function UsageBadge({
+  count,
+  limit,
+  className,
+  showDot = true,
+  tooltipMessage,
+}: UsageBadgeProps) {
+  const tooltip = useTooltipAnchor();
   const ratio = getRatio(count, limit);
   const dotTone = getDotTone(ratio);
 
-  return (
+  const hasTooltip = !!tooltipMessage;
+
+  const badgeContent = (
     <Card className={cn("flex-row items-center justify-center gap-1.5 px-4 py-1.5 shadow-md", className)}>
       {showDot && (
         <Icon
@@ -39,5 +52,26 @@ export default function UsageBadge({ count, limit, className, showDot = true }: 
         {count}/{limit}
       </Title>
     </Card>
+  );
+
+  if (!hasTooltip) {
+    return badgeContent;
+  }
+
+  return (
+    <>
+      <Pressable
+        ref={tooltip.triggerRef}
+        onPress={tooltip.open}
+      >
+        {badgeContent}
+      </Pressable>
+      <Tooltip
+        anchor={tooltip.anchor}
+        visible={tooltip.visible}
+        onClose={tooltip.close}
+        message={tooltipMessage ?? ""}
+      />
+    </>
   );
 }

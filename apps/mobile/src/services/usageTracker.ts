@@ -13,8 +13,33 @@ export type UsageData = {
   resetAt: Date;
 };
 
+type UsageSnapshot = {
+  count: number;
+  limit: number;
+  resetAt: Date;
+};
+
 const store = new Map<UsageType, UsageData>();
 const listeners = new Set<() => void>();
+
+function parseResetAt(resetHeader: string | null): Date {
+  if (!resetHeader) {
+    return new Date();
+  }
+
+  const parsed = parseInt(resetHeader, 10);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return new Date();
+  }
+
+  // Some endpoints return epoch seconds, others return seconds until reset.
+  if (parsed > 1_000_000_000) {
+    return new Date(parsed * 1000);
+  }
+
+  return new Date(Date.now() + parsed * 1000);
+}
 
 function notifyListeners() {
   for (const listener of listeners) {
@@ -42,11 +67,22 @@ export function updateUsage(headers: Headers, type: UsageType) {
     return;
   }
 
-  const resetAt = resetHeader
-    ? new Date(parseInt(resetHeader, 10) * 1000)
-    : new Date();
+  const resetAt = parseResetAt(resetHeader);
 
   store.set(type, { limit, remaining, resetAt });
+  notifyListeners();
+}
+
+export function hydrateUsage(type: UsageType, snapshot: UsageSnapshot) {
+  const count = Math.max(0, snapshot.count);
+  const limit = Math.max(1, snapshot.limit);
+  const remaining = Math.max(0, limit - count);
+
+  store.set(type, {
+    limit,
+    remaining,
+    resetAt: snapshot.resetAt,
+  });
   notifyListeners();
 }
 
