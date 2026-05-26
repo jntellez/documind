@@ -37,7 +37,8 @@
       }
     },
     "plugins": [
-      "expo-audio"
+      "expo-audio",
+      "@sentry/react-native/expo"
     ]
   }
 }

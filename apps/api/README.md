@@ -56,3 +56,11 @@ This app expects the same runtime variables used by the original standalone API,
 Create the local file from the example and fill it with local values only.
 
 Do not commit `.env` files or secrets into the monorepo.
+
+## Health endpoint
+
+- `GET /health`
+- Returns `200` when API + DB are reachable
+- Returns `503` when DB is unavailable
+
+For monitor setup details (UptimeRobot free-plan friendly), see `docs/observability.md` at repo root.

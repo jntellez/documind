@@ -92,6 +92,7 @@ Key services used in production:
 - Privacy policy: `docs/privacy-policy.md`
 - Release checklist: `docs/release-checklist.md`
 - Smoke test: `docs/smoke-test.md`
+- Observability setup: `docs/observability.md`
 
 ## Troubleshooting
 
