@@ -3,6 +3,7 @@ import type { AuthUser } from '@documind/types';
 import { tokenStorage } from '../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { clearUsage } from '@/services/usageTracker';
+import { clearAllLocalData } from '@/storage/database';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     await tokenStorage.remove();
     await AsyncStorage.removeItem('user_data');
+    clearAllLocalData();
     clearUsage();
     setUser(null);
   };

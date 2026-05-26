@@ -1,5 +1,6 @@
 import { ScrollView } from 'react-native';
 import { useProfile } from '@/hooks/useProfile';
+import { useAuth } from '@/context/AuthContext';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import PersonalInfo from '@/components/profile/PersonalInfo';
 import ActivityStats from '@/components/profile/ActivityStats';
@@ -7,8 +8,9 @@ import DeleteAccountModal from '@/components/profile/DeleteAccountModal';
 import ScreenContainer from '@/components/ui/ScreenContainer';
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
+import AuthRequiredState from '@/components/ui/AuthRequiredState';
 
-export default function Profile() {
+function AuthenticatedProfile() {
   const {
     name,
     email,
@@ -61,4 +63,21 @@ export default function Profile() {
       />
     </ScreenContainer>
   );
+}
+
+export default function Profile() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <ScreenContainer className="pt-34">
+        <AuthRequiredState
+          title="Profile requires an account"
+          description="Log in to manage your profile, review your usage, and access account settings."
+        />
+      </ScreenContainer>
+    );
+  }
+
+  return <AuthenticatedProfile />;
 }

@@ -10,8 +10,10 @@ import ScreenContainer from '@/components/ui/ScreenContainer';
 import { useUiTheme } from '@/theme/useUiTheme';
 import { Paragraph } from '@/components/ui/Typography';
 import Badge from '@/components/ui/Badge';
+import AuthRequiredState from '@/components/ui/AuthRequiredState';
+import { useAuth } from '@/context/AuthContext';
 
-export default function Documents() {
+function AuthenticatedDocuments() {
   const theme = useUiTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -101,4 +103,21 @@ export default function Documents() {
       />
     </ScreenContainer>
   );
+}
+
+export default function Documents() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <ScreenContainer className="flex-1 pt-34">
+        <AuthRequiredState
+          title="Documents require an account"
+          description="Log in to access your saved documents and synced content."
+        />
+      </ScreenContainer>
+    );
+  }
+
+  return <AuthenticatedDocuments />;
 }
