@@ -4,7 +4,7 @@
 
 <img src="./assets/images/readme-cover.webp" alt="Documind" />
 
-Document ingestion and chat platform with an Expo mobile app and a Bun API.
+Read, organize, and chat with your documents.
 
 </div>
 
@@ -22,7 +22,7 @@ Document ingestion and chat platform with an Expo mobile app and a Bun API.
 - `apps/api` — Bun API for auth, ingestion, persistence, and chat endpoints
 - `packages` — shared workspace packages
 
-## Getting Started
+## Quick Start
 
 1. Install dependencies:
 
@@ -37,19 +37,14 @@ cp apps/api/.env.example apps/api/.env
 cp apps/mobile/.env.example apps/mobile/.env
 ```
 
-3. Start the API:
+3. Start the API and mobile app:
 
 ```bash
 pnpm api:dev
-```
-
-4. In another terminal, start the mobile app:
-
-```bash
 pnpm mobile:start
 ```
 
-5. Open the Expo target you want:
+4. Open the mobile app with Expo Go or a simulator:
 
 ```bash
 pnpm mobile:android
@@ -75,9 +70,55 @@ pnpm validate
 pnpm test
 ```
 
-## Docker
+## Environment
 
-Run the API and PostgreSQL locally with Docker:
+Create these files before running the project:
+
+```bash
+cp apps/api/.env.example apps/api/.env
+cp apps/mobile/.env.example apps/mobile/.env
+```
+
+Key services used in production:
+
+- **API** — Render
+- **Database** — Supabase
+- **CI/CD** — GitHub Actions
+
+## Distribution
+
+- Android distribution is currently planned as **direct APK delivery**.
+- The mobile build profile for this lives in `apps/mobile/eas.json` under `android-apk`.
+- Privacy policy: `docs/privacy-policy.md`
+- Release checklist: `docs/release-checklist.md`
+- Smoke test: `docs/smoke-test.md`
+
+## Troubleshooting
+
+### Mobile cannot reach the API
+
+- confirm the API is running
+- confirm mobile env values are correct
+- restart Expo after env changes
+
+### Auth does not work
+
+- verify Google/GitHub OAuth env variables
+- verify redirect URIs match the configured app values
+
+### Backend looks up but features fail
+
+- check `GET /health`
+- review Render logs
+- confirm Supabase is available and not paused
+
+### Android release build fails
+
+- confirm you are logged into EAS
+- run the build from `apps/mobile`
+- verify `apps/mobile/eas.json` uses the `android-apk` profile
+
+## Docker
 
 ```bash
 pnpm docker:up
