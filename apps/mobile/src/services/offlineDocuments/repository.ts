@@ -1,10 +1,15 @@
-import { documentQueries, syncQueueQueries } from "@/storage/database";
+import { documentQueries, documentSyncQueries, syncQueueQueries } from "@/storage/database";
 import type { Document, ProcessedDocument } from "@documind/types";
 import * as SQLite from "expo-sqlite";
 import type { LocalDocument, SyncQueueItem } from "types/storage";
 import { fromDocument, toDocument } from "types/storage";
 
 const db = SQLite.openDatabaseSync("documind.db");
+
+export type OfflineDocument = Document & {
+  syncStatus?: "synced" | "pending" | "error" | "conflict";
+  syncError?: string | null;
+};
 
 export function getAllLocalDocuments() {
   return documentQueries.getAll();
@@ -83,10 +88,56 @@ export function getPendingSyncQueue() {
   return syncQueueQueries.getPending();
 }
 
+export function getSyncQueueStats() {
+  return syncQueueQueries.getStats();
+}
+
 export function dequeueSyncAction(id: number) {
   syncQueueQueries.dequeue(id);
 }
 
+export function markSyncRetry(id: number, attempts: number, nextAttemptAt: string, error: string) {
+  syncQueueQueries.updateRetry(id, attempts, nextAttemptAt, error);
+}
+
+export function markSyncFailed(id: number, error: string) {
+  syncQueueQueries.markFailed(id, error);
+}
+
+export function getNextRetryAt() {
+  return syncQueueQueries.getNextRetryAt();
+}
+
+export function hasQueuedCreate(documentId: number) {
+  return syncQueueQueries.hasCreateForDocument(documentId);
+}
+
+export function replaceQueuedCreateData(documentId: number, data: unknown) {
+  syncQueueQueries.replaceCreateData(documentId, data);
+}
+
+export function getQueuedCreateData<T>(documentId: number) {
+  const raw = syncQueueQueries.getCreateData(documentId);
+
+  if (!raw) {
+    return null;
+  }
+
+  return JSON.parse(raw) as T;
+}
+
+export function setDocumentSyncStatus(
+  documentId: number,
+  status: "synced" | "pending" | "error" | "conflict",
+  error?: string,
+) {
+  documentSyncQueries.setStatus(documentId, status, error);
+}
+
 export function toOfflineDocument(localDocument: LocalDocument) {
-  return toDocument(localDocument);
+  return {
+    ...toDocument(localDocument),
+    syncStatus: localDocument.sync_status ?? "synced",
+    syncError: localDocument.last_sync_error ?? null,
+  } as OfflineDocument;
 }

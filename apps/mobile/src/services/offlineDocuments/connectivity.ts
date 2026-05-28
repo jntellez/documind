@@ -1,4 +1,5 @@
 import NetInfo from "@react-native-community/netinfo";
+import { updateSyncState } from "./syncState";
 
 let isOnline = true;
 let hasInitializedReconnectListener = false;
@@ -15,6 +16,7 @@ export function initializeOfflineDocumentConnectivity(
   NetInfo.addEventListener((state) => {
     const wasOffline = !isOnline;
     isOnline = state.isConnected ?? false;
+    updateSyncState({ isOnline });
 
     if (wasOffline && isOnline) {
       void onReconnect();

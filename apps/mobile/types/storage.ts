@@ -12,6 +12,8 @@ export interface LocalDocument {
   synced: number; // 0 o 1 (boolean en SQLite)
   deleted: number; // 0 o 1 (boolean en SQLite)
   tags: string;
+  sync_status?: "synced" | "pending" | "error" | "conflict";
+  last_sync_error?: string | null;
 }
 
 export interface SyncQueueItem {
@@ -20,6 +22,10 @@ export interface SyncQueueItem {
   action: "CREATE" | "UPDATE" | "DELETE";
   data: string; // JSON stringified
   created_at: string;
+  status?: "pending" | "retry" | "failed";
+  attempts?: number;
+  next_attempt_at?: string | null;
+  last_error?: string | null;
 }
 
 // Utilidad para convertir LocalDocument a Document

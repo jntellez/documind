@@ -8,28 +8,68 @@ import {
 import type { Document, ProcessedDocument } from "@documind/types";
 
 import { checkConnectivity } from "./connectivity";
+import { shouldAttemptPreFetchSync, type GetDocumentsOfflineOptions } from "./syncGuards";
+import { scheduleRetrySoon } from "./retryScheduler";
 import { syncWithServer } from "./syncEngine";
 import {
   getAllLocalDocuments,
   getDocumentByLocalOrServerId,
   getLocalDocumentById,
+  getQueuedCreateData,
   hardDeleteLocalDocument,
+  hasQueuedCreate,
   insertLocalDocumentFromServer,
   insertLocalProcessedDocument,
   isDeletedServerDocument,
   queueSyncAction,
+  replaceQueuedCreateData,
+  setDocumentSyncStatus,
   softDeleteLocalDocument,
   toOfflineDocument,
   updateLocalDocumentFromServer,
   updateLocalDocumentTags,
 } from "./repository";
+import { MAX_DOCUMENT_TAGS } from "@/hooks/documents/tagLimits";
 
-export async function getDocumentsOffline() {
+type TagUpdateSyncResult = {
+  syncStatus: "synced" | "pending";
+  syncError: null;
+};
+
+function buildPendingTagUpdateResult(): TagUpdateSyncResult {
+  return {
+    syncStatus: "pending",
+    syncError: null,
+  };
+}
+
+function queueTagUpdate(documentId: number, serverId: number | null, tags: string[]) {
+  queueSyncAction(documentId, "UPDATE", { id: serverId, tags });
+}
+
+function queueDelete(documentId: number, serverId: number | null) {
+  queueSyncAction(documentId, "DELETE", {
+    id: documentId,
+    server_id: serverId,
+  });
+}
+
+function buildSavedDocumentResult(localId: number) {
+  const savedDoc = getLocalDocumentById(localId)!;
+  return {
+    success: true,
+    document: toOfflineDocument(savedDoc),
+  };
+}
+
+export async function getDocumentsOffline(options?: GetDocumentsOfflineOptions) {
   let localDocs = getAllLocalDocuments();
 
   if (await checkConnectivity()) {
     try {
-      if (localDocs.some((document) => document.server_id === null)) {
+      const hasLocalCreates = localDocs.some((document) => document.server_id === null);
+
+      if (shouldAttemptPreFetchSync(hasLocalCreates, options)) {
         await syncWithServer();
         localDocs = getAllLocalDocuments();
       }
@@ -88,33 +128,31 @@ export async function getDocumentByIdOffline(id: number): Promise<Document> {
 
 export async function saveDocumentOffline(document: ProcessedDocument) {
   const localId = insertLocalProcessedDocument(document);
+  setDocumentSyncStatus(localId, "pending");
 
   if (await checkConnectivity()) {
     try {
       const response = await apiSaveDocument(document);
 
       updateLocalDocumentFromServer(localId, response.document);
-
-      const savedDoc = getLocalDocumentById(localId)!;
-      return {
-        success: true,
-        document: toOfflineDocument(savedDoc),
-      };
+      setDocumentSyncStatus(localId, "synced");
+      return buildSavedDocumentResult(localId);
     } catch {
       queueSyncAction(localId, "CREATE", document);
+      scheduleRetrySoon();
     }
   } else {
     queueSyncAction(localId, "CREATE", document);
   }
 
-  const savedDoc = getLocalDocumentById(localId)!;
-  return {
-    success: true,
-    document: toOfflineDocument(savedDoc),
-  };
+  return buildSavedDocumentResult(localId);
 }
 
 export async function updateDocumentTagsOffline(id: number, tags: string[]) {
+  if (tags.length > MAX_DOCUMENT_TAGS) {
+    throw new Error(`Maximum ${MAX_DOCUMENT_TAGS} tags allowed`);
+  }
+
   const document = getDocumentByLocalOrServerId(id);
 
   if (!document) {
@@ -122,19 +160,39 @@ export async function updateDocumentTagsOffline(id: number, tags: string[]) {
   }
 
   updateLocalDocumentTags(document.id, tags);
+  setDocumentSyncStatus(document.id, "pending");
+
+  if (!document.server_id && hasQueuedCreate(document.id)) {
+    const queuedCreateData = getQueuedCreateData<ProcessedDocument>(document.id);
+
+    replaceQueuedCreateData(document.id, {
+      ...(queuedCreateData ?? {}),
+      tags,
+    });
+    return buildPendingTagUpdateResult();
+  }
 
   if (await checkConnectivity()) {
     try {
       if (document.server_id) {
         await apiUpdateDocument(document.server_id, { tags });
+        setDocumentSyncStatus(document.id, "synced");
+        return {
+          syncStatus: "synced" as const,
+          syncError: null,
+        };
       } else {
-        queueSyncAction(document.id, "UPDATE", { id: document.server_id, tags });
+        queueTagUpdate(document.id, document.server_id, tags);
+        return buildPendingTagUpdateResult();
       }
     } catch {
-      queueSyncAction(document.id, "UPDATE", { id: document.server_id, tags });
+      queueTagUpdate(document.id, document.server_id, tags);
+      scheduleRetrySoon();
+      return buildPendingTagUpdateResult();
     }
   } else {
-    queueSyncAction(document.id, "UPDATE", { id: document.server_id, tags });
+    queueTagUpdate(document.id, document.server_id, tags);
+    return buildPendingTagUpdateResult();
   }
 }
 
@@ -146,6 +204,7 @@ export async function deleteDocumentOffline(id: number) {
   }
 
   softDeleteLocalDocument(document.id);
+  setDocumentSyncStatus(document.id, "pending");
 
   if (await checkConnectivity()) {
     try {
@@ -155,15 +214,10 @@ export async function deleteDocumentOffline(id: number) {
 
       hardDeleteLocalDocument(document.id);
     } catch {
-      queueSyncAction(document.id, "DELETE", {
-        id: document.id,
-        server_id: document.server_id,
-      });
+      queueDelete(document.id, document.server_id);
+      scheduleRetrySoon();
     }
   } else {
-    queueSyncAction(document.id, "DELETE", {
-      id: document.id,
-      server_id: document.server_id,
-    });
+    queueDelete(document.id, document.server_id);
   }
 }

@@ -14,7 +14,7 @@ export const clearLocalDocuments = () => {
 
 export const hasPendingSyncActions = () => {
   const result = db.getFirstSync(
-    "SELECT COUNT(*) as pending_count FROM sync_queue",
+    "SELECT COUNT(*) as pending_count FROM sync_queue WHERE status IN ('pending','retry')",
   ) as { pending_count: number } | null;
 
   return (result?.pending_count ?? 0) > 0;
@@ -33,7 +33,9 @@ export const initDatabase = () => {
       updated_at TEXT NOT NULL,
       synced INTEGER DEFAULT 0,
       deleted INTEGER DEFAULT 0,
-      tags TEXT DEFAULT '[]'
+      tags TEXT DEFAULT '[]',
+      sync_status TEXT DEFAULT 'synced',
+      last_sync_error TEXT
     );
 
     CREATE TABLE IF NOT EXISTS sync_queue (
@@ -42,6 +44,10 @@ export const initDatabase = () => {
       action TEXT NOT NULL,
       data TEXT NOT NULL,
       created_at TEXT NOT NULL,
+      status TEXT DEFAULT 'pending',
+      attempts INTEGER DEFAULT 0,
+      next_attempt_at TEXT,
+      last_error TEXT,
       FOREIGN KEY (document_id) REFERENCES documents(id)
     );
 
@@ -149,18 +155,145 @@ export const syncQueueQueries = {
   enqueue: (documentId: number | null, action: string, data: any) => {
     const now = new Date().toISOString();
     db.runSync(
-      "INSERT INTO sync_queue (document_id, action, data, created_at) VALUES (?, ?, ?, ?)",
+      "INSERT INTO sync_queue (document_id, action, data, created_at, status, attempts) VALUES (?, ?, ?, ?, 'pending', 0)",
       [documentId, action, JSON.stringify(data), now],
     );
+
+    syncQueueQueries.compactForDocument(documentId, action);
   },
 
   getPending: (): SyncQueueItem[] => {
     return db.getAllSync(
-      "SELECT * FROM sync_queue ORDER BY created_at ASC",
+      `SELECT * FROM sync_queue
+       WHERE status IN ('pending', 'retry')
+         AND (next_attempt_at IS NULL OR next_attempt_at <= ?)
+       ORDER BY created_at ASC`,
+      [new Date().toISOString()],
     ) as SyncQueueItem[];
+  },
+
+  getStats: () => {
+    const result = db.getFirstSync(
+      `SELECT
+         SUM(CASE WHEN status IN ('pending', 'retry') THEN 1 ELSE 0 END) as active_count,
+         SUM(CASE WHEN status IN ('pending', 'retry') AND (next_attempt_at IS NULL OR next_attempt_at <= ?) THEN 1 ELSE 0 END) as ready_count,
+         SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_count
+       FROM sync_queue`,
+      [new Date().toISOString()],
+    ) as {
+      active_count: number | null;
+      ready_count: number | null;
+      failed_count: number | null;
+    } | null;
+
+    return {
+      activeCount: result?.active_count ?? 0,
+      readyCount: result?.ready_count ?? 0,
+      failedCount: result?.failed_count ?? 0,
+    };
+  },
+
+  updateRetry: (id: number, attempts: number, nextAttemptAt: string, error: string) => {
+    db.runSync(
+      "UPDATE sync_queue SET status = 'retry', attempts = ?, next_attempt_at = ?, last_error = ? WHERE id = ?",
+      [attempts, nextAttemptAt, error, id],
+    );
+  },
+
+  markFailed: (id: number, error: string) => {
+    db.runSync(
+      "UPDATE sync_queue SET status = 'failed', last_error = ? WHERE id = ?",
+      [error, id],
+    );
   },
 
   dequeue: (id: number) => {
     db.runSync("DELETE FROM sync_queue WHERE id = ?", [id]);
+  },
+
+  getNextRetryAt: (): string | null => {
+    const result = db.getFirstSync(
+      `SELECT next_attempt_at
+       FROM sync_queue
+       WHERE status = 'retry'
+         AND next_attempt_at IS NOT NULL
+       ORDER BY next_attempt_at ASC
+       LIMIT 1`,
+    ) as { next_attempt_at: string | null } | null;
+
+    return result?.next_attempt_at ?? null;
+  },
+
+  replaceCreateData: (documentId: number, data: unknown) => {
+    db.runSync(
+      `UPDATE sync_queue
+       SET data = ?, status = 'pending', attempts = 0, next_attempt_at = NULL, last_error = NULL
+       WHERE id = (
+         SELECT id FROM sync_queue
+         WHERE document_id = ? AND action = 'CREATE'
+         ORDER BY created_at ASC
+         LIMIT 1
+       )`,
+      [JSON.stringify(data), documentId],
+    );
+  },
+
+  getCreateData: (documentId: number) => {
+    const result = db.getFirstSync(
+      `SELECT data
+       FROM sync_queue
+       WHERE document_id = ? AND action = 'CREATE'
+       ORDER BY created_at ASC
+       LIMIT 1`,
+      [documentId],
+    ) as { data: string } | null;
+
+    return result?.data ?? null;
+  },
+
+  hasCreateForDocument: (documentId: number) => {
+    const result = db.getFirstSync(
+      `SELECT COUNT(*) as create_count
+       FROM sync_queue
+       WHERE document_id = ? AND action = 'CREATE'`,
+      [documentId],
+    ) as { create_count: number } | null;
+
+    return (result?.create_count ?? 0) > 0;
+  },
+
+  compactForDocument: (documentId: number | null, action: string) => {
+    if (documentId === null) return;
+
+    if (action === "DELETE") {
+      db.runSync(
+        "DELETE FROM sync_queue WHERE document_id = ? AND action IN ('CREATE', 'UPDATE')",
+        [documentId],
+      );
+    }
+
+    if (action === "UPDATE") {
+      db.runSync(
+        `DELETE FROM sync_queue
+         WHERE document_id = ?
+           AND action = 'UPDATE'
+           AND id != (
+             SELECT id FROM sync_queue
+             WHERE document_id = ? AND action = 'UPDATE'
+             ORDER BY id DESC
+             LIMIT 1
+           )`,
+        [documentId, documentId],
+      );
+    }
+  },
+};
+
+export const documentSyncQueries = {
+  setStatus: (id: number, status: "synced" | "pending" | "error" | "conflict", error?: string) => {
+    db.runSync(
+      "UPDATE documents SET sync_status = ?, last_sync_error = ? WHERE id = ?",
+      [status, error ?? null, id],
+    );
   },
 };

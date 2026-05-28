@@ -9,11 +9,14 @@ import { DocumentCacheProvider } from '@/context/DocumentCacheContext';
 import { DocumentPreferencesProvider } from '@/context/DocumentPreferencesContext';
 import { useEffect } from 'react';
 import { initDatabase } from '@/storage/database';
-import { syncWithServer } from '@/services/offlineDocumentService';
+import { runMigrations } from '@/storage/migrations';
+import { initializeOfflineDocumentService, syncWithServer } from '@/services/offlineDocumentService';
 
 export default function App() {
   useEffect(() => {
     initDatabase();
+    runMigrations();
+    initializeOfflineDocumentService();
     syncWithServer();
   }, []);
 
