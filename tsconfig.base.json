@@ -1,14 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "strict": true,
-    "paths": {
-      "@documind/types": [
-        "packages/types/src/index.ts"
-      ],
-      "@documind/types/*": [
-        "packages/types/src/*"
-      ]
-    }
+    "strict": true
   }
 }

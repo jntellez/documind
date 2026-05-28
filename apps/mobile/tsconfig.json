@@ -4,7 +4,6 @@
     "../../tsconfig.base.json"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
     "types": [
       "jest"
     ],
