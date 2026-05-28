@@ -4,9 +4,11 @@ import type { Document } from "@documind/types";
 
 import { showToast } from "@/components/ui/Toast";
 import { updateDocumentTagsOffline } from "@/services/offlineDocumentService";
+import type { OfflineDocument } from "@/services/offlineDocuments/repository";
+import { canAddDocumentTag, MAX_DOCUMENT_TAGS } from "./tagLimits";
 
 type UseDocumentTaggingOptions = {
-  setDocuments: Dispatch<SetStateAction<Document[]>>;
+  setDocuments: Dispatch<SetStateAction<OfflineDocument[]>>;
 };
 
 export function useDocumentTagging({
@@ -39,18 +41,40 @@ export function useDocumentTagging({
       return;
     }
 
+    if (!canAddDocumentTag(currentTags)) {
+      showToast({
+        type: "error",
+        text1: "Error",
+        text2: `Maximum ${MAX_DOCUMENT_TAGS} tags allowed`,
+      });
+      return;
+    }
+
     const updatedTags = [...currentTags, newTag];
 
     setDocuments((prev) =>
       prev.map((doc) =>
-        doc.id === selectedDocForTag.id ? { ...doc, tags: updatedTags } : doc,
+        doc.id === selectedDocForTag.id
+          ? { ...doc, tags: updatedTags, syncStatus: "pending", syncError: null }
+          : doc,
       ),
     );
 
     closeTagModal();
 
     try {
-      await updateDocumentTagsOffline(selectedDocForTag.id, updatedTags);
+      const syncResult = await updateDocumentTagsOffline(selectedDocForTag.id, updatedTags);
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id === selectedDocForTag.id
+            ? {
+                ...doc,
+                syncStatus: syncResult.syncStatus,
+                syncError: syncResult.syncError,
+              }
+            : doc,
+        ),
+      );
       showToast({
         type: "success",
         text1: "Success",

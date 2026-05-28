@@ -22,6 +22,7 @@ function AuthenticatedDocuments() {
     isRefreshing,
     isOnline,
     filteredDocuments,
+    syncState,
     handleRefresh,
     handleDelete,
     handleShare,
@@ -51,10 +52,22 @@ function AuthenticatedDocuments() {
 
   return (
     <ScreenContainer className="flex-1 pt-34">
-      {!isOnline && (
-        <Badge size="md" className="absolute shadow-md right-4 bottom-4 z-50" textClassName="font-bold">
-          Offline Mode
+      {(!isOnline || syncState.isSyncing || syncState.pendingCount > 0 || syncState.failedCount > 0) && (
+        <Badge size="md" className="absolute shadow-md right-4 bottom-30 z-50" textClassName="font-bold">
+          {!isOnline
+            ? "Offline Mode"
+            : syncState.isSyncing
+              ? `Syncing ${syncState.readyCount}`
+              : syncState.pendingCount > 0
+                ? `Queued ${syncState.pendingCount}`
+                : `Failed ${syncState.failedCount}`}
         </Badge>
+      )}
+
+      {syncState.lastError && (
+        <Paragraph className="mb-2 text-sm text-destructive" numberOfLines={2}>
+          Last sync error: {syncState.lastError}
+        </Paragraph>
       )}
 
       <DocumentsSearchBar onChangeText={setSearchQuery} />

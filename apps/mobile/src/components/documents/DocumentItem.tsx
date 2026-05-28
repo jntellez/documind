@@ -6,9 +6,13 @@ import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 import Icon from '../ui/Icon';
 import ExpandableCard, { ExpandableChevronButton } from '../ui/ExpandableCard';
+import DocumentSyncStatusIcon from './DocumentSyncStatusIcon';
 
 interface DocumentItemProps {
-  document: Document;
+  document: Document & {
+    syncStatus?: 'synced' | 'pending' | 'error' | 'conflict';
+    syncError?: string | null;
+  };
   onPress: (document: Document) => void;
   onDelete?: (id: number) => void;
   onShare?: (document: Document) => void;
@@ -41,9 +45,12 @@ export default function DocumentItem({
               {document.title}
             </Title>
 
-            <Paragraph className="text-sm">
-              {formatDate(document.created_at)}
-            </Paragraph>
+            <View className="flex-row items-center gap-1.5">
+              <Paragraph className="text-sm">
+                {formatDate(document.created_at)}
+              </Paragraph>
+              <DocumentSyncStatusIcon syncStatus={document.syncStatus} />
+            </View>
           </View>
 
           <Icon library="feather" name="chevron-right" size="md" tone="mutedForeground" />
@@ -65,9 +72,12 @@ export default function DocumentItem({
                 {document.title}
               </Title>
 
-              <Paragraph className="text-sm">
-                {formatDate(document.created_at)}
-              </Paragraph>
+              <View className="flex-row items-center gap-1.5">
+                <Paragraph className="text-sm">
+                  {formatDate(document.created_at)}
+                </Paragraph>
+                <DocumentSyncStatusIcon syncStatus={document.syncStatus} />
+              </View>
 
               {document.tags && document.tags.length > 0 && (
                 <View className="flex-row flex-wrap gap-1 mt-1.5">

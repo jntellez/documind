@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import type { Document } from "@documind/types";
 
@@ -8,18 +8,22 @@ import {
   syncWithServer,
 } from "@/services/offlineDocumentService";
 import { showToast } from "@/components/ui/Toast";
+import type { OfflineDocument } from "@/services/offlineDocuments/repository";
 
 type UseDocumentCollectionOptions = {
   isOnline: boolean;
+  syncCycle?: number;
 };
 
 export function useDocumentCollection({
   isOnline,
+  syncCycle,
 }: UseDocumentCollectionOptions) {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<OfflineDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasInitialSync, setHasInitialSync] = useState(false);
+  const lastHandledSyncCycleRef = useRef<number>(0);
 
   const fetchDocuments = useCallback(
     async (showLoading = true, forceSync = false) => {
@@ -31,7 +35,9 @@ export function useDocumentCollection({
           setHasInitialSync(true);
         }
 
-        const response = await getDocumentsOffline();
+        const response = await getDocumentsOffline({
+          attemptSyncForLocalCreates: false,
+        });
         setDocuments(response.documents);
       } catch (error: any) {
         showToast({
@@ -76,6 +82,15 @@ export function useDocumentCollection({
       else if (!isLoading) fetchDocuments(false, false);
     }, [fetchDocuments, hasInitialSync, isLoading]),
   );
+
+  useEffect(() => {
+    if (!syncCycle || syncCycle <= lastHandledSyncCycleRef.current) {
+      return;
+    }
+
+    lastHandledSyncCycleRef.current = syncCycle;
+    void fetchDocuments(false, false);
+  }, [fetchDocuments, syncCycle]);
 
   return {
     documents,

@@ -3,9 +3,11 @@ import { useDocumentCollection } from "./documents/useDocumentCollection";
 import { useDocumentFilters } from "./documents/useDocumentFilters";
 import { useDocumentTagging } from "./documents/useDocumentTagging";
 import { useNetworkStatus } from "./useNetworkStatus";
+import { useSyncOperationalState } from "./useSyncOperationalState";
 
 export function useDocuments() {
   const { isOnline } = useNetworkStatus();
+  const syncState = useSyncOperationalState();
   const {
     documents,
     setDocuments,
@@ -14,7 +16,7 @@ export function useDocuments() {
     fetchDocuments,
     handleRefresh,
     removeDocument,
-  } = useDocumentCollection({ isOnline });
+  } = useDocumentCollection({ isOnline, syncCycle: syncState.syncCycle });
   const {
     setSearchQuery,
     availableTags,
@@ -39,6 +41,7 @@ export function useDocuments() {
     isLoading,
     isRefreshing,
     isOnline,
+    syncState,
     filteredDocuments,
     fetchDocuments,
     handleRefresh,
