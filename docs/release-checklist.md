@@ -41,10 +41,11 @@
 ## Distribution
 
 - [ ] Confirm `apps/web` production deploy is healthy (`docs/web-deploy.md`)
+- [ ] Confirm Vercel shows the latest `master` commit as the active production deployment
 - [ ] Confirm `apps/web` resolves the latest GitHub Release asset on `/download`
 - [ ] Test the landing CTA on `/` and the direct download CTA on `/download`
 - [ ] If live metadata fails or no valid APK asset exists, confirm the fallback path still sends users to the official GitHub Releases page
-- [ ] If the new GitHub Release does not appear immediately, wait for the 15-minute metadata revalidation window before redeploying the web app
+- [ ] If the new GitHub Release does not appear immediately, wait for the 15-minute metadata revalidation window before forcing another web deploy
 - [ ] Install and test the APK on a real Android device
 
 ## Delivery Assets

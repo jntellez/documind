@@ -1,20 +1,12 @@
 # Web Deployment — `apps/web`
 
-The production landing is deployed from `apps/web` to Vercel.
+The production landing is deployed from `apps/web` by Vercel's native Git integration.
 
 ## Quick path
 
-1. Create a Vercel project that points to this repository and set the root directory to `apps/web`.
-2. Add the required GitHub secrets so `.github/workflows/deploy-web.yml` can deploy production automatically.
-3. Push to `master` or run **Deploy Web** manually from GitHub Actions.
-
-## Required GitHub secrets
-
-| Secret | Purpose |
-|---|---|
-| `VERCEL_TOKEN` | Authenticates the GitHub Actions workflow with Vercel. |
-| `VERCEL_ORG_ID` | Selects the Vercel team or personal scope. |
-| `VERCEL_PROJECT_ID` | Selects the production web project. |
+1. Connect the repository to Vercel and set the root directory to `apps/web`.
+2. Configure the production domain and production environment variables in Vercel.
+3. Push to `master` and let Vercel build and publish the new production version automatically.
 
 ## Runtime environment
 
@@ -26,6 +18,18 @@ The production landing is deployed from `apps/web` to Vercel.
 
 If the public Android release assets remain in this repository, Vercel can keep the default value.
 
+## Vercel project settings
+
+Use these settings in the Vercel project:
+
+| Setting | Value |
+|---|---|
+| Framework preset | `Next.js` |
+| Root directory | `apps/web` |
+| Install command | `pnpm install` |
+| Build command | `pnpm --filter @documind/web build` |
+| Output directory | `.next` |
+
 ## Release behavior
 
 The landing fetches the latest GitHub Release metadata at runtime and revalidates every 15 minutes.
@@ -34,15 +38,14 @@ The landing fetches the latest GitHub Release metadata at runtime and revalidate
 - APK asset format: `documind-android-v{version}.apk`
 - Canonical fallback: the GitHub Releases index page, not a seeded APK URL
 
-This means a new Android release does **not** require a web redeploy as long as the new GitHub Release follows the contract above.
+This means a new Android release does **not** require a manual web redeploy as long as the new GitHub Release follows the contract above.
 
 ## Checklist
 
 - [ ] Vercel project root directory is `apps/web`
 - [ ] Production domain is attached
-- [ ] `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` are configured in GitHub
 - [ ] `NEXT_PUBLIC_GITHUB_REPOSITORY` is correct in Vercel production env
-- [ ] `.github/workflows/deploy-web.yml` has completed successfully at least once
+- [ ] Vercel has completed at least one successful production deploy from `master`
 
 ## Next step
 

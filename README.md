@@ -101,7 +101,8 @@ Key services used in production:
 - Release tags should follow `v{version}`.
 - Release assets should follow `documind-android-v{version}.apk` so the landing can resolve the latest trusted download automatically.
 - The mobile build profile for this lives in `apps/mobile/eas.json` under `android-apk`.
-- `apps/web` revalidates GitHub Release metadata every 15 minutes, so normal APK releases do not require a web redeploy.
+- `apps/web` is deployed by Vercel from `master` with `apps/web` as the project root.
+- `apps/web` revalidates GitHub Release metadata every 15 minutes, so normal APK releases do not require a manual web redeploy.
 - Local landing verification commands:
 
 ```bash
