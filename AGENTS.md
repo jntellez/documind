@@ -2,10 +2,11 @@
 
 ## Project overview
 
-Documind is a pnpm monorepo with two active applications:
+Documind is a pnpm monorepo with two active applications and a planned web landing workspace:
 
 - `apps/mobile`: Expo + React Native + TypeScript client
 - `apps/api`: Bun + Hono + TypeScript API
+- `apps/web`: planned Next.js + TypeScript + Tailwind official landing/download site
 
 Use the root workspace scripts as the default entrypoint for installs, validation, and day-to-day commands.
 
@@ -57,6 +58,7 @@ Convenience aliases `pnpm start`, `pnpm android`, `pnpm ios`, and `pnpm web` map
 
 - Put Expo / React Native / UI / mobile TypeScript changes under `apps/mobile`.
 - Put Bun / Hono / API / backend TypeScript changes under `apps/api`.
+- Put Next.js / Tailwind / landing / SEO / download-site work under `apps/web`.
 - Put project-wide AI guidance and reusable agent instructions under `AGENTS.md`, `skills/`, and `.atl/skill-registry.md`.
 - Do not modify app source code when the task is only about AI/project guidance.
 
@@ -66,6 +68,8 @@ Convenience aliases `pnpm start`, `pnpm android`, `pnpm ios`, and `pnpm web` map
 |---|---|---|
 | `expo-mobile` | Guardrails for `apps/mobile` Expo/React Native work and validation | `skills/expo-mobile/SKILL.md` |
 | `hono-api` | Guardrails for `apps/api` Bun/Hono work and environment handling | `skills/hono-api/SKILL.md` |
+| `documind-web` | Guardrails for `apps/web` Next.js/Tailwind landing work, assets, and Android download flows | `skills/documind-web/SKILL.md` |
+| `modern-web-guidance` | Search-first guidance for modern browser APIs, CSS/layout, motion, forms, and performance before implementing web UI | `.agents/skills/modern-web-guidance/SKILL.md` |
 | `workspace-validation` | Chooses the right validation commands for changed files | `skills/workspace-validation/SKILL.md` |
 
 ## Recommended AI workflow
