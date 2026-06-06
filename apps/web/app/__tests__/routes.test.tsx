@@ -128,21 +128,26 @@ describe("landing routes", () => {
 
     await rerenderAsync(<SupportPage />);
 
-    expect(screen.getByRole("heading", { name: /support/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: /^support$/i })).toBeInTheDocument();
     expect(
-      screen.getByText(/verify the apk directly on the official github releases page/i),
+      screen.getByRole("heading", { name: /common android install blockers/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/contact: juantellez916@gmail.com/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /go to the official download page/i })).toHaveAttribute(
+    expect(screen.getByText(/support email: juantellez916@gmail.com/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /go to the official download page/i })[0]).toHaveAttribute(
       "href",
       "/download",
+    );
+    expect(screen.getByRole("link", { name: /open the official github releases page/i })).toHaveAttribute(
+      "href",
+      "https://github.com/jntellez/documind/releases",
     );
 
     await rerenderAsync(<TermsPage />);
 
     expect(screen.getByRole("heading", { name: /terms of service/i })).toBeInTheDocument();
-    expect(screen.getByText(/launch placeholder/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /contact support/i })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: /ai-assisted features/i })).toBeInTheDocument();
+    expect(screen.getByText(/practical first public version/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /contact support/i })[0]).toHaveAttribute(
       "href",
       "/support",
     );

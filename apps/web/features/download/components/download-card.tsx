@@ -30,12 +30,13 @@ export function DownloadCard({ release, officialReleasesUrl }: DownloadCardProps
 
   if (!release) {
     return (
-      <section className="rounded-[2rem] border border-amber-400/20 bg-amber-400/10 p-8">
-        <h2 className="text-xl font-semibold text-white">Latest APK is temporarily unavailable</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-200">
+      <section className="marketing-surface p-8 sm:p-10">
+        <p className="marketing-eyebrow">Release status</p>
+        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#1c1b1b]">Latest APK is temporarily unavailable</h2>
+        <p className="marketing-lead mt-3 max-w-2xl text-sm leading-7 sm:text-base">
           We could not resolve the newest trusted APK yet. Use the official releases page while live metadata recovery is in progress.
         </p>
-        <Link className="mt-6 inline-flex items-center justify-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-white/40 hover:bg-white/5" href={fallbackUrl}>
+        <Link className="marketing-secondary-button mt-6 w-full sm:w-auto" href={fallbackUrl}>
           Browse official releases
         </Link>
       </section>
@@ -43,21 +44,26 @@ export function DownloadCard({ release, officialReleasesUrl }: DownloadCardProps
   }
 
   return (
-    <section className="rounded-[2rem] border border-cyan-400/20 bg-white/5 p-8">
-      {release.version ? <p className="text-sm font-medium text-cyan-300">Version {release.version}</p> : null}
+    <section className="marketing-surface p-8 sm:p-10">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-3">
+          <p className="marketing-eyebrow">Verified Android build</p>
+          {release.version ? <p className="text-3xl font-extrabold tracking-[-0.03em] text-[#1c1b1b]">Version {release.version}</p> : null}
+        </div>
 
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-300">
+        <Link className="marketing-primary-button w-full sm:w-auto" href={release.apkUrl}>
+          {landingContent.downloadCta.label}
+        </Link>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#54647a]">
         {release.tagName ? <p>Tagged {release.tagName}</p> : null}
         {release.publishedAt ? <p>Published {formatPublishedDate(release.publishedAt)}</p> : null}
         {release.fileSizeBytes ? <p>{formatFileSize(release.fileSizeBytes)}</p> : null}
       </div>
 
-      <p className="mt-2 text-sm text-slate-300">Source: {getSourceLabel(release)}</p>
-      {release.isStale ? <p className="mt-2 text-sm text-amber-200">Last confirmed release. Live metadata is temporarily unavailable.</p> : null}
-
-      <Link className="mt-6 inline-flex items-center justify-center rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300" href={release.apkUrl}>
-        {landingContent.downloadCta.label}
-      </Link>
+      <p className="mt-3 text-sm leading-7 text-[#54647a]">Source: {getSourceLabel(release)}</p>
+      {release.isStale ? <p className="mt-2 text-sm leading-7 text-amber-700">Last confirmed release. Live metadata is temporarily unavailable.</p> : null}
     </section>
   );
 }

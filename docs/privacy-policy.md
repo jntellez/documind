@@ -1,4 +1,4 @@
-# Privacy Policy — Documind
+# Privacy Policy
 
 **Last updated:** 26/05/2026
 

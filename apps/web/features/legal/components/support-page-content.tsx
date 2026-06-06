@@ -1,31 +1,87 @@
 import Link from "next/link";
 
-import { supportChecklist } from "@/features/legal/content";
+import type { LegalContentSection } from "@/features/legal/content";
+import { supportPageContent } from "@/features/legal/content";
 import { siteConfig } from "@/features/site/config";
+import { SecondaryPageHeader } from "@/features/site/components/secondary-page-header";
 
 export function SupportPageContent() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50">
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-20">
-        <h1 className="text-4xl font-semibold">Support</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-          Need installation help or want to verify the official Android build path? This support route is the first-party destination for launch guidance.
-        </p>
-        <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <h2 className="text-xl font-semibold text-white">Install and verification</h2>
-          <ul className="mt-3 space-y-3 text-sm leading-7 text-slate-300">
-            {supportChecklist.map((item) => (
-              <li key={item}>{item}</li>
+    <div className="marketing-page-shell">
+      <SecondaryPageHeader currentPage="support" />
+      <main className="marketing-page-container">
+        <div className="marketing-copy-container flex flex-col gap-8">
+          <header className="space-y-4">
+            <p className="marketing-eyebrow">{supportPageContent.eyebrow}</p>
+            <h1 className="max-w-3xl text-4xl font-extrabold tracking-[-0.03em] text-balance text-[#1c1b1b] sm:text-5xl">{supportPageContent.title}</h1>
+            <div className="space-y-3">
+              {supportPageContent.intro.map((paragraph) => (
+                <p className="marketing-lead max-w-3xl text-sm leading-7 sm:text-base sm:leading-8" key={paragraph}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </header>
+          <section className="grid gap-4">
+            {(supportPageContent.sections as readonly LegalContentSection[]).map((section) => (
+              <article className="marketing-surface p-6 sm:p-8" key={section.title}>
+                <h2 className="text-xl font-semibold text-[#1c1b1b]">{section.title}</h2>
+                <div className="mt-3 space-y-3">
+                  {section.paragraphs?.map((paragraph) => (
+                    <p className="marketing-lead text-sm leading-7 sm:text-base" key={paragraph}>
+                      {paragraph}
+                    </p>
+                  ))}
+
+                  {section.bullets?.length ? (
+                    <ul className="space-y-3">
+                      {section.bullets.map((item) => (
+                        <li className="marketing-lead flex gap-3 text-sm leading-7 sm:text-base" key={item}>
+                          <span aria-hidden="true" className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-[#003ec7]" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+
+                  {section.links?.length ? (
+                    <div className="flex flex-wrap gap-3 pt-1">
+                      {section.links.map((link) => {
+                        const isExternal = link.href.startsWith("http");
+
+                        return (
+                          <Link
+                            className="font-medium text-[#003ec7] transition hover:text-[#0038b6]"
+                            href={link.href}
+                            key={link.href}
+                            rel={isExternal ? "noreferrer" : undefined}
+                            target={isExternal ? "_blank" : undefined}
+                          >
+                            {link.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              </article>
             ))}
-          </ul>
-          <p className="mt-4 text-sm leading-7 text-slate-300">
-            You can also verify the APK directly on the official GitHub Releases page: {siteConfig.officialReleasesUrl}
-          </p>
-          <p className="text-sm leading-7 text-slate-300">Contact: {siteConfig.supportEmail}</p>
-        </section>
-        <Link className="mt-6 inline-block text-cyan-300 hover:text-cyan-200" href="/download">
-          Go to the official download page
-        </Link>
+          </section>
+          <section className="marketing-surface p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-[#1c1b1b]">Contact</h2>
+            <p className="marketing-lead mt-3 text-sm leading-7 sm:text-base">
+              Support email: {siteConfig.supportEmail}
+            </p>
+          </section>
+          <div className="flex flex-wrap gap-4">
+            <Link className="marketing-primary-button w-full sm:w-auto" href={supportPageContent.cta.primary.href}>
+              {supportPageContent.cta.primary.label}
+            </Link>
+            <Link className="marketing-secondary-button w-full sm:w-auto" href={supportPageContent.cta.secondary.href} rel="noreferrer" target="_blank">
+              {supportPageContent.cta.secondary.label}
+            </Link>
+          </div>
+        </div>
       </main>
     </div>
   );

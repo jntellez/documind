@@ -38,13 +38,13 @@ export const landingContent = {
     label: "Download for Android",
     secondaryHref: "#showcase",
     secondaryLabel: "See how it works",
-    helperText: "Official APK delivery backed by GitHub Releases.",
+    helperText: "Official Android APK delivery backed by first-party GitHub Releases metadata.",
   },
   hero: {
     eyebrow: "Official Android release",
     title: "Interact with your documents like never before.",
     description:
-      "Documind is the official Android hub for document intelligence. Seamlessly manage, read, and chat with your PDFs and text files directly on your device using advanced AI.",
+      "Documind is the official Android app for reading, organizing, and chatting with PDFs and text documents from one focused workspace on your device.",
     image: heroDeviceHome,
     imageAlt: "Documind home library screen displayed on an Android device.",
   },
@@ -117,7 +117,7 @@ export const landingContent = {
     {
       question: "Is this the official download?",
       answer:
-        "Yes. This is the only official source for the Documind Android application. Always ensure you are downloading directly from documind.app to guarantee a secure, unmodified version.",
+        "Yes. Download from documind.app or the linked first-party GitHub Releases route so you get the official Documind Android build and matching release details.",
     },
     {
       question: "How do I install the APK?",
@@ -133,7 +133,7 @@ export const landingContent = {
   finalCta: {
     title: "Get the official Documind app",
     description:
-      "Safe, secure, and direct from the official source. Start unlocking the intelligence hidden in your documents today.",
+      "Download the official Android build, verify the release source, and start reading or chatting with your documents from one trusted workflow.",
   },
 } as const;
 
