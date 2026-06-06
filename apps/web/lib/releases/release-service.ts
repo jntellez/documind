@@ -1,4 +1,4 @@
-import { seededFallbackRelease, siteConfig } from "@/features/site/config";
+import { siteConfig } from "@/features/site/config";
 
 import type { ReleaseMetadata, ResolveReleaseMetadataInput } from "./types";
 import { getFallbackReleaseMetadata, isValidReleaseMetadata } from "./fallback";
@@ -27,9 +27,6 @@ export async function getReleaseMetadata(): Promise<ReleaseMetadata | null> {
 
   return resolveReleaseMetadata({
     latestRelease,
-    fallbackRelease: getFallbackReleaseMetadata(
-      seededFallbackRelease,
-      siteConfig.officialReleasesUrl,
-    ),
+    fallbackRelease: getFallbackReleaseMetadata(null, siteConfig.officialReleasesUrl),
   });
 }

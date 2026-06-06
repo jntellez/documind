@@ -36,6 +36,7 @@ pnpm install
 ```bash
 cp apps/api/.env.example apps/api/.env
 cp apps/mobile/.env.example apps/mobile/.env
+cp apps/web/.env.example apps/web/.env.local
 ```
 
 3. Start the API, mobile app, or official landing:
@@ -84,6 +85,7 @@ Create these files before running the project:
 ```bash
 cp apps/api/.env.example apps/api/.env
 cp apps/mobile/.env.example apps/mobile/.env
+cp apps/web/.env.example apps/web/.env.local
 ```
 
 Key services used in production:
@@ -96,8 +98,10 @@ Key services used in production:
 
 - Android distribution uses the official `apps/web` landing plus **direct APK delivery**.
 - GitHub Releases is the canonical APK source for the public Android download flow.
+- Release tags should follow `v{version}`.
 - Release assets should follow `documind-android-v{version}.apk` so the landing can resolve the latest trusted download automatically.
 - The mobile build profile for this lives in `apps/mobile/eas.json` under `android-apk`.
+- `apps/web` revalidates GitHub Release metadata every 15 minutes, so normal APK releases do not require a web redeploy.
 - Local landing verification commands:
 
 ```bash
@@ -108,6 +112,7 @@ pnpm web:build
 
 - Privacy policy: `docs/privacy-policy.md`
 - Release checklist: `docs/release-checklist.md`
+- Web deploy: `docs/web-deploy.md`
 - Smoke test: `docs/smoke-test.md`
 - Observability setup: `docs/observability.md`
 

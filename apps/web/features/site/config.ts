@@ -1,6 +1,10 @@
-import type { ReleaseMetadata } from "@/lib/releases/types";
-
 const repository = process.env.NEXT_PUBLIC_GITHUB_REPOSITORY ?? "jntellez/documind";
+
+export const releaseContract = {
+  tagFormat: "v{version}",
+  apkAssetFormat: "documind-android-v{version}.apk",
+  metadataRevalidateSeconds: 900,
+} as const;
 
 export const siteConfig = {
   name: "Documind",
@@ -17,15 +21,5 @@ export const siteConfig = {
   ],
   copyrightYear: new Date().getFullYear(),
   developerUser: "jntellez",
+  releaseContract,
 } as const;
-
-export const seededFallbackRelease: ReleaseMetadata = {
-  version: "1.0.0",
-  tagName: "v1.0.0",
-  apkUrl: `${siteConfig.officialReleasesUrl}/download/v1.0.0/documind-android-v1.0.0.apk`,
-  apkAssetName: "documind-android-v1.0.0.apk",
-  publishedAt: "2026-01-01T00:00:00.000Z",
-  source: "fallback",
-  isStale: true,
-  officialReleasesUrl: siteConfig.officialReleasesUrl,
-};

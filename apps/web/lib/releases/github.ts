@@ -1,3 +1,5 @@
+import { releaseContract } from "@/features/site/config";
+
 import type { ReleaseMetadata } from "./types";
 
 const OFFICIAL_APK_ASSET_PATTERN = /^documind-android-v[\w.-]+\.apk$/i;
@@ -60,7 +62,7 @@ export async function fetchLatestGitHubRelease({
   repository,
   officialReleasesUrl,
   fetcher = fetch,
-  revalidateSeconds = 900,
+  revalidateSeconds = releaseContract.metadataRevalidateSeconds,
 }: FetchLatestGitHubReleaseOptions): Promise<ReleaseMetadata | null> {
   const response = await fetcher(`https://api.github.com/repos/${repository}/releases/latest`, {
     headers: {

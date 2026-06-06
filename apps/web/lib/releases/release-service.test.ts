@@ -33,7 +33,7 @@ describe("resolveReleaseMetadata", () => {
     ).toEqual(githubRelease);
   });
 
-  it("falls back to the stored official APK when no latest release is available", () => {
+  it("falls back when an explicitly trusted backup APK exists", () => {
     expect(
       resolveReleaseMetadata({
         latestRelease: null,
@@ -93,6 +93,15 @@ describe("resolveReleaseMetadata", () => {
           apkUrl: "",
           apkAssetName: "documind-android-v1.2.2.apk",
         },
+      }),
+    ).toBeNull();
+  });
+
+  it("returns null when no live or trusted backup APK exists", () => {
+    expect(
+      resolveReleaseMetadata({
+        latestRelease: null,
+        fallbackRelease: null,
       }),
     ).toBeNull();
   });
