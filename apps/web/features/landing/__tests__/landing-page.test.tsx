@@ -153,8 +153,10 @@ describe("LandingPage", () => {
         name: /get the official documind app/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/safe, secure, and direct from the official source/i)).toBeInTheDocument();
-    expect(screen.getByText(/always ensure you are downloading directly from documind\.app/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/download the official android build, verify the release source/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/download from documind\.app or the linked first-party github releases route/i)).toBeInTheDocument();
   });
 
   it("renders a swipe-friendly mobile carousel with one accessible slide per showcase item", async () => {
