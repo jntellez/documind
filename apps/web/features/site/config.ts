@@ -1,4 +1,5 @@
 const repository = process.env.NEXT_PUBLIC_GITHUB_REPOSITORY ?? "jntellez/documind";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://documind.app";
 
 export const releaseContract = {
   tagFormat: "v{version}",
@@ -8,9 +9,12 @@ export const releaseContract = {
 
 export const siteConfig = {
   name: "Documind",
-  description: "Read, organize, and chat with your documents on Android.",
+  siteUrl,
+  description: "The official Android app to read, organize, and chat with PDFs and other documents.",
   githubRepository: repository,
   officialReleasesUrl: `https://github.com/${repository}/releases`,
+  defaultTitle: "Documind for Android",
+  titleTemplate: "%s | Documind",
   primaryCtaLabel: "Download for Android",
   supportEmail: "juantellez916@gmail.com",
   footerLinks: [
