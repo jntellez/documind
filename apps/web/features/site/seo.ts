@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { siteConfig } from "@/features/site/config";
 
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+
 const sharedOpenGraphImage = {
   url: "/seo/opengraph-image",
   width: 1200,
@@ -58,6 +60,11 @@ export const siteMetadata: Metadata = {
     apple: [{ url: "/seo/apple-icon", type: "image/png" }],
   },
   manifest: "/manifest.webmanifest",
+  verification: googleSiteVerification
+    ? {
+        google: googleSiteVerification,
+      }
+    : undefined,
 };
 
 export function buildPageMetadata({ title, description, path = "/", noIndex = false }: PageMetadataOptions): Metadata {
