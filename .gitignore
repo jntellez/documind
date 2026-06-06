@@ -2,6 +2,8 @@
 
 # dependencies
 node_modules/
+.next/
+coverage/
 
 # Expo
 .expo/
@@ -37,6 +39,7 @@ yarn-error.*
 # AI workspace artifacts
 .atl/
 AI-GATEWAY.md
+.agents
 
 # typescript
 *.tsbuildinfo

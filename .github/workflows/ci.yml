@@ -38,5 +38,5 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Validate workspace
+      - name: Validate workspace and web build
         run: pnpm validate

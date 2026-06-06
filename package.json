@@ -6,6 +6,11 @@
     "android": "pnpm run mobile:android",
     "ios": "pnpm run mobile:ios",
     "web": "pnpm run mobile:web",
+    "web:dev": "pnpm --filter @documind/web dev",
+    "web:build": "pnpm --filter @documind/web build",
+    "web:start": "pnpm --filter @documind/web start",
+    "web:test": "pnpm --filter @documind/web test",
+    "web:typecheck": "pnpm --filter @documind/web typecheck",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f api postgres",
@@ -22,9 +27,9 @@
     "mobile:test": "pnpm --filter @documind/mobile test",
     "mobile:typecheck": "pnpm --filter @documind/mobile typecheck",
     "mobile:web": "pnpm --filter @documind/mobile web",
-    "test": "pnpm run api:test && pnpm run mobile:test",
-    "typecheck": "pnpm run types:typecheck && pnpm run mobile:typecheck && pnpm run api:typecheck",
-    "validate": "pnpm run typecheck && pnpm run mobile:config"
+    "test": "pnpm run api:test && pnpm run mobile:test && pnpm run web:test",
+    "typecheck": "pnpm run types:typecheck && pnpm run mobile:typecheck && pnpm run api:typecheck && pnpm run web:typecheck",
+    "validate": "pnpm run typecheck && pnpm run mobile:config && pnpm run web:build"
   },
   "workspaces": [
     "apps/*",
