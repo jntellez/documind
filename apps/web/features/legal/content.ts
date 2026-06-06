@@ -78,7 +78,7 @@ export const supportPageContent = {
       ],
       bullets: [
         "Your device model and Android version.",
-        "Whether you downloaded from documind.app or the official GitHub Releases page.",
+        "Whether you downloaded from the official Documind download page or the official GitHub Releases page.",
         "The app version or release tag you tried to install.",
         "A screenshot or exact text of the error, if Android shows one.",
       ],

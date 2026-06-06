@@ -64,8 +64,8 @@ describe("LandingPage", () => {
     });
 
     expect(within(trustList).getAllByRole("listitem")).toHaveLength(landingContent.trustItems.length);
-    expect(within(trustList).getByText(/v1\.0\.0/i)).toBeInTheDocument();
-    expect(within(trustList).getByText(/jun 6, 2026/i)).toBeInTheDocument();
+    expect(within(trustList).getByText(/secure apk v1\.0\.0/i)).toBeInTheDocument();
+    expect(within(trustList).getByText(/last updated: jun 2026/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /start in minutes/i })).toHaveAttribute("id", "start");
     expect(screen.getByRole("heading", { name: /frequently asked questions/i })).toHaveAttribute(
       "id",
@@ -170,7 +170,7 @@ describe("LandingPage", () => {
     expect(
       screen.getByText(/download the official android build, verify the release source/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/download from documind\.app or the linked first-party github releases route/i)).toBeInTheDocument();
+    expect(screen.getByText(/download from the official documind download page or the linked first-party github releases route/i)).toBeInTheDocument();
     expect(screen.getAllByText(/43 mb|45 mb/i).length).toBeGreaterThan(0);
   });
 

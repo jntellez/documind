@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 
 import { siteConfig } from "@/features/site/config";
 
+const sharedOpenGraphImage = {
+  url: "/seo/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: `${siteConfig.name} Android app preview`,
+} as const;
+
 type PageMetadataOptions = {
   description?: string;
   noIndex?: boolean;
@@ -38,20 +45,13 @@ export const siteMetadata: Metadata = {
     siteName: siteConfig.name,
     title: siteConfig.defaultTitle,
     description: siteConfig.description,
-    images: [
-      {
-        url: "/seo/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} Android app preview`,
-      },
-    ],
+    images: [sharedOpenGraphImage],
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.defaultTitle,
     description: siteConfig.description,
-    images: ["/seo/opengraph-image"],
+    images: [sharedOpenGraphImage.url],
   },
   icons: {
     icon: [{ url: "/seo/icon", type: "image/png" }],
@@ -83,13 +83,19 @@ export function buildPageMetadata({ title, description, path = "/", noIndex = fa
         }
       : undefined,
     openGraph: {
+      type: "website",
+      locale: "en_US",
+      siteName: siteConfig.name,
       url: path,
       title,
       description: resolvedDescription,
+      images: [sharedOpenGraphImage],
     },
     twitter: {
+      card: "summary_large_image",
       title,
       description: resolvedDescription,
+      images: [sharedOpenGraphImage.url],
     },
   };
 }

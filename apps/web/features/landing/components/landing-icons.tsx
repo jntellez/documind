@@ -1,4 +1,4 @@
-import { BadgeCheck, ChevronDown, Clock3, CloudDownload, Download, HardDriveDownload, Scale, Sparkles, Zap } from "lucide-react";
+import { BadgeCheck, ChevronDown, Clock3, CloudDownload, Download, HardDriveDownload, Scale, ShieldCheck, Smartphone, Sparkles, Zap } from "lucide-react";
 
 type LandingIconProps = {
   className?: string;
@@ -22,6 +22,8 @@ const trustIconMap: Record<string, any> = {
   "clock-3": Clock3,
   "cloud-download": CloudDownload,
   "hard-drive-download": HardDriveDownload,
+  shield: ShieldCheck,
+  smartphone: Smartphone,
   bolt: Zap,
   scale: Scale,
 };

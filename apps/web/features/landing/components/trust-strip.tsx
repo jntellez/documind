@@ -13,19 +13,16 @@ export function TrustStrip({ release = null }: TrustStripProps) {
 
   return (
     <section className="border-y border-[#c3c5d9]/60 bg-white/90">
-      <ul aria-label="Trust highlights" className="mx-auto grid w-full max-w-6xl gap-3 py-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul aria-label="Trust highlights" className="mx-auto grid w-full max-w-6xl gap-x-6 gap-y-4 px-6 py-5 sm:grid-cols-2 lg:grid-cols-4 lg:px-0">
         {landingContent.trustItems.map((item) => {
           const fact = facts.find((entry) => entry.id === item.id);
+          const suffix = fact?.value ? `${item.label === "Secure APK" ? " " : ": "}${fact.value}` : "";
+          const displayText = fact?.value ? `${item.label}${suffix}` : item.label;
 
           return (
-            <li className="flex list-none items-start gap-3 rounded-2xl px-2 py-1.5" key={item.id}>
-              <div className="mt-0.5 rounded-full bg-[#eef3ff] p-2 text-[#003ec7]">
-                <TrustIcon iconName={item.icon} />
-              </div>
-              <div className="min-w-0">
-                <p className="font-mono text-[0.72rem] font-medium uppercase tracking-[0.08em] text-slate-600">{item.label}</p>
-                <p className="mt-1 text-sm font-semibold leading-6 text-[#1c1b1b]">{fact?.value ?? fact?.fallbackValue}</p>
-              </div>
+            <li className="flex min-w-0 list-none items-center gap-3 rounded-2xl" key={item.id}>
+              <TrustIcon iconName={item.icon} />
+              <p className="min-w-0 font-mono text-sm font-medium tracking-[-0.01em] text-slate-600">{displayText}</p>
             </li>
           );
         })}

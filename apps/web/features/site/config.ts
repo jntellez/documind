@@ -1,5 +1,5 @@
 const repository = process.env.NEXT_PUBLIC_GITHUB_REPOSITORY ?? "jntellez/documind";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://documind.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://documind-official.vercel.app";
 
 export const releaseContract = {
   tagFormat: "v{version}",

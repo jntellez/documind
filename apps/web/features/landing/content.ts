@@ -49,10 +49,10 @@ export const landingContent = {
     imageAlt: "Documind home library screen displayed on an Android device.",
   },
   trustItems: [
-    { id: "version", label: "Version", icon: "badge-check" },
-    { id: "updated", label: "Updated", icon: "clock-3" },
-    { id: "size", label: "APK size", icon: "hard-drive-download" },
-    { id: "source", label: "Source", icon: "cloud-download" },
+    { id: "distribution", label: "Official Android Distribution", icon: "badge-check" },
+    { id: "security", label: "Secure APK", icon: "shield" },
+    { id: "updated", label: "Last Updated", icon: "clock-3" },
+    { id: "size", label: "APK Size", icon: "hard-drive-download" },
   ] satisfies LandingTrustItem[],
   showcaseItems: [
     {
@@ -117,7 +117,7 @@ export const landingContent = {
     {
       question: "Is this the official download?",
       answer:
-        "Yes. Download from documind.app or the linked first-party GitHub Releases route so you get the official Documind Android build and matching release details.",
+        "Yes. Download from the official Documind download page or the linked first-party GitHub Releases route so you get the official Documind Android build and matching release details.",
     },
     {
       question: "How do I install the APK?",
