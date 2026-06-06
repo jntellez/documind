@@ -6,9 +6,20 @@ import { landingContent } from "@/features/landing/content";
 import { SiteFooter } from "@/features/site/components/site-footer";
 import { renderAsync } from "@/test/render";
 
+const release = {
+  version: "1.0.0",
+  tagName: "v1.0.0",
+  apkUrl: "https://github.com/jntellez/documind/releases/download/v1.0.0/documind-android-v1.0.0.apk",
+  apkAssetName: "documind-android-v1.0.0.apk",
+  publishedAt: "2026-06-06T12:00:00.000Z",
+  fileSizeBytes: 45_000_000,
+  source: "github" as const,
+  officialReleasesUrl: "https://github.com/jntellez/documind/releases",
+};
+
 describe("LandingPage", () => {
   it("renders a simple header nav and keeps repeated download paths available across the page", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     const primaryNavigation = screen.getByRole("navigation", {
       name: /primary/i,
@@ -41,17 +52,20 @@ describe("LandingPage", () => {
       screen.getAllByRole("link", {
         name: new RegExp(landingContent.downloadCta.label, "i"),
       }),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
+    expect(screen.getByRole("link", { name: /download apk/i })).toHaveAttribute("href", "/download");
   });
 
   it("renders the trust strip as compact metadata and anchors later sections for header navigation", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     const trustList = screen.getByRole("list", {
       name: /trust highlights/i,
     });
 
     expect(within(trustList).getAllByRole("listitem")).toHaveLength(landingContent.trustItems.length);
+    expect(within(trustList).getByText(/v1\.0\.0/i)).toBeInTheDocument();
+    expect(within(trustList).getByText(/jun 6, 2026/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /start in minutes/i })).toHaveAttribute("id", "start");
     expect(screen.getByRole("heading", { name: /frequently asked questions/i })).toHaveAttribute(
       "id",
@@ -60,7 +74,7 @@ describe("LandingPage", () => {
   });
 
   it("exposes the hero as a labeled region with isolated copy and action groups before the trust strip", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     const heroRegion = screen.getByRole("region", {
       name: /interact with your documents like never before/i,
@@ -80,7 +94,7 @@ describe("LandingPage", () => {
   });
 
   it("keeps the hero media isolated from the header while preserving both hero CTA destinations", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     const heroRegion = screen.getByRole("region", {
       name: /interact with your documents like never before/i,
@@ -105,7 +119,7 @@ describe("LandingPage", () => {
   });
 
   it("renders the desktop showcase with approved proof points from the marketing assets", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     const desktopShowcase = screen.getByRole("list", {
       name: /desktop feature showcase/i,
@@ -127,7 +141,7 @@ describe("LandingPage", () => {
   });
 
   it("keeps the body copy aligned with the extracted mockup across feature and onboarding sections", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     expect(
       screen.getAllByRole("heading", {
@@ -146,7 +160,7 @@ describe("LandingPage", () => {
   });
 
   it("renders the mockup-aligned faq and final download CTA copy", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     expect(
       screen.getByRole("heading", {
@@ -157,10 +171,11 @@ describe("LandingPage", () => {
       screen.getByText(/download the official android build, verify the release source/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/download from documind\.app or the linked first-party github releases route/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/43 mb|45 mb/i).length).toBeGreaterThan(0);
   });
 
   it("renders a swipe-friendly mobile carousel with one accessible slide per showcase item", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     const carousel = screen.getByRole("region", {
       name: /swipe through documind previews/i,
@@ -173,7 +188,7 @@ describe("LandingPage", () => {
   });
 
   it("adds framed media shells and subtle icon treatment across the header, hero, trust strip, FAQ, and CTAs", async () => {
-    await renderAsync(<LandingPage />);
+    await renderAsync(<LandingPage release={release} />);
 
     expect(screen.getByTestId("hero-media-shell")).toBeInTheDocument();
     expect(screen.getByTestId("header-download-icon")).toHaveAttribute("aria-hidden", "true");
@@ -191,8 +206,8 @@ describe("LandingPage", () => {
 
   it("renders the faq affordances and shared footer hooks used by the landing route", async () => {
     await renderAsync(
-      <>
-        <LandingPage />
+        <>
+        <LandingPage release={release} />
         <SiteFooter />
       </>,
     );

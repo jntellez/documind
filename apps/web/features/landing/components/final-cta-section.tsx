@@ -1,10 +1,18 @@
 import Link from "next/link";
 
 import { landingContent } from "@/features/landing/content";
+import { getCompactReleaseSummary } from "@/features/landing/release-facts";
+import type { ReleaseMetadata } from "@/lib/releases/types";
 
 import { LandingIcon } from "./landing-icons";
 
-export function FinalCtaSection() {
+type FinalCtaSectionProps = {
+  release?: ReleaseMetadata | null;
+};
+
+export function FinalCtaSection({ release = null }: FinalCtaSectionProps) {
+  const compactSummary = getCompactReleaseSummary(release);
+
   return (
     <section className="border-t border-[#c3c5d9]/50 bg-white py-24">
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-5 px-4 text-center sm:px-6">
@@ -16,8 +24,18 @@ export function FinalCtaSection() {
         </p>
         <Link className="mt-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#003ec7] px-10 py-4 text-[1.125rem] font-medium text-white shadow-[0_10px_24px_rgba(0,62,199,0.22)] transition hover:-translate-y-0.5 hover:bg-[#0038b6] hover:shadow-[0_14px_28px_rgba(0,62,199,0.26)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#003ec7]" href={landingContent.downloadCta.href}>
           <LandingIcon testId="final-cta-icon" />
-          {landingContent.downloadCta.label}
+          Download APK
         </Link>
+
+        {compactSummary.length ? (
+          <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-medium text-[#54647a]">
+            {compactSummary.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </p>
+        ) : (
+          <p className="text-sm font-medium text-[#54647a]">Latest release details sync automatically from the official GitHub Releases feed.</p>
+        )}
       </div>
     </section>
   );

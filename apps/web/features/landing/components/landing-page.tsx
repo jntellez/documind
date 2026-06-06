@@ -1,3 +1,5 @@
+import type { ReleaseMetadata } from "@/lib/releases/types";
+
 import { FaqSection } from "./faq-section";
 import { FinalCtaSection } from "./final-cta-section";
 import { HeroSection } from "./hero-section";
@@ -6,18 +8,22 @@ import { ShowcaseSection } from "./showcase-section";
 import { StepsSection } from "./steps-section";
 import { TrustStrip } from "./trust-strip";
 
-export function LandingPage() {
+type LandingPageProps = {
+  release?: ReleaseMetadata | null;
+};
+
+export function LandingPage({ release = null }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-[#fcf9f8] text-[#1c1b1b]">
       <LandingHeader />
 
       <main>
         <HeroSection />
-        <TrustStrip />
+        <TrustStrip release={release} />
         <ShowcaseSection />
         <StepsSection />
         <FaqSection />
-        <FinalCtaSection />
+        <FinalCtaSection release={release} />
       </main>
     </div>
   );

@@ -49,10 +49,10 @@ export const landingContent = {
     imageAlt: "Documind home library screen displayed on an Android device.",
   },
   trustItems: [
-    { id: "official", label: "Official Android distribution", icon: "badge-check" },
-    { id: "release", label: "Latest GitHub release", icon: "cloud-download" },
-    { id: "trust", label: "Fast APK install flow", icon: "bolt" },
-    { id: "support", label: "Legal and support routes", icon: "scale" },
+    { id: "version", label: "Version", icon: "badge-check" },
+    { id: "updated", label: "Updated", icon: "clock-3" },
+    { id: "size", label: "APK size", icon: "hard-drive-download" },
+    { id: "source", label: "Source", icon: "cloud-download" },
   ] satisfies LandingTrustItem[],
   showcaseItems: [
     {

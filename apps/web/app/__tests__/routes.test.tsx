@@ -21,9 +21,21 @@ describe("landing routes", () => {
   });
 
   it("renders the landing page with header navigation, a primary CTA above the fold, and repeated download paths", async () => {
+    getReleaseMetadata.mockResolvedValue({
+      version: "1.0.0",
+      tagName: "v1.0.0",
+      apkUrl:
+        "https://github.com/jntellez/documind/releases/download/v1.0.0/documind-android-v1.0.0.apk",
+      apkAssetName: "documind-android-v1.0.0.apk",
+      publishedAt: "2026-06-06T12:00:00.000Z",
+      fileSizeBytes: 45_000_000,
+      source: "github",
+      officialReleasesUrl: "https://github.com/jntellez/documind/releases",
+    });
+
     const { default: HomePage } = await import("@/app/page");
 
-    await renderRoute(<HomePage />);
+    await renderRoute(await HomePage());
 
     const primaryNavigation = screen.getByRole("navigation", { name: /primary/i });
 
@@ -53,15 +65,20 @@ describe("landing routes", () => {
       screen.getAllByRole("link", {
         name: /download for android/i,
       }),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
+    expect(screen.getByRole("link", { name: /download apk/i })).toHaveAttribute("href", "/download");
+    expect(screen.getAllByText(/v1\.0\.0/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/jun 6, 2026/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/43 mb|45 mb/i).length).toBeGreaterThan(0);
   });
 
   it("renders footer links so support and legal routes never dead-end", async () => {
     const { default: HomePage } = await import("@/app/page");
+    const homePage = await HomePage();
 
     await renderRoute(
       <>
-        <HomePage />
+        {homePage}
         <SiteFooter />
       </>,
     );

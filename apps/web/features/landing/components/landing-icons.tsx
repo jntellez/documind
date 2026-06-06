@@ -1,4 +1,4 @@
-import { BadgeCheck, ChevronDown, CloudDownload, Download, Scale, Sparkles, Zap } from "lucide-react";
+import { BadgeCheck, ChevronDown, Clock3, CloudDownload, Download, HardDriveDownload, Scale, Sparkles, Zap } from "lucide-react";
 
 type LandingIconProps = {
   className?: string;
@@ -19,7 +19,9 @@ export function LandingIcon({ className = "h-4 w-4", testId }: LandingIconProps)
 
 const trustIconMap: Record<string, any> = {
   "badge-check": BadgeCheck,
+  "clock-3": Clock3,
   "cloud-download": CloudDownload,
+  "hard-drive-download": HardDriveDownload,
   bolt: Zap,
   scale: Scale,
 };
