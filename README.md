@@ -20,6 +20,7 @@ Read, organize, and chat with your documents.
 
 - `apps/mobile` — Expo app for reading, saving, and chatting with documents
 - `apps/api` — Bun API for auth, ingestion, persistence, and chat endpoints
+- `apps/web` — Next.js landing and official Android download site backed by GitHub Releases metadata
 - `packages` — shared workspace packages
 
 ## Quick Start
@@ -37,11 +38,12 @@ cp apps/api/.env.example apps/api/.env
 cp apps/mobile/.env.example apps/mobile/.env
 ```
 
-3. Start the API and mobile app:
+3. Start the API, mobile app, or official landing:
 
 ```bash
 pnpm api:dev
 pnpm mobile:start
+pnpm web:dev
 ```
 
 4. Open the mobile app with Expo Go or a simulator:
@@ -65,6 +67,11 @@ pnpm mobile:web
 pnpm api:dev
 pnpm api:start
 
+pnpm web:dev
+pnpm web:build
+pnpm web:test
+pnpm web:typecheck
+
 pnpm typecheck
 pnpm validate
 pnpm test
@@ -87,8 +94,18 @@ Key services used in production:
 
 ## Distribution
 
-- Android distribution is currently planned as **direct APK delivery**.
+- Android distribution uses the official `apps/web` landing plus **direct APK delivery**.
+- GitHub Releases is the canonical APK source for the public Android download flow.
+- Release assets should follow `documind-android-v{version}.apk` so the landing can resolve the latest trusted download automatically.
 - The mobile build profile for this lives in `apps/mobile/eas.json` under `android-apk`.
+- Local landing verification commands:
+
+```bash
+pnpm web:test
+pnpm web:typecheck
+pnpm web:build
+```
+
 - Privacy policy: `docs/privacy-policy.md`
 - Release checklist: `docs/release-checklist.md`
 - Smoke test: `docs/smoke-test.md`

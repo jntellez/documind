@@ -15,7 +15,9 @@
 - [ ] Generate the Android release APK
 - [ ] Confirm the build finishes successfully
 - [ ] Download the APK artifact
-- [ ] Save the APK with a versioned filename
+- [ ] Save the APK with the official filename convention: `documind-android-v{version}.apk`
+- [ ] Confirm the GitHub release tag matches the APK version
+- [ ] Upload the APK asset to the matching GitHub Release
 
 ## Functional Verification
 
@@ -37,8 +39,9 @@
 
 ## Distribution
 
-- [ ] Upload the APK to the final landing page or delivery channel
-- [ ] Test the download link
+- [ ] Confirm `apps/web` resolves the latest GitHub Release asset on `/download`
+- [ ] Test the landing CTA on `/` and the direct download CTA on `/download`
+- [ ] If live metadata fails, confirm the fallback path still sends users to the official GitHub Releases page
 - [ ] Install and test the APK on a real Android device
 
 ## Delivery Assets
