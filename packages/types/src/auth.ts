@@ -12,6 +12,7 @@ export interface LoginRequest {
   provider: AuthProvider;
   redirectUri?: string;
   codeVerifier?: string;
+  clientId?: string;
 }
 
 export interface LoginResponse {

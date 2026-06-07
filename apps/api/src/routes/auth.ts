@@ -25,12 +25,13 @@ const LoginRequestSchema = z.object({
   provider: z.enum(["google", "github"]),
   redirectUri: z.string().min(1).optional(),
   codeVerifier: z.string().min(1).optional(),
+  clientId: z.string().min(1).optional(),
 }) satisfies z.ZodType<LoginRequest>;
 
 auth.post("/login", authRateLimit, async (c) => {
   try {
     const body = await c.req.json();
-    const { code, provider, redirectUri, codeVerifier } =
+    const { code, provider, redirectUri, codeVerifier, clientId } =
       LoginRequestSchema.parse(body);
 
     const result = await AuthService.authenticate(
@@ -38,6 +39,7 @@ auth.post("/login", authRateLimit, async (c) => {
       code,
       redirectUri,
       codeVerifier,
+      clientId,
     );
 
     return c.json(result);

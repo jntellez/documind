@@ -81,9 +81,14 @@ export const config = {
   google: {
     clientId: requireEnv("GOOGLE_CLIENT_ID"),
     clientSecret: requireEnv("GOOGLE_CLIENT_SECRET"),
+    allowedClientIds: [] as string[],
   },
   github: {
     clientId: requireEnv("GITHUB_CLIENT_ID"),
     clientSecret: requireEnv("GITHUB_CLIENT_SECRET"),
   },
 };
+
+config.google.allowedClientIds = Array.from(
+  new Set([config.google.clientId, ...csvEnv("GOOGLE_ALLOWED_CLIENT_IDS")]),
+);

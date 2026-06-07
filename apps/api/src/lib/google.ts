@@ -1,13 +1,41 @@
 import { config } from "../config";
 
-export const verifyGoogleCode = async (code: string, redirectUri?: string) => {
-  const params = {
+const resolveAllowedGoogleClientId = (clientId?: string) => {
+  if (!clientId) {
+    return config.google.clientId;
+  }
+
+  if (!config.google.allowedClientIds.includes(clientId)) {
+    throw new Error("Google client is not allowed");
+  }
+
+  return clientId;
+};
+
+export const verifyGoogleCode = async (
+  code: string,
+  redirectUri?: string,
+  codeVerifier?: string,
+  clientId?: string,
+) => {
+  const resolvedClientId = resolveAllowedGoogleClientId(clientId);
+  const isNativePkceFlow =
+    Boolean(codeVerifier) && resolvedClientId !== config.google.clientId;
+
+  const params: Record<string, string> = {
     code,
-    client_id: config.google.clientId,
-    client_secret: config.google.clientSecret,
+    client_id: resolvedClientId,
     redirect_uri: redirectUri || "",
     grant_type: "authorization_code",
   };
+
+  if (codeVerifier) {
+    params.code_verifier = codeVerifier;
+  }
+
+  if (!isNativePkceFlow) {
+    params.client_secret = config.google.clientSecret;
+  }
 
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",

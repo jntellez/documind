@@ -11,11 +11,12 @@ export const AuthService = {
     code: string,
     redirectUri?: string,
     codeVerifier?: string,
+    clientId?: string,
   ): Promise<LoginResponse> {
     let userInfo;
 
     if (provider === "google") {
-      userInfo = await verifyGoogleCode(code, redirectUri);
+      userInfo = await verifyGoogleCode(code, redirectUri, codeVerifier, clientId);
     } else if (provider === "github") {
       userInfo = await verifyGithubCode(code, redirectUri, codeVerifier);
     } else {

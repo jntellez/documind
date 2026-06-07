@@ -4,7 +4,7 @@
     "slug": "documind",
     "scheme": "documind",
     "owner": "janydev",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -23,6 +23,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "versionCode": 2,
       "package": "com.jntellez.documind",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -38,7 +39,8 @@
     },
     "plugins": [
       "expo-audio",
-      "@sentry/react-native/expo"
+      "@sentry/react-native/expo",
+      "@react-native-google-signin/google-signin"
     ]
   }
 }
