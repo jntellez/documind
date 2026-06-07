@@ -41,7 +41,7 @@ a {
   width: 100%;
   max-width: 72rem;
   margin-inline: auto;
-  padding: clamp(2.5rem, 5vh, 5rem) 1.5rem;
+  padding: clamp(2rem, 5vh, 5rem) clamp(1rem, 3vw, 1.5rem);
 }
 
 .marketing-copy-container {
@@ -51,7 +51,7 @@ a {
 }
 
 .marketing-eyebrow {
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--marketing-muted);
@@ -65,20 +65,20 @@ a {
 .marketing-surface {
   border: 1px solid var(--marketing-border);
   background: var(--marketing-surface);
-  border-radius: 1.75rem;
+  border-radius: clamp(1.25rem, 3vw, 1.75rem);
   box-shadow: 0 18px 40px rgba(28, 27, 27, 0.06);
 }
 
 .marketing-primary-button {
   display: inline-flex;
-  min-height: 3.5rem;
+  min-height: clamp(2.75rem, 5vh, 3.5rem);
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   border-radius: 0.75rem;
   background: var(--marketing-primary);
-  padding: 0.875rem 2rem;
-  font-size: 1rem;
+  padding: clamp(0.625rem, 2vw, 0.875rem) clamp(1.25rem, 3vw, 2rem);
+  font-size: clamp(0.875rem, 2vw, 1rem);
   font-weight: 500;
   color: #fff;
   box-shadow: 0 12px 30px rgba(0, 62, 199, 0.24);
@@ -93,14 +93,14 @@ a {
 
 .marketing-secondary-button {
   display: inline-flex;
-  min-height: 3.5rem;
+  min-height: clamp(2.75rem, 5vh, 3.5rem);
   align-items: center;
   justify-content: center;
   border: 1px solid #c3c5d9;
   border-radius: 0.75rem;
   background: #fff;
-  padding: 0.875rem 2rem;
-  font-size: 1rem;
+  padding: clamp(0.625rem, 2vw, 0.875rem) clamp(1.25rem, 3vw, 2rem);
+  font-size: clamp(0.875rem, 2vw, 1rem);
   font-weight: 500;
   color: var(--marketing-text);
   box-shadow: 0 8px 18px rgba(28, 27, 27, 0.04);

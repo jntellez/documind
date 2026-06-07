@@ -5,6 +5,11 @@ import showcaseAiChat from "../../../../assets/marketing/app-store/isolated/04-d
 import showcaseDocumentReader from "../../../../assets/marketing/app-store/isolated/03-document-reader.png";
 import showcaseHomeLibrary from "../../../../assets/marketing/app-store/isolated/01-home-library.png";
 import showcaseSettings from "../../../../assets/marketing/app-store/isolated/05-settings.png";
+import carouselHomeLibrary from "../../../../assets/marketing/app-store/composed/01-home-library.png";
+import carouselImportUrl from "../../../../assets/marketing/app-store/composed/02-import-url.png";
+import carouselDocumentReader from "../../../../assets/marketing/app-store/composed/03-document-reader.png";
+import carouselAiChat from "../../../../assets/marketing/app-store/composed/04-document-ai-chat.png";
+import carouselSettings from "../../../../assets/marketing/app-store/composed/05-settings.png";
 
 export type LandingNavItem = {
   href: string;
@@ -49,7 +54,7 @@ export const landingContent = {
     imageAlt: "Documind home library screen displayed on an Android device.",
   },
   trustItems: [
-    { id: "distribution", label: "Official Android Distribution", icon: "badge-check" },
+    { id: "distribution", label: "Official Distribution", icon: "badge-check" },
     { id: "security", label: "Secure APK", icon: "shield" },
     { id: "updated", label: "Last Updated", icon: "clock-3" },
     { id: "size", label: "APK Size", icon: "hard-drive-download" },
@@ -96,6 +101,13 @@ export const landingContent = {
       presentation: "soft-frame",
     },
   ] satisfies LandingShowcaseItem[],
+  carouselImages: [
+    { src: carouselHomeLibrary, alt: "Documind home library screen" },
+    { src: carouselImportUrl, alt: "Documind import URL screen" },
+    { src: carouselDocumentReader, alt: "Documind document reader screen" },
+    { src: carouselAiChat, alt: "Documind AI chat screen" },
+    { src: carouselSettings, alt: "Documind settings screen" },
+  ],
   steps: [
     {
       step: "1",
