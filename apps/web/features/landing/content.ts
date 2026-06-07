@@ -65,7 +65,7 @@ export const landingContent = {
       eyebrow: "Accessible Library",
       title: "Centralize Your Library",
       description:
-        "Keep all your important documents in one secure, easily accessible place on your Android device. Organize by tags, folders, or let smart categorization handle it for you seamlessly.",
+        "Keep all your important documents in one secure, easily accessible place on your Android device. Organize by tags, or filter to find what you need in seconds without digging.",
       image: showcaseHomeLibrary,
       imageAlt: "Documind Android library screen with imported documents.",
       presentation: "soft-frame",
