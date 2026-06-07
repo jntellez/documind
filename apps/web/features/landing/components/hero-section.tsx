@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { landingContent } from "@/features/landing/content";
 
 import { LandingIcon } from "./landing-icons";
+import { HeroMedia } from "./hero-media";
 
 export function HeroSection() {
   return (
@@ -33,19 +33,7 @@ export function HeroSection() {
       </div>
 
       <div aria-label="Hero media" className="hidden w-full justify-center lg:flex lg:w-auto lg:justify-end">
-        <div
-          className="relative isolate w-full max-w-[240px] before:absolute before:left-1/2 before:top-[20%] before:h-20 before:w-20 before:-translate-x-1/2 before:rounded-full before:content-[''] after:absolute after:bottom-5 after:left-1/2 after:h-16 after:w-[72%] after:-translate-x-1/2 after:content-[''] sm:max-w-[280px] sm:before:h-30 sm:before:w-30 lg:max-w-[18rem] lg:before:h-40 lg:before:w-40"
-          data-testid="hero-media-shell"
-        >
-          <Image
-            alt={landingContent.hero.imageAlt}
-            className="relative z-10 mx-auto h-auto w-full drop-shadow-[0_28px_46px_rgba(28,27,27,0.18)]"
-            fetchPriority="high"
-            priority
-            src={landingContent.hero.image}
-          />
-          <div className="absolute top-1/2 right-1 h-40 w-40 -translate-y-1/2 rounded-full bg-blue-600/12 blur-3xl sm:right-2 sm:h-60 sm:w-60 lg:right-3 lg:h-100 lg:w-100"></div>
-        </div>
+        <HeroMedia />
       </div>
     </section>
   );
